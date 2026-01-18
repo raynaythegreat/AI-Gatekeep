@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { badRequest, internalError, ok, unauthorized } from "@/lib/apiResponse";
 
 const APP_PASSWORD = process.env.APP_PASSWORD || "password";
 
@@ -14,45 +15,51 @@ function generateDeviceToken(): string {
 // POST - Login with password
 export async function POST(request: NextRequest) {
   try {
-    const { password } = await request.json();
+    const body = (await request.json().catch(() => null)) as { password?: unknown } | null;
+    const password = typeof body?.password === "string" ? body.password : "";
 
     if (!password) {
-      return NextResponse.json({ error: "Password required" }, { status: 400 });
+      return badRequest("Password required");
     }
 
     if (password !== APP_PASSWORD) {
-      return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+      return unauthorized("Invalid password");
     }
 
     const deviceToken = generateDeviceToken();
     const tokenHash = hashPassword(deviceToken + APP_PASSWORD);
 
-    return NextResponse.json({
+    return ok({
       success: true,
       deviceToken,
-      tokenHash,
+      tokenHash
     });
   } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
+    console.error("Login error:", error instanceof Error ? error.message : error);
+    return internalError("Login failed");
   }
 }
 
 // PUT - Validate existing session
 export async function PUT(request: NextRequest) {
   try {
-    const { deviceToken, tokenHash } = await request.json();
+    const body = (await request.json().catch(() => null)) as
+      | { deviceToken?: unknown; tokenHash?: unknown }
+      | null;
+
+    const deviceToken = typeof body?.deviceToken === "string" ? body.deviceToken : "";
+    const tokenHash = typeof body?.tokenHash === "string" ? body.tokenHash : "";
 
     if (!deviceToken || !tokenHash) {
-      return NextResponse.json({ valid: false });
+      return ok({ valid: false });
     }
 
     const expectedHash = hashPassword(deviceToken + APP_PASSWORD);
     const valid = tokenHash === expectedHash;
 
-    return NextResponse.json({ valid });
+    return ok({ valid });
   } catch (error) {
-    console.error("Session validation error:", error);
-    return NextResponse.json({ valid: false });
+    console.error("Session validation error:", error instanceof Error ? error.message : error);
+    return ok({ valid: false });
   }
 }
