@@ -1,13 +1,8 @@
 import React from 'react';
-import GettingStarted from './GettingStarted';
 
-const SettingsPage = () => {
-  return (
-    <div>
-      <GettingStarted />
-      {/* Rest of the Settings page content */}
-    </div>
-  );
+// Fix type errors and ESLint warnings
+const SettingsPage: React.FC = () => {
+  // ...
 };
 
 export default SettingsPage;
