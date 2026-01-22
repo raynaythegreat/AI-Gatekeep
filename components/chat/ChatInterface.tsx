@@ -3783,7 +3783,7 @@ export default function ChatInterface() {
   return (
     <div className="flex flex-col h-full">
       {/* Header 1: Repo / Projects + Models */}
-      <div className="relative z-20 px-2 sm:px-3 py-2 border-b border-cyan-300/20 bg-black/60 backdrop-blur-xl">
+      <div className="relative z-20 px-2 sm:px-3 py-2 border-b border-gold-500/20 bg-black/60 backdrop-blur-xl">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
           <div className="flex-1 w-full">
             <RepoSelector selectedRepo={selectedRepo} onSelect={setSelectedRepo} />
@@ -3800,7 +3800,7 @@ export default function ChatInterface() {
                 e.stopPropagation();
                 setShowModelDropdown(!showModelDropdown);
               }}
-              className="flex items-center justify-between gap-1.5 w-full px-2.5 py-1.5 text-xs rounded-lg border border-cyan-300/30 bg-black/60 text-cyan-100 hover:border-cyan-300/70 transition-colors"
+              className="flex items-center justify-between gap-1.5 w-full px-2.5 py-1.5 text-xs rounded-lg border border-gold-500/30 bg-black/60 text-gold-100 hover:border-gold-500/70 transition-colors"
               title={modelInfo.name}
             >
               <span className="min-w-0 font-medium truncate">
@@ -3833,31 +3833,35 @@ export default function ChatInterface() {
       <div className="px-2 sm:px-3 py-2 border-b border-gold-500/10 bg-surface-50/80 dark:bg-black/50 backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-2 w-full">
           {/* Left Side: Plan/Build Toggle and Auto Button */}
-          <div className="flex items-center gap-2">
-            {/* Plan/Build Toggle */}
-            <div className="inline-flex rounded-lg border border-gold-500/20 bg-surface-100 dark:bg-surface-900 p-0.5">
-              <button
-                type="button"
-                onClick={() => setChatMode("plan")}
-                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
-                  chatMode === "plan"
-                    ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
-                    : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
-                }`}
-                title="Plan mode: Review and approve changes before committing"
-              >
+           <div className="flex items-center gap-2">
+             {/* Plan/Build Toggle */}
+             <div className="inline-flex rounded-lg border border-gold-500/20 bg-surface-100 dark:bg-surface-900 p-0.5">
+               <button
+                 type="button"
+                 onClick={() => {
+                   setChatMode("plan");
+                 }}
+                 className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                   chatMode === "plan"
+                     ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
+                     : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
+                 }`}
+                 title="Plan mode: Review and approve changes before committing"
+               >
                 Plan
               </button>
               <button
                 type="button"
-                onClick={() => setChatMode("build")}
+                onClick={() => {
+                  setChatMode("build");
+                }}
                 className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
                   chatMode === "build"
                     ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
                     : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
                 }`}
-                title="Build mode: Auto-commit changes without approval"
-              >
+                title="Build mode: Apply and commit planned changes"
+               >
                 Build
               </button>
             </div>
@@ -4361,11 +4365,11 @@ export default function ChatInterface() {
 
       {/* Proceed Button */}
       {showProceedButton && (
-        <div className="px-3 py-2 sm:px-4 sm:py-2.5 border-t border-slate-200 dark:border-slate-700 bg-gradient-to-r from-cyan-50 to-emerald-50 dark:from-slate-800 dark:to-slate-800/50">
+        <div className="px-3 py-2 sm:px-4 sm:py-2.5 border-t border-slate-200 dark:border-slate-700 bg-gradient-to-r from-gold-100 to-amber-100 dark:from-slate-800 dark:to-slate-800/50">
           <button
             type="button"
             onClick={handleProceedClick}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-emerald-500 text-white text-sm font-medium hover:from-cyan-600 hover:to-emerald-600 transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-gold-500 to-amber-500 text-white text-sm font-medium hover:from-gold-600 hover:to-amber-600 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />
