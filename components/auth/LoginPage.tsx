@@ -47,11 +47,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-black/60 border border-cyan-300/40 flex items-center justify-center shadow-glow mx-auto mb-4">
-            <GlassesLogo className="w-9 h-9 text-cyan-100" />
+          <div className="w-16 h-16 rounded-2xl bg-black/60 border border-orange-300/40 flex items-center justify-center shadow-glow mx-auto mb-4">
+            <GlassesLogo className="w-9 h-9 text-orange-100" />
           </div>
           <h1 className="text-2xl font-bold text-white font-display">GateKeep</h1>
-          <p className="text-cyan-200/70 mt-2">Secure access to your AI command center</p>
+          <p className="text-orange-200/70 mt-2">Secure access to your AI command center</p>
         </div>
 
         {/* Login Form */}
@@ -63,7 +63,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           )}
 
           <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-cyan-100 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-orange-100 mb-2">
               Password
             </label>
             <input
@@ -72,7 +72,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full px-4 py-3 rounded-xl border border-cyan-300/30 bg-black/40 text-cyan-50 placeholder-cyan-200/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/40 focus:border-cyan-300"
+              className="w-full px-4 py-3 rounded-xl border border-orange-300/30 bg-black/40 text-orange-50 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/40 focus:border-orange-300"
               autoFocus
             />
           </div>
@@ -96,7 +96,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           </button>
         </form>
 
-        <p className="text-center text-xs text-cyan-200/60 mt-6">
+        <p className="text-center text-xs text-orange-200/60 mt-6">
           Cyber AI development assistant
         </p>
       </div>

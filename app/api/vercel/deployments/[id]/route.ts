@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { VercelService } from "@/services/vercel";
 
+export const dynamic = 'force-dynamic';
+
 interface Params {
   params: Promise<{ id: string }>;
 }

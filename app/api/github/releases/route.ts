@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const GITHUB_REPO_OWNER = 'raynaythegreat';
 const GITHUB_REPO_NAME = 'AI-Gatekeep';
 

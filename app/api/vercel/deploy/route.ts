@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { VercelService } from "@/services/vercel";
 import { GitHubService } from "@/services/github";
 
+export const dynamic = 'force-dynamic';
+
 interface EnvironmentVariable {
   key: string;
   value: string;

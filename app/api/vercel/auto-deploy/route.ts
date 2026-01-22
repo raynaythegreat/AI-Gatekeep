@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { VercelService } from "@/services/vercel";
 
+export const dynamic = 'force-dynamic';
+
 // POST - Auto-deploy if project exists on Vercel
 export async function POST(request: NextRequest) {
   try {

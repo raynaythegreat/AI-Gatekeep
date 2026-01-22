@@ -67,15 +67,15 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r border-cyan-300/20 bg-black/40 backdrop-blur-xl">
+    <aside className="hidden md:flex flex-col w-64 border-r border-orange-300/20 bg-black/40 backdrop-blur-xl">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-cyan-300/20 bg-black/60 backdrop-blur-sm">
-        <div className="w-10 h-10 rounded-xl bg-black/60 border border-cyan-300/40 flex items-center justify-center shadow-glow ring-1 ring-cyan-300/40">
-          <GlassesLogo className="w-6 h-6 text-cyan-100" />
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-orange-300/20 bg-black/60 backdrop-blur-sm">
+        <div className="w-10 h-10 rounded-xl bg-black/60 border border-orange-300/40 flex items-center justify-center shadow-glow ring-1 ring-orange-300/40">
+          <GlassesLogo className="w-6 h-6 text-orange-100" />
         </div>
         <div>
           <h1 className="font-bold text-lg gradient-text font-display">GateKeep</h1>
-          <p className="text-xs text-cyan-200/70">AI Dev Command</p>
+          <p className="text-xs text-orange-200/70">AI Dev Command</p>
         </div>
       </div>
 
@@ -87,11 +87,11 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             onClick={() => onTabChange(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
               activeTab === item.id
-                ? "bg-cyan-300/10 text-cyan-200 shadow-glow-sm"
-                : "text-cyan-200/70 hover:bg-white/5 hover:text-cyan-100 hover:shadow-sm hover:scale-[1.02]"
+                ? "bg-orange-300/10 text-orange-200 shadow-glow-sm"
+                : "text-orange-200/70 hover:bg-white/5 hover:text-orange-100 hover:shadow-sm hover:scale-[1.02]"
             }`}
           >
-            <span className={activeTab === item.id ? "text-cyan-200" : ""}>
+            <span className={activeTab === item.id ? "text-orange-200" : ""}>
               {item.icon}
             </span>
             {item.label}
@@ -100,10 +100,10 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </nav>
 
       {/* Theme Toggle & Version */}
-      <div className="p-4 border-t border-cyan-300/20">
+      <div className="p-4 border-t border-orange-300/20">
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-cyan-200/80 hover:bg-white/5 transition-all"
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-orange-200/80 hover:bg-white/5 transition-all"
         >
           <span className="flex items-center gap-3">
             {theme === "dark" ? (
@@ -118,7 +118,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             {theme === "dark" ? "Light Mode" : "Dark Mode"}
           </span>
         </button>
-        <div className="mt-2 px-4 text-xs text-cyan-200/50">
+        <div className="mt-2 px-4 text-xs text-orange-200/50">
           v1.0.0
         </div>
       </div>

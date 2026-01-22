@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import { badRequest, internalError, ok, unauthorized } from "@/lib/apiResponse";
 
+export const dynamic = 'force-dynamic';
+
 const APP_PASSWORD = process.env.APP_PASSWORD || "password";
 
 function hashPassword(password: string): string {

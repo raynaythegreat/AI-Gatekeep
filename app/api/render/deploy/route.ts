@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { RenderService } from "@/services/render";
 import { GitHubService } from "@/services/github";
 
+export const dynamic = 'force-dynamic';
+
 interface EnvironmentVariable {
   key: string;
   value: string;

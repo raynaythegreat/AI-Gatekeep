@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RenderService } from "@/services/render";
 
+export const dynamic = 'force-dynamic';
+
 interface Params {
   params: Promise<{ id: string }>;
 }

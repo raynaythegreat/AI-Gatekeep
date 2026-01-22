@@ -36,8 +36,8 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
       <div
         className={`max-w-[96%] sm:max-w-[80%] rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ${
           message.role === "user"
-            ? "bg-gradient-to-br from-cyan-300 via-emerald-200 to-lime-200 text-black shadow-glow-sm"
-            : "cyber-panel text-cyan-50"
+            ? "bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400 text-black shadow-glow-sm"
+            : "cyber-panel text-orange-50"
         }`}
       >
         {message.role === "user" ? (
@@ -50,7 +50,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="rounded-xl bg-black/30 border border-cyan-200/30 overflow-hidden"
+                    className="rounded-xl bg-black/30 border border-orange-200/30 overflow-hidden"
                   >
                     {attachment.kind === "image" && attachment.previewUrl ? (
                       <a
@@ -69,12 +69,12 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                       </a>
                     ) : (
                       <div className="h-24 flex items-center justify-center">
-                        <svg className="w-6 h-6 text-cyan-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <svg className="w-6 h-6 text-orange-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                         </svg>
                       </div>
                     )}
-                    <div className="px-2 py-1 text-[10px] text-cyan-100/80 truncate">
+                    <div className="px-2 py-1 text-[10px] text-orange-100/80 truncate">
                       {attachment.name}
                     </div>
                   </div>
@@ -113,14 +113,14 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="flex items-center gap-3 p-2 rounded-lg border border-cyan-200/20 bg-black/30 text-xs"
+                    className="flex items-center gap-3 p-2 rounded-lg border border-orange-200/20 bg-black/30 text-xs"
                   >
-                    <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <svg className="w-4 h-4 text-orange-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                     </svg>
                     <div className="min-w-0">
-                      <div className="text-cyan-100 truncate">{attachment.name}</div>
-                      <div className="text-cyan-200/60">
+                      <div className="text-orange-100 truncate">{attachment.name}</div>
+                      <div className="text-orange-200/60">
                         {attachment.kind === "image" ? "Image" : "File"} • {formatBytes(attachment.size)}
                       </div>
                     </div>
@@ -236,23 +236,23 @@ export default function MessageList({
                 key={template.title}
                 type="button"
                 onClick={() => onTemplateSelect?.(template.prompt)}
-                className="group relative px-4 py-4 text-left rounded-xl border border-cyan-300/20 bg-black/40 hover:border-cyan-300/60 hover:shadow-glow-sm hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="group relative px-4 py-4 text-left rounded-xl border border-orange-300/20 bg-black/40 hover:border-orange-300/60 hover:shadow-glow-sm hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={!onTemplateSelect}
                 title={template.prompt}
               >
                 <div className="flex items-start gap-3 mb-2">
                   <span className="text-2xl flex-shrink-0">{template.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-cyan-100 group-hover:text-cyan-200 transition-colors">
+                    <div className="text-sm font-bold text-orange-100 group-hover:text-orange-200 transition-colors">
                       {template.title}
                     </div>
                   </div>
                 </div>
-                <div className="text-xs text-cyan-200/70 leading-relaxed pl-11">
+                <div className="text-xs text-orange-200/70 leading-relaxed pl-11">
                   {template.description}
                 </div>
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-orange-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </div>
@@ -274,9 +274,9 @@ export default function MessageList({
           <div className="flex gap-3 justify-start animate-in fade-in">
             <div className="max-w-[80%] rounded-2xl px-4 py-3 cyber-panel">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-cyan-200 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-cyan-200 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                <div className="w-2 h-2 bg-cyan-200 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                <div className="w-2 h-2 bg-orange-200 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-orange-200 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+                <div className="w-2 h-2 bg-orange-200 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
               </div>
             </div>
           </div>

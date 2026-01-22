@@ -1,0 +1,35 @@
+appId: com.gatekeep.app
+productName: GateKeep
+directories:
+  output: dist
+  buildResources: build
+files:
+  - electron/**/*
+  - .next/**/*
+  - app/**/*
+  - components/**/*
+  - contexts/**/*
+  - lib/**/*
+  - services/**/*
+  - types/**/*
+  - next.config.js
+  - package.json
+  - public/**/*
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  category: Development
+  icon: build/icon.png
+  asarUnpack:
+    - node_modules/@anthropic-ai/sdk/**/*
+    - node_modules/@octokit/rest/**/*
+win:
+  target:
+    - nsis
+mac:
+  target:
+    - dmg
+electronVersion: 33.0.0
+asar: true

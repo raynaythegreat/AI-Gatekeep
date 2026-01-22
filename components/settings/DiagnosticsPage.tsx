@@ -61,10 +61,10 @@ export const DiagnosticsPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-white">System Diagnostics</h1>
           <p className="text-gray-400">Verify connectivity and configuration status</p>
         </div>
-        <button 
+        <button
           onClick={runDiagnostics}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 gradient-primary text-black rounded-lg transition-colors disabled:opacity-50"
         >
           <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Run Check
@@ -73,12 +73,12 @@ export const DiagnosticsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {health && Object.entries(health.checks).map(([key, data]) => (
-          <div key={key} className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div key={key} className="p-4 bg-black/60 border border-orange-300/20 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-zinc-800 rounded-lg">
-                {key === 'ollama' ? <Cpu className="w-5 h-5 text-zinc-400" /> : 
-                 key === 'github' ? <Globe className="w-5 h-5 text-zinc-400" /> : 
-                 <Server className="w-5 h-5 text-zinc-400" />}
+              <div className="p-2 bg-black/40 rounded-lg">
+                {key === 'ollama' ? <Cpu className="w-5 h-5 text-orange-200" /> :
+                 key === 'github' ? <Globe className="w-5 h-5 text-orange-200" /> :
+                 <Server className="w-5 h-5 text-orange-200" />}
               </div>
               <div>
                 <p className="font-medium text-white capitalize">{key}</p>
@@ -94,11 +94,11 @@ export const DiagnosticsPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+      <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl">
         <div className="flex gap-3">
-          <AlertTriangle className="w-5 h-5 text-blue-400 shrink-0" />
-          <p className="text-sm text-blue-300">
-            <strong>Note:</strong> Diagnostics check connectivity to provider APIs using your configured keys. If a service shows "Offline", please check your local network or the provider's official status page.
+          <AlertTriangle className="w-5 h-5 text-orange-400 shrink-0" />
+          <p className="text-sm text-orange-300">
+            <strong>Note:</strong> Diagnostics check connectivity to provider APIs using your configured keys. If a service shows &quot;Offline&quot;, please check your local network or the provider&apos;s official status page.
           </p>
         </div>
       </div>

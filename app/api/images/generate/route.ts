@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 type ImageProvider = "fireworks" | "nanobanana" | "ideogram";
 
 const ALLOWED_SIZES = new Set(["512x512", "768x768", "1024x1024"]);

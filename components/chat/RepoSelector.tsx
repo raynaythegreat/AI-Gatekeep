@@ -133,23 +133,23 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-2 w-full md:w-72 px-3 py-2 rounded-xl border border-cyan-300/30 bg-black/60 hover:border-cyan-300/70 transition-colors"
+        className="flex items-center justify-between gap-2 w-full md:w-72 px-3 py-2 rounded-xl border border-orange-300/30 bg-black/60 hover:border-orange-300/70 transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <svg className="w-5 h-5 text-cyan-200/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <svg className="w-5 h-5 text-orange-200/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
           </svg>
-          <span className="text-sm font-medium text-cyan-100 truncate">
+          <span className="text-sm font-medium text-orange-100 truncate">
             {selectedRepo ? selectedRepo.name : "Select or Create Repo"}
           </span>
         </div>
-        <svg className="w-4 h-4 text-cyan-200/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-4 h-4 text-orange-200/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-full md:w-96 max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-hidden rounded-xl border border-cyan-300/30 bg-black/80 shadow-xl z-[80] animate-scale-in backdrop-blur-xl">
+        <div className="absolute top-full left-0 mt-2 w-full md:w-96 max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-hidden rounded-xl border border-orange-300/30 bg-black/80 shadow-xl z-[80] animate-scale-in backdrop-blur-xl">
           {showCreateForm ? (
             /* Create Repository Form */
             <div className="p-4">
@@ -179,7 +179,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     value={newRepoName}
                     onChange={(e) => setNewRepoName(e.target.value)}
                     placeholder="my-awesome-project"
-                    className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-cyan-300/30 bg-black/40 text-cyan-100 placeholder-cyan-200/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/30 focus:border-cyan-300"
+                    className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-orange-300/30 bg-black/40 text-orange-100 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/30 focus:border-orange-300"
                     autoFocus
                   />
                 </div>
@@ -194,12 +194,12 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     value={newRepoDescription}
                     onChange={(e) => setNewRepoDescription(e.target.value)}
                     placeholder="A short description of your project"
-                    className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-cyan-300/30 bg-black/40 text-cyan-100 placeholder-cyan-200/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/30 focus:border-cyan-300"
+                    className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-orange-300/30 bg-black/40 text-orange-100 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/30 focus:border-orange-300"
                   />
                 </div>
 
                 {/* Visibility Toggle */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-black/50 border border-cyan-300/20">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-black/50 border border-orange-300/20">
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${isPrivate ? "bg-amber-100 dark:bg-amber-500/10" : "bg-green-100 dark:bg-green-500/10"}`}>
                       {isPrivate ? (
@@ -225,7 +225,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     type="button"
                     onClick={() => setIsPrivate(!isPrivate)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      isPrivate ? "bg-cyan-300" : "bg-cyan-900/60"
+                      isPrivate ? "bg-orange-300" : "bg-orange-900/60"
                     }`}
                   >
                     <span

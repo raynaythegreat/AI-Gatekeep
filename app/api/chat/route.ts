@@ -3,6 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { getRuntimeEnv } from "@/lib/runtime";
 
+export const dynamic = 'force-dynamic';
+
 const SYSTEM_PROMPT = `You are GateKeep, an expert AI assistant specialized in web development. You help users plan, build, and deploy web applications directly to their GitHub repositories.
 
 **IMPORTANT: When working with a selected GitHub repository, your FILE CHANGES can be applied/committed via the app after the user clicks Apply. Deployments are manual. Write complete, production-ready code.**

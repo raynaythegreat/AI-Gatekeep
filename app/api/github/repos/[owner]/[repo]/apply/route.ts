@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { GitHubService } from "@/services/github";
 import { badRequest, internalError, ok } from "@/lib/apiResponse";
 
+export const dynamic = 'force-dynamic';
+
 interface Params {
   params: Promise<{ owner: string; repo: string }>;
 }

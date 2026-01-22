@@ -16,7 +16,7 @@ export default function Header({ activeTab }: HeaderProps) {
   const { title, subtitle } = tabTitles[activeTab] || tabTitles.chat;
 
   return (
-    <header className="flex items-center justify-between px-3 py-2 sm:px-6 sm:py-4 border-b border-cyan-300/20 bg-black/50 backdrop-blur-sm">
+    <header className="flex items-center justify-between px-3 py-2 sm:px-6 sm:py-4 border-b border-orange-300/20 bg-black/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div>
@@ -25,18 +25,18 @@ export default function Header({ activeTab }: HeaderProps) {
             </h1>
           </div>
         </div>
-        <div className="hidden sm:block w-px h-8 bg-cyan-300/30" />
+        <div className="hidden sm:block w-px h-8 bg-orange-300/30" />
         <div className="hidden sm:block">
-          <h2 className="text-sm font-semibold text-cyan-100">{title}</h2>
-          <p className="text-xs text-cyan-200/70">{subtitle}</p>
+          <h2 className="text-sm font-semibold text-orange-100">{title}</h2>
+          <p className="text-xs text-orange-200/70">{subtitle}</p>
         </div>
       </div>
 
       {/* Status Indicators */}
       <div className="hidden sm:flex items-center gap-4">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-300/30 bg-emerald-300/10">
-          <div className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse" />
-          <span className="text-xs font-medium text-emerald-100">Online</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-orange-300/30 bg-orange-300/10">
+          <div className="w-2 h-2 bg-orange-300 rounded-full animate-pulse" />
+          <span className="text-xs font-medium text-orange-100">Online</span>
         </div>
       </div>
     </header>
