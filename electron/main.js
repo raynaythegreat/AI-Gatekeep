@@ -112,42 +112,86 @@ function markFirstRunComplete() {
 
 function installToApplications() {
   const appPath = app.getAppPath();
-  console.log('Checking app path for desktop integration:', appPath);
+  console.log('Installing desktop integration...');
+  console.log('App path:', appPath);
+  console.log('Platform:', process.platform);
   console.log('Is dev mode:', isDev);
   
-  // Always try to create desktop entry in Linux, even in dev
-  if (process.platform === 'linux') {
-    console.log('Linux detected - proceeding with desktop integration');
-  } else {
-    // Check if already properly installed for other platforms
-    const isInstalled = fs.existsSync(path.join(appPath, 'resources', 'app.asar')) && 
-                       !appPath.includes('node_modules') && 
-                       !isDev;
-
-    if (isInstalled) {
-      console.log('Already installed app detected - skipping desktop integration');
-      return;
+  // Only do desktop integration on Linux for now to avoid conflicts
+  if (process.platform !== 'linux') {
+    console.log('Skipping desktop integration on non-Linux platform');
+    return;
+  }
+  
+    console.log('Proceeding with Linux desktop integration...');
+  
+  // Create a simple, robust launcher script
+  const launcherScript = `#!/bin/bash
+cd "${appPath}"
+exec npm run electron
+`;
+  
+  // Create launcher script
+  const launcherPath = path.join(app.getPath('home'), '.local', 'bin', 'os-athena');
+  try {
+    const binDir = path.dirname(launcherPath);
+    if (!fs.existsSync(binDir)) {
+      fs.mkdirSync(binDir, { recursive: true });
     }
-
-    // For development on non-Linux, show a notification instead of installing
-    if (isDev) {
-      console.log('Development mode detected on non-Linux - skipping desktop integration');
-      return;
+    fs.writeFileSync(launcherPath, launcherScript);
+    fs.chmodSync(launcherPath, '755');
+    console.log(`Launcher script created: ${launcherPath}`);
+  } catch (error) {
+    console.error('Failed to create launcher script:', error.message);
+  }
+  
+  // Create desktop entry
+  const iconPath = path.join(__dirname, '../assets/icon.png');
+  const desktopEntry = `[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OS Athena
+Comment=AI Assistant for Web Development
+Exec=${launcherPath}
+Icon=${iconPath}
+Terminal=false
+Categories=Development;
+StartupNotify=true
+`;
+  
+  // Create desktop entry
+  const locations = [
+    path.join(app.getPath('home'), '.local', 'share', 'applications'),
+    path.join(app.getPath('home'), 'Desktop')
+  ];
+  
+  for (const location of locations) {
+    const desktopPath = path.join(location, 'os-athena.desktop');
+    
+    try {
+      if (!fs.existsSync(location)) {
+        fs.mkdirSync(location, { recursive: true });
+      }
+      
+      fs.writeFileSync(desktopPath, desktopEntry);
+      fs.chmodSync(desktopPath, '755');
+      console.log(`Desktop entry created: ${desktopPath}`);
+      
+      // Update desktop database
+      exec(`update-desktop-database "${location}"`, (error) => {
+        if (error) {
+          console.error(`Failed to update desktop database: ${error.message}`);
+        } else {
+          console.log('Desktop database updated successfully');
+        }
+      });
+      
+    } catch (error) {
+      console.error(`Failed to create desktop entry: ${error.message}`);
     }
   }
-
-  // Install to Applications folder on macOS and Linux
-  if (process.platform === 'darwin') {
-    exec('osascript -e \'tell application "Finder" to make alias POSIX file "' + 
-          appPath + '" at POSIX file "/Applications/" with properties {name:"OS Athena"}\'', 
-          (error) => {
-      if (!error) {
-        console.log('Application alias created in Applications folder');
-      } else {
-        console.error('Failed to create Applications alias:', error.message);
-      }
-    });
-  } else if (process.platform === 'linux') {
+  
+  if (process.platform === 'linux') {
     // For Linux, create desktop entry
     let execPath;
     
