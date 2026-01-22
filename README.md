@@ -12,11 +12,11 @@ OS Athena is an open-source AI assistant for web development workflows. It allow
 
 ### Linux (Debian/Ubuntu/Crostini)
 
-#### Option 1: From Source (Recommended for Development)
+#### Option 1: From Source (Recommended)
 
 ```bash
 # Clone the repository
-git clone https://github.com/raynaythegreat/OS-Athena.git
+git clone https://github.com/raynaythegreat/OS-Breaker.git OS-Athena
 cd OS-Athena
 
 # Install dependencies
@@ -29,8 +29,9 @@ npm run build
 chmod +x electron/install-desktop-entry.sh
 ./electron/install-desktop-entry.sh
 
-# Launch from application menu or terminal
-os-athena
+# Logout and login to refresh app menu
+# Then search for "OS Athena" in your application menu
+# Or launch from terminal: os-athena
 ```
 
 #### Option 2: AppImage (Coming Soon)
@@ -50,7 +51,7 @@ Coming soon! Currently focused on Linux-first development.
 
 ### Troubleshooting
 
-If the app doesn't launch from the menu:
+If app doesn't launch from the menu:
 
 ```bash
 cd ~/OS-Athena
@@ -64,6 +65,14 @@ cd ~/OS-Athena
 # Check logs
 tail -f ~/.local/share/os-athena/logs/launcher-*.log
 ```
+
+**Common Issues:**
+
+1. **App not in menu after install** - Logout and login to refresh desktop cache
+2. **Port already in use** - App automatically detects and brings existing instance to foreground
+3. **Node.js not found** - Launcher now automatically includes common Node.js paths
+
+For detailed troubleshooting, see [APPMENU-FIX-SUMMARY.md](./APPMENU-FIX-SUMMARY.md)
 
 ## Setup
 
