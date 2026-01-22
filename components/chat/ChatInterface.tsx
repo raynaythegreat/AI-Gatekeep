@@ -1150,7 +1150,7 @@ export default function ChatInterface() {
   } = useChatHistory();
   const { recordUsage, refreshBilling, updateRateLimit } = useApiUsage();
   const { provider: deploymentProvider, setProvider: setDeploymentProvider } = useDeploymentProvider();
-  const [chatMode, setChatMode] = useState<"plan" | "build">("build");
+  const [chatMode, setChatMode] = useState<"plan" | "build">("plan");
   const [autoApprove, setAutoApprove] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -3727,7 +3727,7 @@ export default function ChatInterface() {
                     }}
                     className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all duration-200 flex items-center justify-between group ${
                       isSelected
-                        ? "bg-cyan-300/10 border-l-4 border-cyan-300"
+                        ? "bg-gold-500/15 border-l-4 border-gold-400"
                         : "border-l-4 border-transparent"
                     }`}
                   >
@@ -3735,8 +3735,8 @@ export default function ChatInterface() {
                       <div
                         className={`text-sm font-semibold truncate transition-colors ${
                           isSelected
-                            ? "text-cyan-100"
-                            : "text-cyan-100/90 group-hover:text-cyan-50"
+                            ? "text-gold-100"
+                            : "text-gold-100/90 group-hover:text-gold-50"
                         }`}
                       >
                         {model.name}
@@ -3744,8 +3744,8 @@ export default function ChatInterface() {
                       <div
                         className={`text-xs truncate mt-0.5 transition-colors ${
                           isSelected
-                            ? "text-cyan-200/70"
-                            : "text-cyan-200/60 group-hover:text-cyan-200/80"
+                            ? "text-gold-200/70"
+                            : "text-gold-200/60 group-hover:text-gold-200/80"
                         }`}
                       >
                         {model.description}
@@ -3753,7 +3753,7 @@ export default function ChatInterface() {
                     </div>
                     {isSelected && (
                       <div className="ml-3 flex-shrink-0">
-                        <div className="w-6 h-6 rounded-full bg-cyan-300 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-gold-400 flex items-center justify-center">
                           <svg
                             className="w-3 h-3 text-black"
                             fill="none"
@@ -4050,7 +4050,7 @@ export default function ChatInterface() {
 
           <button
             onClick={handleNewChat}
-            className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-1 sm:gap-1.5"
+            className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500/10 dark:bg-gold-500/10 text-gold-700 dark:text-gold-300 hover:bg-gold-500/20 dark:hover:bg-gold-500/20 border border-gold-500/20 transition-colors flex items-center justify-center gap-1 sm:gap-1.5"
             title="New chat"
             aria-label="New chat"
           >
