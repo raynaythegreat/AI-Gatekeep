@@ -66,7 +66,9 @@ function createWindow() {
     title: 'OS Athena',
     show: false, // Don't show until ready
     autoHideMenuBar: true, // Hide menu bar (can be shown with Alt key)
-    frame: true // Keep window frame
+    frame: false, // Custom frame for themed titlebar
+    titleBarStyle: 'hidden', // Hide default title bar
+    transparent: false // Not transparent for better performance
   });
 
   // Remove application menu completely for cleaner UI

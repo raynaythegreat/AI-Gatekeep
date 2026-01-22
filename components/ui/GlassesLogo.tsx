@@ -1,10 +1,6 @@
 "use client";
 
-interface GlassesLogoProps {
-  className?: string;
-}
-
-export default function GlassesLogo({ className }: GlassesLogoProps) {
+export default function GlassesLogo({ className }: { className?: string }) {
   return (
     <svg
       className={className ?? "w-5 h-5"}
@@ -19,32 +15,44 @@ export default function GlassesLogo({ className }: GlassesLogoProps) {
         </linearGradient>
       </defs>
       <g>
-        <ellipse cx="32" cy="30" rx="18" ry="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
-        <circle cx="24" cy="28" r="6" fill="url(#goldGradient)" />
-        <circle cx="40" cy="28" r="6" fill="url(#goldGradient)" />
-        <circle cx="24" cy="28" r="2.5" fill="currentColor" />
-        <circle cx="40" cy="28" r="2.5" fill="currentColor" />
-        <circle cx="25" cy="26" r="1" fill="url(#goldGradient)" />
-        <circle cx="39" cy="26" r="1" fill="url(#goldGradient)" />
+        <ellipse cx="32" cy="30" rx="14" ry="16" stroke="currentColor" strokeWidth="2" fill="none" />
         <path
-          d="M32 44v6"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M14 12c0-2 4-6 10-6 10"
+          d="M20 20c-3 0-6 2-9 6-6 6"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           fill="none"
         />
         <path
-          d="M50 12c0-2-4-6-10-6-10"
+          d="M44 20c3 0 6 2 9 6 6"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           fill="none"
+        />
+        <circle cx="26" cy="28" r="5" fill="url(#goldGradient)" />
+        <circle cx="38" cy="28" r="5" fill="url(#goldGradient)" />
+        <circle cx="26" cy="28" r="2" fill="currentColor" />
+        <circle cx="38" cy="28" r="2" fill="currentColor" />
+        <circle cx="27" cy="26" r="1" fill="url(#goldGradient)" />
+        <circle cx="37" cy="26" r="1" fill="url(#goldGradient)" />
+        <path
+          d="M32 44v4"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M24 44v2"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M40 44v2"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
       </g>
     </svg>
