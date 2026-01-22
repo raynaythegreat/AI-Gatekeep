@@ -3862,6 +3862,19 @@ export default function ChatInterface() {
               </button>
             </div>
 
+            {/* Mode Status */}
+            {chatMode === "plan" ? (
+              <span className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium border bg-blue-500/10 dark:bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300">
+                <span>📋</span>
+                <span>Planning</span>
+              </span>
+            ) : (
+              <span className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium border bg-green-500/10 dark:bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-300">
+                <span>🔨</span>
+                <span>Building</span>
+              </span>
+            )}
+
             {/* Auto Approve Toggle */}
             <button
               type="button"
@@ -4129,10 +4142,18 @@ export default function ChatInterface() {
         </div>
       )}
 
-      {pendingRepoChanges &&
+       {pendingRepoChanges &&
         selectedRepo &&
         pendingRepoChangesRepoFullName === selectedRepo.full_name && (
           <div className="px-3 py-2 sm:px-4 sm:py-3 border-b border-indigo-200 bg-indigo-50 text-indigo-900 text-xs sm:text-sm">
+            {chatMode === "plan" && (
+              <div className="mb-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg text-blue-800 dark:text-blue-200 text-xs flex items-center gap-2">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span><strong>Plan Mode:</strong> Toggle to <span className="font-semibold text-blue-600 dark:text-blue-300">Build</span> mode to apply these changes.</span>
+              </div>
+            )}
             <div className="flex items-center justify-between gap-3 flex-wrap mb-2">
               <div className="flex-1">
                 <div className="font-semibold text-sm mb-1">
@@ -4162,12 +4183,14 @@ export default function ChatInterface() {
                 <button
                   type="button"
                   onClick={() => applyPendingRepoChanges()}
-                  disabled={applyingRepoChanges || !status?.github?.configured}
+                  disabled={applyingRepoChanges || !status?.github?.configured || chatMode === "plan"}
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   title={
-                    status?.github?.configured
-                      ? "Apply changes to GitHub"
-                      : "Configure GitHub in Settings"
+                    chatMode === "plan"
+                      ? "Switch to Build mode to apply changes"
+                      : status?.github?.configured
+                        ? "Apply changes to GitHub"
+                        : "Configure GitHub in Settings"
                   }
                 >
                   Apply to GitHub
