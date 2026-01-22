@@ -8,46 +8,46 @@
   color-scheme: light;
   --background: #FFFFFF;
   --foreground: #1A1A1A;
-  --primary: #FF6B35;
-  --primary-dark: #E85D2A;
-  --accent: #FFB347;
+  --primary: #FFD700;
+  --primary-dark: #F4D03F;
+  --accent: #F4D03F;
   --surface: #FFFFFF;
   --surface-elevated: #FFFFFF;
-  --border: rgba(255, 107, 53, 0.2);
+  --border: rgba(255, 215, 0, 0.2);
   --muted: #6B7280;
-  --glow-1: rgba(255, 107, 53, 0.15);
-  --glow-2: rgba(255, 179, 71, 0.1);
-  --grid: rgba(255, 107, 53, 0.05);
+  --glow-1: rgba(255, 215, 0, 0.15);
+  --glow-2: rgba(244, 208, 63, 0.1);
+  --grid: rgba(255, 215, 0, 0.05);
   --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(255, 107, 53, 0.2);
+  --glass-border: rgba(255, 215, 0, 0.2);
   --panel-bg: rgba(255, 255, 255, 0.98);
-  --panel-border: rgba(255, 107, 53, 0.2);
+  --panel-border: rgba(255, 215, 0, 0.2);
   --panel-soft-bg: rgba(255, 255, 255, 0.8);
-  --shadow-glow: 0 0 30px -8px rgba(255, 107, 53, 0.2);
-  --shadow-glow-sm: 0 0 15px -4px rgba(255, 107, 53, 0.15);
+  --shadow-glow: 0 2px 8px rgba(255, 215, 0, 0.1);
+  --shadow-glow-sm: 0 1px 4px rgba(255, 215, 0, 0.08);
 }
 
 .dark {
   color-scheme: dark;
   --background: #000000;
   --foreground: #FFFFFF;
-  --primary: #FF8C42;
-  --primary-dark: #FF6B35;
-  --accent: #FFB347;
+  --primary: #B8860B;
+  --primary-dark: #DAA520;
+  --accent: #DAA520;
   --surface: #000000;
   --surface-elevated: #000000;
-  --border: rgba(255, 140, 66, 0.2);
+  --border: rgba(184, 134, 11, 0.2);
   --muted: #9CA3AF;
-  --glow-1: rgba(255, 140, 66, 0.1);
-  --glow-2: rgba(255, 179, 71, 0.08);
-  --grid: rgba(255, 140, 66, 0.05);
+  --glow-1: rgba(184, 134, 11, 0.1);
+  --glow-2: rgba(218, 165, 32, 0.08);
+  --grid: rgba(184, 134, 11, 0.05);
   --glass-bg: rgba(0, 0, 0, 0.8);
-  --glass-border: rgba(255, 140, 66, 0.2);
+  --glass-border: rgba(184, 134, 11, 0.2);
   --panel-bg: rgba(0, 0, 0, 0.95);
-  --panel-border: rgba(255, 140, 66, 0.2);
+  --panel-border: rgba(184, 134, 11, 0.2);
   --panel-soft-bg: rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 30px -8px rgba(255, 140, 66, 0.2);
-  --shadow-glow-sm: 0 0 15px -4px rgba(255, 140, 66, 0.15);
+  --shadow-glow: 0 2px 8px rgba(184, 134, 11, 0.1);
+  --shadow-glow-sm: 0 1px 4px rgba(184, 134, 11, 0.08);
 }
 
 body {
@@ -88,11 +88,14 @@ body {
   }
 
   .gradient-primary {
-    @apply bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400;
+    background: linear-gradient(90deg, #FFD700, #F4D03F);
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400 bg-clip-text text-transparent;
+    background: linear-gradient(90deg, #FFD700, #F4D03F);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
   }
 
   .shadow-glow {
@@ -130,20 +133,20 @@ body {
 }
 
   ::-webkit-scrollbar-thumb {
-     background: rgba(255, 107, 53, 0.3);
+     background: rgba(255, 215, 0, 0.3);
      border-radius: 4px;
    }
 
    ::-webkit-scrollbar-thumb:hover {
-     background: rgba(255, 107, 53, 0.5);
+     background: rgba(255, 215, 0, 0.5);
    }
 
    .dark ::-webkit-scrollbar-thumb {
-     background: rgba(255, 140, 66, 0.3);
+     background: rgba(184, 134, 11, 0.3);
    }
 
    .dark ::-webkit-scrollbar-thumb:hover {
-     background: rgba(255, 140, 66, 0.5);
+     background: rgba(184, 134, 11, 0.5);
    }
 
   html:not(.dark) .bg-black {
@@ -323,11 +326,11 @@ body {
   }
 
   html:not(.dark) .gradient-primary {
-    background-image: linear-gradient(90deg, #FF6B35, #FFB347, #FF994D);
+    background-image: linear-gradient(90deg, #FFD700, #F4D03F);
   }
 
   html:not(.dark) .gradient-text {
-    background-image: linear-gradient(90deg, #FF6B35, #FFB347);
+    background-image: linear-gradient(90deg, #FFD700, #F4D03F);
   }
 
   html:not(.dark) .text-white {

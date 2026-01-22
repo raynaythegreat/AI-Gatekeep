@@ -75,7 +75,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
         {/* Mobile Bottom Navigation */}
         <nav
           id="mobile-nav"
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-black/70 border-t border-orange-300/20 z-50 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
+          className="md:hidden fixed bottom-0 left-0 right-0 bg-black/70 border-t border-gold-300/20 z-50 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
         >
           <div className="flex items-center justify-around h-16 px-2">
             {mobileNavItems.map((item) => (
@@ -84,11 +84,11 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
                 onClick={() => onTabChange(item.id)}
                 className={`flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors ${
                   activeTab === item.id
-                    ? "text-orange-200"
-                    : "text-orange-200/60"
+                    ? "text-yellow-200"
+                    : "text-yellow-200/60"
                 }`}
               >
-                <span className={activeTab === item.id ? "text-orange-200" : ""}>
+                <span className={activeTab === item.id ? "text-yellow-200" : ""}>
                   {item.icon}
                 </span>
                 <span className="text-[10px] mt-1 font-medium">{item.label}</span>
