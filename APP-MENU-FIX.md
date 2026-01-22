@@ -169,7 +169,7 @@ tail -f ~/.local/share/os-athena/logs/launcher-*.log
 ```
 ✓ Commit 1: Settings page overhaul (v1.2.1)
 ✓ Commit 2: ESLint fix + app menu refresh tool
-✓ All changes live at: github.com/raynaythegreat/OS-Breaker
+✓ All changes live at: github.com/raynaythegreat/OS-Athena
 ```
 
 Pull latest changes:

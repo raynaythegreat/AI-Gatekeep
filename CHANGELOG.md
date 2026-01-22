@@ -4,7 +4,7 @@
 
 ### Major Release: Standalone Electron App with Flat Design
 
-See full details at: https://github.com/raynaythegreat/OS-Breaker/commit/80ae411
+See full details at: https://github.com/raynaythegreat/OS-Athena/commit/80ae411
 
 ### Key Changes:
 - ✅ Converted to standalone Electron app (no npm spawning)
@@ -70,4 +70,4 @@ Major improvements to the Settings page with all API providers and modern layout
 - Password-type inputs for security
 - Error handling for corrupted data
 
-See full commit: https://github.com/raynaythegreat/OS-Breaker/commit/20a79a7
+See full commit: https://github.com/raynaythegreat/OS-Athena/commit/20a79a7

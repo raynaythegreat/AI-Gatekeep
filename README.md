@@ -16,7 +16,7 @@ OS Athena is an open-source AI assistant for web development workflows. It allow
 
 ```bash
 # Clone the repository
-git clone https://github.com/raynaythegreat/OS-Breaker.git OS-Athena
+git clone https://github.com/raynaythegreat/OS-Athena.git
 cd OS-Athena
 
 # Install dependencies
