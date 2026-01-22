@@ -166,8 +166,9 @@ function installToApplications() {
     } else {
       // For development or local build - use npm script
       const packagePath = path.join(appPath, 'package.json');
+      
       if (fs.existsSync(packagePath)) {
-        execPath = `cd "${appPath}" && npm start`;
+        execPath = `cd "${appPath}" && npm run electron`;
       } else {
         execPath = path.join(appPath, 'os-athena');
       }
@@ -188,42 +189,106 @@ Version=1.0
 Type=Application
 Name=OS Athena
 Comment=AI Assistant for Web Development
-Exec="${execPath}"
+Exec=${execPath}
 Icon=${iconPath}
 Terminal=false
 Categories=Development;
 StartupNotify=true
-NoDisplay=false;
+NoDisplay=false
 `;
     
-    // Create in both user applications and desktop for better visibility
-    const locations = [
-      path.join(app.getPath('home'), '.local', 'share', 'applications'),
-      path.join(app.getPath('home'), 'Desktop')
-    ];
+    // Create desktop entry and binary wrapper for better execution
+    const binDir = path.join(app.getPath('home'), '.local', 'bin');
+    const binPath = path.join(binDir, 'os-athena');
     
-    for (const location of locations) {
-      const desktopPath = path.join(location, 'os-athena.desktop');
-      
-      try {
-        if (!fs.existsSync(location)) {
-          fs.mkdirSync(location, { recursive: true });
-        }
-        
-        fs.writeFileSync(desktopPath, desktopEntry);
-        fs.chmodSync(desktopPath, '755');
-        console.log(`Desktop entry created at: ${desktopPath}`);
-        
-        // Update desktop database
-        exec('update-desktop-database ' + location, (error) => {
-          if (error) {
-            console.warn('Failed to update desktop database:', error.message);
-          }
-        });
-        
-      } catch (error) {
-        console.error(`Failed to create desktop entry at ${location}:`, error.message);
+    try {
+      if (!fs.existsSync(binDir)) {
+        fs.mkdirSync(binDir, { recursive: true });
       }
+      
+      // Create binary wrapper script
+      const binScript = `#!/bin/bash
+cd "${appPath}"
+npm run electron
+`;
+      fs.writeFileSync(binPath, binScript);
+      fs.chmodSync(binPath, '755');
+      console.log(`Binary wrapper created at: ${binPath}`);
+      
+      // Add to PATH if not already there
+      const profileFiles = [
+        path.join(app.getPath('home'), '.bashrc'),
+        path.join(app.getPath('home'), '.zshrc'),
+        path.join(app.getPath('home'), '.profile')
+      ];
+      
+      const pathEntry = `export PATH="$HOME/.local/bin:$PATH"`;
+      let addedToPath = false;
+      
+      for (const profileFile of profileFiles) {
+        try {
+          if (fs.existsSync(profileFile)) {
+            const profile = fs.readFileSync(profileFile, 'utf8');
+            if (!profile.includes('os-athena') && !profile.includes('.local/bin')) {
+              fs.appendFileSync(profileFile, `\n# OS Athena\n${pathEntry}\n`);
+              console.log(`Added to PATH in: ${profileFile}`);
+              addedToPath = true;
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to update ${profileFile}:`, error.message);
+        }
+      }
+      
+      if (addedToPath) {
+        console.log('PATH updated - user may need to restart shell or log out/in');
+      }
+      
+      // Update desktop entry to use binary
+      const desktopEntryWithBin = `[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OS Athena
+Comment=AI Assistant for Web Development
+Exec=${binPath}
+Icon=${iconPath}
+Terminal=false
+Categories=Development;
+StartupNotify=true
+`;
+      
+      // Create in both user applications and desktop for better visibility
+      const locations = [
+        path.join(app.getPath('home'), '.local', 'share', 'applications'),
+        path.join(app.getPath('home'), 'Desktop')
+      ];
+      
+      for (const location of locations) {
+        const desktopPath = path.join(location, 'os-athena.desktop');
+        
+        try {
+          if (!fs.existsSync(location)) {
+            fs.mkdirSync(location, { recursive: true });
+          }
+          
+          fs.writeFileSync(desktopPath, desktopEntryWithBin);
+          fs.chmodSync(desktopPath, '755');
+          console.log(`Desktop entry created at: ${desktopPath}`);
+          
+          // Update desktop database
+          exec('update-desktop-database ' + location, (error) => {
+            if (error) {
+              console.warn('Failed to update desktop database:', error.message);
+            }
+          });
+          
+        } catch (error) {
+          console.error(`Failed to create desktop entry at ${location}:`, error.message);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Failed to create binary wrapper:', error.message);
     }
   } else if (process.platform === 'win32') {
     // Windows is handled by the NSIS installer
