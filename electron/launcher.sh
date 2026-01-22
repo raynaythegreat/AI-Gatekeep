@@ -4,6 +4,9 @@
 
 set -e
 
+# Set up PATH to include common Node.js installation locations
+export PATH="$HOME/.n/bin:$HOME/n/bin:$HOME/.local/bin:$PATH"
+
 # Configuration
 APP_NAME="os-athena"
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,6 +27,17 @@ log "================================================"
 log "App directory: $APP_DIR"
 log "Node version: $(node --version 2>&1 || echo 'Node not found')"
 log "NPM version: $(npm --version 2>&1 || echo 'NPM not found')"
+
+# Check if app is already running
+check_running() {
+    if pgrep -f "electron.*os-athena" > /dev/null 2>&1; then
+        log "OS Athena is already running. Bringing to foreground..."
+        if [ -n "$WAYLAND_DISPLAY" ] || [ -n "$DISPLAY" ]; then
+            wmctrl -a "OS Athena" 2>/dev/null || true
+        fi
+        exit 0
+    fi
+}
 
 # Pre-flight checks
 check_dependencies() {
@@ -102,6 +116,9 @@ launch_development() {
 # Main execution
 main() {
     log "Starting main execution..."
+
+    # Check if already running
+    check_running
 
     # Run pre-flight checks
     check_dependencies
