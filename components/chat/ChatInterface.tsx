@@ -3780,10 +3780,10 @@ export default function ChatInterface() {
     <div
       ref={dropdownMenuRef}
       style={dropdownStyle}
-      className="fixed z-[999] max-h-[70vh] overflow-hidden rounded-2xl border border-gold-500/20 bg-surface-50 dark:bg-surface-950 backdrop-blur-xl shadow-2xl ring-1 ring-gold-500/10"
+      className="fixed z-[999] max-h-[70vh] overflow-hidden rounded-2xl border border-gold-500/20 bg-surface-900 backdrop-blur-xl shadow-2xl ring-1 ring-gold-500/10"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="p-2 border-b border-gold-500/10 bg-surface-100 dark:bg-surface-900">
+      <div className="p-2 border-b border-gold-500/10 bg-surface-900">
         <button
           onClick={() => {
             const inputValue = window.prompt(
@@ -3801,9 +3801,9 @@ export default function ChatInterface() {
             setSelectedModel(`${parsed.provider}:${parsed.modelName}`);
             setShowModelDropdown(false);
           }}
-          className="w-full px-4 py-3 text-left hover:bg-surface-200 dark:hover:bg-surface-800 transition-all duration-200 rounded-xl text-sm text-foreground flex items-center gap-3 group"
+          className="w-full px-4 py-3 text-left hover:bg-surface-800 transition-all duration-200 rounded-xl text-sm text-foreground flex items-center gap-3 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-surface-200 dark:bg-surface-800 border border-gold-500/10 flex items-center justify-center group-hover:bg-surface-300 dark:group-hover:bg-surface-700 transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-surface-800 border border-gold-500/10 flex items-center justify-center group-hover:bg-surface-700 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -3828,7 +3828,7 @@ export default function ChatInterface() {
             key={groupName}
             className="border-b border-gold-500/5 last:border-b-0"
           >
-            <div className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wide bg-surface-50 dark:bg-surface-900 sticky top-0 backdrop-blur-sm">
+            <div className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wide bg-surface-900 sticky top-0 backdrop-blur-sm">
               {groupName}
             </div>
             <div className="py-1">
@@ -3848,9 +3848,9 @@ export default function ChatInterface() {
                       setSelectedModel(model.id);
                       setShowModelDropdown(false);
                     }}
-                    className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all duration-200 flex items-center justify-between group ${
+                    className={`w-full px-4 py-3 text-left hover:bg-surface-800 transition-all duration-200 flex items-center justify-between group ${
                       isSelected
-                        ? "bg-gold-500/15 border-l-4 border-gold-400"
+                        ? "bg-surface-800 border-l-4 border-gold-500"
                         : "border-l-4 border-transparent"
                     }`}
                   >
@@ -3858,8 +3858,8 @@ export default function ChatInterface() {
                       <div
                         className={`text-sm font-semibold truncate transition-colors ${
                           isSelected
-                            ? "text-gold-100"
-                            : "text-gold-100/90 group-hover:text-gold-50"
+                            ? "text-foreground"
+                            : "text-foreground/80 group-hover:text-foreground"
                         }`}
                       >
                         {model.name}
@@ -3867,8 +3867,8 @@ export default function ChatInterface() {
                       <div
                         className={`text-xs truncate mt-0.5 transition-colors ${
                           isSelected
-                            ? "text-gold-200/70"
-                            : "text-gold-200/60 group-hover:text-gold-200/80"
+                            ? "text-foreground/60"
+                            : "text-foreground/50 group-hover:text-foreground/60"
                         }`}
                       >
                         {model.description}
@@ -3876,7 +3876,7 @@ export default function ChatInterface() {
                     </div>
                     {isSelected && (
                       <div className="ml-3 flex-shrink-0">
-                        <div className="w-6 h-6 rounded-full bg-gold-400 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-gold-500 flex items-center justify-center">
                           <svg
                             className="w-3 h-3 text-black"
                             fill="none"

@@ -15,92 +15,96 @@ export default function AthenaLogo({ className }: { className?: string }) {
         </linearGradient>
       </defs>
       
+      <rect
+        width="64"
+        height="64"
+        rx="8"
+        fill="#0A0A0A"
+      />
+      
       <g>
         <path
-          d="M16 48 L12 56 L20 56 Z"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <path
-          d="M20 16 C20 16 18 20 18 24 L22 24 C22 20 24 16 28 14 C32 12 38 12 42 14 C46 16 48 20 48 24 L52 24 C52 20 50 16 50 16"
+          d="M20 56 L20 50 C20 42 22 36 26 32 C28 30 30 28 32 28 C34 28 36 30 38 32 C42 36 44 42 44 50 L44 56"
           stroke="url(#athenaGoldGradient)"
-          strokeWidth="2.5"
+          strokeWidth="2"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         
         <path
-          d="M20 16 C22 12 28 10 32 10 C36 10 42 12 44 16 C46 18 48 20 48 24"
+          d="M20 56 L24 58 L28 56 M44 56 L40 58 L36 56"
           stroke="url(#athenaGoldGradient)"
-          strokeWidth="2.5"
+          strokeWidth="2"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         
         <path
-          d="M32 10 L32 8 L30 8 L30 6"
+          d="M32 8 L28 10 L26 14 L28 18 L32 20 L36 18 L38 14 L36 10 Z"
           stroke="url(#athenaGoldGradient)"
-          strokeWidth="2"
+          strokeWidth="1.5"
           fill="none"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
         
         <path
-          d="M32 10 L32 8 L34 8 L34 6"
+          d="M26 14 L28 10 L24 8 L20 10 L18 14 L18 18 L22 20 L24 18"
           stroke="url(#athenaGoldGradient)"
-          strokeWidth="2"
+          strokeWidth="1.5"
           fill="none"
           strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        
+        <path
+          d="M38 14 L36 10 L40 8 L44 10 L46 14 L46 18 L42 20 L40 18"
+          stroke="url(#athenaGoldGradient)"
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         
         <circle
-          cx="18"
-          cy="22"
-          r="3"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <circle
-          cx="46"
-          cy="22"
-          r="3"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <path
-          d="M28 28 C28 28 30 26 32 26 C34 26 36 28 36 28 C36 28 34 30 32 30 C30 30 28 28 28 28"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <path
-          d="M18 32 C18 32 20 36 20 44 L20 48 L22 48 L22 44 C22 38 24 34 26 32"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <path
-          d="M46 32 C46 32 44 36 44 44 L44 48 L42 48 L42 44 C42 38 40 34 38 32"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <path
-          d="M24 48 L24 56 C24 58 26 58 28 56 L28 48"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <path
-          d="M40 48 L40 56 C40 58 38 58 36 56 L36 48"
-          fill="url(#athenaGoldGradient)"
+          cx="32"
+          cy="28"
+          r="4"
+          stroke="url(#athenaGoldGradient)"
+          strokeWidth="1.5"
+          fill="none"
         />
         
         <path
           d="M28 32 L32 36 L36 32"
           stroke="url(#athenaGoldGradient)"
-          strokeWidth="2"
+          strokeWidth="1.5"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
+        />
+        
+        <path
+          d="M32 36 L32 42"
+          stroke="url(#athenaGoldGradient)"
+          strokeWidth="1.5"
+          strokeDasharray="2 2"
+        />
+        
+        <circle
+          cx="26"
+          cy="16"
+          r="1.5"
+          fill="url(#athenaGoldGradient)"
+        />
+        
+        <circle
+          cx="38"
+          cy="16"
+          r="1.5"
+          fill="url(#athenaGoldGradient)"
         />
       </g>
     </svg>

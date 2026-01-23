@@ -100,9 +100,9 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
       className={`flex gap-4 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-500`}
     >
       <div
-        className={`max-w-[90%] sm:max-w-[75%] rounded-xl px-5 py-4 shadow-lg ${isUser
-            ? "bg-gradient-to-br from-gold-500 to-amber-500 text-white rounded-br-md"
-            : "bg-gradient-to-br from-card to-surface-100 dark:to-surface-900 text-foreground border border-gold-500/10 rounded-bl-md"}`}
+        className={`max-w-[90%] sm:max-w-[75%] rounded-xl px-5 py-4 ${isUser
+            ? "bg-gradient-to-br from-gold-500 to-amber-600 text-white rounded-2xl rounded-br-md shadow-xl shadow-gold-500/25"
+            : "bg-card border-2 border-gold-500/20 text-foreground rounded-bl-md shadow-lg hover:shadow-xl shadow-gold-500/10 transition-shadow"}`}
       >
         {isUser ? (
           <div className="space-y-2">
@@ -114,7 +114,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="rounded-xl bg-black/10 border border-white/10 overflow-hidden"
+                    className="rounded-xl bg-black/10 border border-white/20 overflow-hidden shadow-lg"
                   >
                     {attachment.kind === "image" && attachment.previewUrl ? (
                       <a
@@ -203,7 +203,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
 const TypingIndicator = memo(function TypingIndicator() {
   return (
     <div className="flex gap-4 justify-start animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-card text-foreground border border-border shadow-lovable dark:shadow-lovable-dark">
+      <div className="max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-card border-2 border-gold-500/20 text-foreground shadow-lg hover:shadow-xl shadow-gold-500/10 transition-shadow">
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
             <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -271,7 +271,7 @@ export default function MessageList({
   }
 
   return (
-    <div className="relative z-0 h-full overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6 bg-surface-50 dark:bg-black">
+    <div className="relative z-0 h-full overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6 bg-surface-50 dark:bg-[#0a0a0f]">
       <div className="max-w-5xl mx-auto space-y-8">
         {messages.map((message, index) => (
           <MessageBubble key={message.timestamp ?? index} message={message} />

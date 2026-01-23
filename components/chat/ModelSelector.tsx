@@ -122,14 +122,14 @@ export default function ModelSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-card border-2 border-border rounded-xl shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 mt-2 w-80 bg-surface-900 border-2 border-border rounded-xl shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="p-3 border-b-2 border-border">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search models..."
-              className="w-full px-3 py-2 bg-background text-foreground border-2 border-border rounded-lg text-sm focus:outline-none focus:border-gold-500 transition-colors"
+              className="w-full px-3 py-2 bg-surface-800 text-foreground border-2 border-border rounded-lg text-sm focus:outline-none focus:border-gold-500 transition-colors"
               autoFocus
             />
           </div>
@@ -137,7 +137,7 @@ export default function ModelSelector({
           <div className="max-h-96 overflow-y-auto p-2">
             {Object.entries(groupedModels).map(([provider, models]) => (
               <div key={provider} className="mb-3">
-                <div className="px-3 py-1 text-[10px] font-black text-foreground/40 dark:text-muted-foreground uppercase tracking-widest">
+                <div className="px-3 py-1 text-[10px] font-black text-foreground/60 uppercase tracking-widest">
                   {provider}
                 </div>
                 <div className="space-y-1">
@@ -151,8 +151,8 @@ export default function ModelSelector({
                       }}
                       className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                         model.id === selectedModel
-                          ? 'bg-gold-500 border-2 border-gold-600 shadow-md'
-                          : 'hover:bg-secondary border-2 border-transparent'
+                          ? 'bg-surface-700 border-2 border-gold-500 shadow-md'
+                          : 'hover:bg-surface-800 border-2 border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -160,24 +160,22 @@ export default function ModelSelector({
                         <div className="flex-1 min-w-0">
                           <div className={`font-bold text-sm truncate ${
                             model.id === selectedModel
-                              ? 'text-white'
+                              ? 'text-foreground'
                               : 'text-foreground'
                           }`}>
                             {model.name}
                           </div>
                           <div className={`text-[10px] truncate ${
                             model.id === selectedModel
-                              ? 'text-white/90'
-                              : 'text-muted-foreground'
+                              ? 'text-foreground/80'
+                              : 'text-foreground/60'
                           }`}>
                             {model.description}
                           </div>
                         </div>
                       </div>
                       {model.id === selectedModel && (
-                        <svg className="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <div className="w-2 h-2 rounded-full bg-gold-500 flex-shrink-0" />
                       )}
                     </button>
                   ))}
@@ -186,7 +184,7 @@ export default function ModelSelector({
             ))}
 
             {filteredModels.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground text-sm">
+              <div className="text-center py-8 text-foreground/60 text-sm">
                 No models found
               </div>
             )}
