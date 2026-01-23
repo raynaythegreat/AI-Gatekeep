@@ -65,8 +65,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js'),
-      webSecurity: true
+      preload: path.join(__dirname, 'preload.js')
     },
     ...(iconPath && { icon: iconPath }),
     backgroundColor: '#0a0a0f',
