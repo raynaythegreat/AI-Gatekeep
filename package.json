@@ -61,7 +61,8 @@
       "assets/**/*"
     ],
     "asarUnpack": [
-      ".next/**/*"
+      ".next/**/*",
+      "lib/**/*"
     ],
     "linux": {
       "target": [
