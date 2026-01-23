@@ -1353,11 +1353,25 @@ export default function ChatInterface() {
     setIsClient(true);
   }, []);
 
+  // Load system prompt and initial settings
   useEffect(() => {
-    const savedSystemPrompt = localStorage.getItem('system-prompt');
-    if (savedSystemPrompt) {
-      setSystemPrompt(savedSystemPrompt);
+    async function loadInitialSettings() {
+      try {
+        // Load system prompt
+        const savedSystemPrompt = localStorage.getItem('system-prompt');
+        if (savedSystemPrompt) {
+          setSystemPrompt(savedSystemPrompt);
+        }
+        
+        // Load initial API keys for testing
+        const { SecureStorage } = await import('@/lib/secureStorage');
+        await SecureStorage.loadKeys();
+      } catch (error) {
+        console.error('Failed to load initial settings:', error);
+      }
     }
+
+    loadInitialSettings();
   }, []);
 
   useEffect(() => {

@@ -106,7 +106,7 @@ const MODEL_CONFIG: Record<
     provider: "claude",
     apiModel: "claude-sonnet-4-20250514",
   },
-  "claude-opus-4.5": { provider: "claude", apiModel: "claude-opus-4.5" },
+  "claude-sonnet-4.5": { provider: "claude", apiModel: "claude-sonnet-4.5" },
   "claude-sonnet-4.5": { provider: "claude", apiModel: "claude-sonnet-4.5" },
   "claude-3.5-sonnet": {
     provider: "claude",
@@ -127,134 +127,31 @@ const MODEL_CONFIG: Record<
   "o1-mini": { provider: "openai", apiModel: "o1-mini" },
 
   // Google Gemini models (via Google API)
-  "gemini-3.0-flash-exp": {
-    provider: "gemini",
-    apiModel: "gemini-3.0-flash-exp",
-  },
   "gemini-2.0-flash-exp": {
     provider: "gemini",
     apiModel: "gemini-2.0-flash-exp",
   },
   "gemini-1.5-pro": { provider: "gemini", apiModel: "gemini-1.5-pro" },
-  "gemini-1.5-flash": { provider: "gemini", apiModel: "gemini-1.5-flash" },
-  "gemini-1.5-flash-8b": {
-    provider: "gemini",
-    apiModel: "gemini-1.5-flash-8b",
-  },
-
-  // OpenCode Zen models (free tier)
-  "big-pickle": { provider: "opencodezen", apiModel: "big-pickle" },
-  "minimax-m2.1-free": { provider: "opencodezen", apiModel: "minimax-m2.1-free" },
-  "grok-code": { provider: "opencodezen", apiModel: "grok-code" },
-  "gpt-5-nano": { provider: "opencodezen", apiModel: "gpt-5-nano" },
-  "glm-4.6": { provider: "opencodezen", apiModel: "glm-4.6" },
-
-  // Ollama Cloud models (alphabetically sorted)
-  "cogito-2.1:671b-cloud": {
-    provider: "ollama",
-    apiModel: "cogito-2.1:671b-cloud",
-  },
-  "deepseek-v3.2:cloud": {
-    provider: "ollama",
-    apiModel: "deepseek-v3.2:cloud",
-  },
-  "gemini-3-flash-preview:cloud": {
-    provider: "ollama",
-    apiModel: "gemini-3-flash-preview:cloud",
-  },
-  "gemma3:4b-cloud": { provider: "ollama", apiModel: "gemma3:4b-cloud" },
-  "glm-4.7:cloud": { provider: "ollama", apiModel: "glm-4.7:cloud" },
-  "gpt-oss:20b-cloud": { provider: "ollama", apiModel: "gpt-oss:20b-cloud" },
-  "gpt-oss:120b-cloud": { provider: "ollama", apiModel: "gpt-oss:120b-cloud" },
-  "kimi-k2-thinking:cloud": {
-    provider: "ollama",
-    apiModel: "kimi-k2-thinking:cloud",
-  },
-  "minimax-m2:cloud": { provider: "ollama", apiModel: "minimax-m2:cloud" },
-  "minimax-m2.1:cloud": { provider: "ollama", apiModel: "minimax-m2.1:cloud" },
-  "qwen3-coder:480b-cloud": {
-    provider: "ollama",
-    apiModel: "qwen3-coder:480b-cloud",
-  },
-  "qwen3-next:80b-cloud": {
-    provider: "ollama",
-    apiModel: "qwen3-next:80b-cloud",
-  },
-  "qwen3-vl:235b-cloud": {
-    provider: "ollama",
-    apiModel: "qwen3-vl:235b-cloud",
-  },
-  "rnj-1:8b-cloud": { provider: "ollama", apiModel: "rnj-1:8b-cloud" },
-
-  // OpenRouter models (free)
-  "deepseek-chat-free": {
-    provider: "openrouter",
-    apiModel: "meta-llama/llama-3.3-70b-instruct:free",
-  },
-  "deepseek-r1-free": {
-    provider: "openrouter",
-    apiModel: "deepseek/deepseek-r1-0528:free",
-  },
-  "qwen-coder-free": {
-    provider: "openrouter",
-    apiModel: "qwen/qwen3-coder:free",
-  },
-  "qwen-72b-free": {
-    provider: "openrouter",
-    apiModel: "meta-llama/llama-3.3-70b-instruct:free",
-  },
-  "llama-3.3-70b-free": {
-    provider: "openrouter",
-    apiModel: "meta-llama/llama-3.3-70b-instruct:free",
-  },
-  "gemma-2-27b-free": {
-    provider: "openrouter",
-    apiModel: "google/gemma-3-27b-it:free",
-  },
-  "mistral-nemo-free": {
-    provider: "openrouter",
-    apiModel: "mistralai/devstral-2:24b",
-  },
-
-  // OpenRouter paid models
-  "deepseek-coder-v2": {
-    provider: "openrouter",
-    apiModel: "deepseek/deepseek-coder",
-  },
-  "claude-3.5-sonnet-or": {
-    provider: "openrouter",
-    apiModel: "anthropic/claude-3.5-sonnet",
-  },
-  "gpt-4o-or": { provider: "openrouter", apiModel: "openai/gpt-4o" },
-  "codellama-70b": {
-    provider: "openrouter",
-    apiModel: "meta-llama/codellama-70b-instruct",
-  },
-
-  // Groq
-  "groq-llama-3.1-70b": {
-    provider: "groq",
-    apiModel: "llama-3.1-70b-versatile",
-  },
-  "groq-llama-3.1-8b": { provider: "groq", apiModel: "llama-3.1-8b-instant" },
-  "groq-gemma2-9b-it": { provider: "groq", apiModel: "gemma2-9b-it" },
-  "groq-mixtral-8x7b": { provider: "groq", apiModel: "mixtral-8x7b" },
+  "gemini-pro": { provider: "gemini", apiModel: "gemini-pro" },
+  "gemini-pro-vision": { provider: "gemini", apiModel: "gemini-pro-vision" },
 
   // Mistral
   "mistral-large-latest": { provider: "mistral", apiModel: "mistral-large-latest" },
   "mistral-medium-latest": { provider: "mistral", apiModel: "mistral-medium-latest" },
-  "mistral-small-latest": { provider: "mistral", apiModel: "mistral-small-latest" },
-  "codestral-latest": { provider: "mistral", apiModel: "codestral-latest" },
 
   // Cohere
   "command-r-plus": { provider: "cohere", apiModel: "command-r-plus" },
   "command-r": { provider: "cohere", apiModel: "command-r" },
-  "command": { provider: "cohere", apiModel: "command" },
 
   // Perplexity
-  "llama-3.1-sonar-large-128k-online": { provider: "perplexity", apiModel: "llama-3.1-sonar-large-128k-online" },
-  "llama-3.1-sonar-small-128k-online": { provider: "perplexity", apiModel: "llama-3.1-sonar-small-128k-online" },
-  "llama-3.1-sonar-large-128k-chat": { provider: "perplexity", apiModel: "llama-3.1-sonar-large-128k-chat" },
+  "llama-3.1-sonar-large-128k-online": {
+    provider: "perplexity",
+    apiModel: "llama-3.1-sonar-large-128k-online",
+  },
+  "llama-3.1-sonar-small-128k-online": {
+    provider: "perplexity",
+    apiModel: "llama-3.1-sonar-small-128k-online",
+  },
 };
 
 const MODEL_PROVIDERS = [

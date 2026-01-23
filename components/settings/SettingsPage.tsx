@@ -103,17 +103,21 @@ const SettingsPage: React.FC = () => {
     authHeader: 'Authorization',
   });
 
-  // Load from localStorage on mount (keeping existing logic)
+  // Load API keys from secure storage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('api-keys');
-    if (saved) {
+    async function loadKeys() {
       try {
-        setApiKeys(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to parse saved API keys:', e);
+        const { SecureStorage } = await import('@/lib/secureStorage');
+        const keys = await SecureStorage.loadKeys();
+        setApiKeys(prev => ({ ...prev, ...keys }));
+      } catch (error) {
+        console.error('Failed to load API keys:', error);
       }
     }
 
+    loadKeys();
+
+    // Load custom endpoints (still use localStorage for these)
     const savedCustom = localStorage.getItem('custom-endpoints');
     if (savedCustom) {
       try {
@@ -136,40 +140,14 @@ const SettingsPage: React.FC = () => {
   // Save API key securely
   const saveApiKey = async (provider: keyof ApiKeys) => {
     const providerConfig = providers.find(p => p.key === provider);
-    if (!providerConfig?.envKey || !apiKeys[provider]) return;
+    if (!providerConfig?.envKey) return;
 
     setSaving(provider);
     try {
-      // Try Electron secure storage first
-      const isElectron = typeof window !== 'undefined' && window.api !== undefined;
-      if (isElectron) {
-        const envKeys: Record<string, string> = {};
-        envKeys[providerConfig.envKey!] = apiKeys[provider];
-        // Use timeout to avoid blocking
-        setTimeout(async () => {
-          try {
-            await (window.api as any).apiKeys.set(envKeys);
-            console.log('Saved API key securely to Electron storage');
-          } catch (error) {
-            console.error('Failed to save to Electron storage, falling back:', error);
-          }
-        }, 0);
-      } else {
-        // Fallback to .env.local for browser
-        const response = await fetch('/api/settings/env', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            key: providerConfig.envKey,
-            value: apiKeys[provider],
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to save to .env.local');
-        }
-        console.log('Saved API key to .env.local');
-      }
+      // Use centralized secure storage
+      const { SecureStorage } = await import('@/lib/secureStorage');
+      await SecureStorage.saveKeys({ [provider]: apiKeys[provider] });
+      console.log(`Saved ${providerConfig.label} API key securely`);
 
       // Show success feedback
       setSaved(true);
@@ -253,47 +231,47 @@ const SettingsPage: React.FC = () => {
     try {
       switch (provider) {
         case 'anthropic':
-          result = await ApiTester.testAnthropic(apiKeys.anthropic);
+          result = await ApiTester.testAnthropic(apiKeys.anthropic || '');
           break;
         case 'openai':
-          result = await ApiTester.testOpenAI(apiKeys.openai);
+          result = await ApiTester.testOpenAI(apiKeys.openai || '');
           break;
         case 'groq':
-          result = await ApiTester.testGroq(apiKeys.groq);
+          result = await ApiTester.testGroq(apiKeys.groq || '');
           break;
         case 'openrouter':
-          result = await ApiTester.testOpenRouter(apiKeys.openrouter);
+          result = await ApiTester.testOpenRouter(apiKeys.openrouter || '');
           break;
         case 'fireworks':
-          result = await ApiTester.testFireworks(apiKeys.fireworks);
+          result = await ApiTester.testFireworks(apiKeys.fireworks || '');
           break;
         case 'gemini':
-          result = await ApiTester.testGemini(apiKeys.gemini);
+          result = await ApiTester.testGemini(apiKeys.gemini || '');
           break;
         case 'mistral':
-          result = await ApiTester.testMistral(apiKeys.mistral);
+          result = await ApiTester.testMistral(apiKeys.mistral || '');
           break;
         case 'cohere':
-          result = await ApiTester.testCohere(apiKeys.cohere);
+          result = await ApiTester.testCohere(apiKeys.cohere || '');
           break;
         case 'perplexity':
-          result = await ApiTester.testPerplexity(apiKeys.perplexity);
+          result = await ApiTester.testPerplexity(apiKeys.perplexity || '');
           break;
         case 'github':
-          result = await ApiTester.testGitHub(apiKeys.github);
+          result = await ApiTester.testGitHub(apiKeys.github || '');
           break;
         case 'vercel':
-          result = await ApiTester.testVercel(apiKeys.vercel);
+          result = await ApiTester.testVercel(apiKeys.vercel || '');
           break;
-         case 'render':
-           result = await ApiTester.testRender(apiKeys.render);
-           break;
+        case 'render':
+          result = await ApiTester.testRender(apiKeys.render || '');
+          break;
          case 'ollama':
-           result = await ApiTester.testOllama(apiKeys.ollamaBaseUrl);
+           result = await ApiTester.testOllama(apiKeys.ollamaBaseUrl || '');
            break;
          case 'customBaseUrl':
          case 'customEndpoint':
-           result = await ApiTester.testCustom(apiKeys.customBaseUrl, apiKeys.customEndpoint);
+           result = await ApiTester.testCustom(apiKeys.customBaseUrl || '', apiKeys.customEndpoint || '');
            break;
          default:
            result = { status: 'error', message: 'Test not implemented' };

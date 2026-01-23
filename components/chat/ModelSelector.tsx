@@ -22,13 +22,17 @@ export interface ModelOption {
   description: string;
 }
 
-const MODELS: ModelOption[] = [
+export const MODELS: ModelOption[] = [
   // Claude
-  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'claude', icon: '🤖', description: 'Most intelligent model' },
-  { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', provider: 'claude', icon: '🤖', description: 'Powerful analysis' },
-  { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', provider: 'claude', icon: '🤖', description: 'Fast & lightweight' },
+  { id: 'claude-opus-4-20250514', name: 'Claude Opus 4', provider: 'claude', icon: '🤖', description: 'Most intelligent model' },
+  { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'claude', icon: '🤖', description: 'Top-tier reasoning' },
+  { id: 'claude-sonnet-4.5', name: 'Claude Sonnet 4.5', provider: 'claude', icon: '🤖', description: 'Balanced performance' },
+  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'claude', icon: '🤖', description: 'Intelligent & efficient' },
+  { id: 'claude-3-5-haiku-20240307', name: 'Claude 3.5 Haiku', provider: 'claude', icon: '🤖', description: 'Fast & lightweight' },
 
   // OpenAI
+  { id: 'gpt-5.1', name: 'GPT-5.1', provider: 'openai', icon: '🔮', description: 'Latest multimodal' },
+  { id: 'gpt-5', name: 'GPT-5', provider: 'openai', icon: '🔮', description: 'Latest powerful model' },
   { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', icon: '🔮', description: 'Latest multimodal' },
   { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'openai', icon: '🔮', description: 'Fast & capable' },
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'openai', icon: '🔮', description: 'Quick responses' },
@@ -38,6 +42,7 @@ const MODELS: ModelOption[] = [
   { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', provider: 'groq', icon: '⚡', description: 'Efficient reasoning' },
 
   // Gemini
+  { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Exp', provider: 'gemini', icon: '💎', description: 'Ultra-fast experimental' },
   { id: 'gemini-pro', name: 'Gemini Pro', provider: 'gemini', icon: '💎', description: 'Google\'s best' },
   { id: 'gemini-pro-vision', name: 'Gemini Pro Vision', provider: 'gemini', icon: '💎', description: 'Multimodal analysis' },
 
