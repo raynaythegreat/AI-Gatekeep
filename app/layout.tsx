@@ -34,7 +34,11 @@ export default function RootLayout({
           <ChatHistoryProvider>
             <ApiUsageProvider>
               <DeploymentProvider>
-                <FileAccessProvider>{children}</FileAccessProvider>
+                <FileAccessProvider>
+                  <div className="min-h-screen bg-background text-foreground">
+                    {children}
+                  </div>
+                </FileAccessProvider>
               </DeploymentProvider>
             </ApiUsageProvider>
           </ChatHistoryProvider>
