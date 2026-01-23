@@ -159,14 +159,26 @@ export class GitHubService {
     repo: string,
     path: string,
     message: string,
-    sha: string
+    branch?: string
   ): Promise<void> {
+    const contents = await this.octokit.repos.getContent({
+      owner,
+      repo,
+      path,
+      ...(branch ? { ref: branch } : {}),
+    });
+
+    if (Array.isArray(contents.data) || !contents.data.sha) {
+      throw new Error("Path is not a file or file SHA could not be retrieved.");
+    }
+
     await this.octokit.repos.deleteFile({
       owner,
       repo,
       path,
       message,
-      sha,
+      sha: contents.data.sha,
+      ...(branch ? { branch } : {}),
     });
   }
 

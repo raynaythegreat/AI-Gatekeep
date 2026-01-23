@@ -117,12 +117,23 @@ async function fetchImageAsBase64(url: string): Promise<{
   return { base64: buffer.toString("base64"), mimeType };
 }
 
-function getProviderConfig(provider: ImageProvider): ProviderConfig {
+function getApiKeyFromRequest(request: NextRequest, provider: string): string | null {
+  const headerName = `X-API-Key-${provider.charAt(0).toUpperCase() + provider.slice(1)}`;
+  const headerToken = request.headers.get(headerName);
+  if (headerToken && headerToken.trim()) {
+    return headerToken.trim();
+  }
+  return null;
+}
+
+function getProviderConfig(request: NextRequest, provider: ImageProvider): ProviderConfig {
   if (provider === "fireworks") {
     return {
       label: "Fireworks",
       apiKey:
-        process.env.FIREWORKS_IMAGE_API_KEY || process.env.FIREWORKS_API_KEY,
+        getApiKeyFromRequest(request, 'fireworks') ||
+        process.env.FIREWORKS_IMAGE_API_KEY ||
+        process.env.FIREWORKS_API_KEY,
       baseUrl:
         process.env.FIREWORKS_IMAGE_BASE_URL ||
         process.env.FIREWORKS_BASE_URL ||
@@ -142,7 +153,9 @@ function getProviderConfig(provider: ImageProvider): ProviderConfig {
     return {
       label: "Nanobanana",
       apiKey:
-        process.env.NANOBANANA_IMAGE_API_KEY || process.env.NANOBANANA_API_KEY,
+        getApiKeyFromRequest(request, 'nanobanana') ||
+        process.env.NANOBANANA_IMAGE_API_KEY ||
+        process.env.NANOBANANA_API_KEY,
       baseUrl:
         process.env.NANOBANANA_IMAGE_BASE_URL ||
         process.env.NANOBANANA_BASE_URL ||
@@ -161,7 +174,10 @@ function getProviderConfig(provider: ImageProvider): ProviderConfig {
 
   return {
     label: "Ideogram",
-    apiKey: process.env.IDEOGRAM_IMAGE_API_KEY || process.env.IDEOGRAM_API_KEY,
+    apiKey:
+      getApiKeyFromRequest(request, 'ideogram') ||
+      process.env.IDEOGRAM_IMAGE_API_KEY ||
+      process.env.IDEOGRAM_API_KEY,
     baseUrl:
       process.env.IDEOGRAM_IMAGE_BASE_URL ||
       process.env.IDEOGRAM_BASE_URL ||
@@ -212,7 +228,7 @@ export async function POST(request: NextRequest) {
       ? sizeCandidate
       : "1024x1024";
 
-    const config = getProviderConfig(provider);
+    const config = getProviderConfig(request, provider);
     if (!config.apiKey) {
       return NextResponse.json(
         { error: `${config.label} API key missing. Set ${config.keyHint}.` },

@@ -405,6 +405,44 @@ export class ApiTester {
     }
   }
 
+  static async testNanobanana(apiKey: string): Promise<TestResult> {
+    if (!validateApiKey(apiKey)) {
+      return { status: 'not_configured', message: 'API key not configured' };
+    }
+
+    try {
+      const start = Date.now();
+      // Simple validation test - just verify the key format
+      // Nanobanana API may require specific endpoints, so we do a basic validation
+      if (apiKey.length < 10) {
+        throw new Error('API key appears invalid (too short)');
+      }
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'API key saved (will verify on first image generation)', latency };
+    } catch (error) {
+      return { status: 'error', message: formatError(error) };
+    }
+  }
+
+  static async testIdeogram(apiKey: string): Promise<TestResult> {
+    if (!validateApiKey(apiKey)) {
+      return { status: 'not_configured', message: 'API key not configured' };
+    }
+
+    try {
+      const start = Date.now();
+      // Simple validation test - just verify the key format
+      // Ideogram API requires specific endpoints, so we do a basic validation
+      if (apiKey.length < 10) {
+        throw new Error('API key appears invalid (too short)');
+      }
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'API key saved (will verify on first image generation)', latency };
+    } catch (error) {
+      return { status: 'error', message: formatError(error) };
+    }
+  }
+
   static async testCustom(baseUrl: string, endpoint?: string, apiKey?: string): Promise<TestResult> {
     if (!baseUrl) return { status: 'not_configured', message: 'Base URL not configured' };
 

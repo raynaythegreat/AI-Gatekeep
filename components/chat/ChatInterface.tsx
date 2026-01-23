@@ -1632,7 +1632,7 @@ export default function ChatInterface() {
     }
   }, [loadOllamaModels]);
 
-  useEffect(() => {
+  const fetchGroqModels = useCallback(async () => {
     if (!status?.groq?.configured) {
       setGroqModels([]);
       setGroqError(null);
@@ -1640,39 +1640,35 @@ export default function ChatInterface() {
       return;
     }
 
-    const fetchGroqModels = async () => {
-      setGroqLoading(true);
-      setGroqError(null);
-      try {
-        const response = await fetch("/api/groq/models");
-        const data = await response.json();
-        if (!response.ok || data.error) {
-          throw new Error(data.error || "Failed to load Groq models");
-        }
-        const models = Array.isArray(data.models) ? data.models : [];
-        const options = models.map(
-          (model: { id: string; name?: string; description?: string }) => ({
-            id: model.id,
-            name: formatModelDisplayName("groq", model.id, model.name),
-            description: model.description || "Groq",
-            provider: "groq" as const,
-          }),
-        );
-        setGroqModels(sortModelOptionsAlphabetically(options));
-      } catch (error) {
-        setGroqError(
-          error instanceof Error ? error.message : "Failed to load Groq models",
-        );
-        setGroqModels([]);
-      } finally {
-        setGroqLoading(false);
+    setGroqLoading(true);
+    setGroqError(null);
+    try {
+      const response = await fetch("/api/groq/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load Groq models");
       }
-    };
-
-    fetchGroqModels();
+      const models = Array.isArray(data.models) ? data.models : [];
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string }) => ({
+          id: model.id,
+          name: formatModelDisplayName("groq", model.id, model.name),
+          description: model.description || "Groq",
+          provider: "groq" as const,
+        }),
+      );
+      setGroqModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      setGroqError(
+        error instanceof Error ? error.message : "Failed to load Groq models",
+      );
+      setGroqModels([]);
+    } finally {
+      setGroqLoading(false);
+    }
   }, [status?.groq?.configured]);
 
-  useEffect(() => {
+  const fetchOpenrouterModels = useCallback(async () => {
     if (!status?.openrouter?.configured) {
       setOpenrouterModels([]);
       setOpenrouterError(null);
@@ -1680,41 +1676,37 @@ export default function ChatInterface() {
       return;
     }
 
-    const fetchOpenrouterModels = async () => {
-      setOpenrouterLoading(true);
-      setOpenrouterError(null);
-      try {
-        const response = await fetch("/api/openrouter/models");
-        const data = await response.json();
-        if (!response.ok || data.error) {
-          throw new Error(data.error || "Failed to load OpenRouter models");
-        }
-        const models = Array.isArray(data.models) ? data.models : [];
-        const options = models.map(
-          (model: { id: string; name?: string; description?: string }) => ({
-            id: model.id,
-            name: formatModelDisplayName("openrouter", model.id, model.name),
-            description: model.description || "OpenRouter model",
-            provider: "openrouter" as const,
-          }),
-        );
-        setOpenrouterModels(sortModelOptionsAlphabetically(options));
-      } catch (error) {
-        setOpenrouterError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load OpenRouter models",
-        );
-        setOpenrouterModels([]);
-      } finally {
-        setOpenrouterLoading(false);
+    setOpenrouterLoading(true);
+    setOpenrouterError(null);
+    try {
+      const response = await fetch("/api/openrouter/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load OpenRouter models");
       }
-    };
-
-    fetchOpenrouterModels();
+      const models = Array.isArray(data.models) ? data.models : [];
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string }) => ({
+          id: model.id,
+          name: formatModelDisplayName("openrouter", model.id, model.name),
+          description: model.description || "OpenRouter model",
+          provider: "openrouter" as const,
+        }),
+      );
+      setOpenrouterModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      setOpenrouterError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load OpenRouter models",
+      );
+      setOpenrouterModels([]);
+    } finally {
+      setOpenrouterLoading(false);
+    }
   }, [status?.openrouter?.configured]);
 
-  useEffect(() => {
+  const fetchFireworksModels = useCallback(async () => {
     if (!status?.fireworks?.configured) {
       setFireworksModels([]);
       setFireworksError(null);
@@ -1722,46 +1714,64 @@ export default function ChatInterface() {
       return;
     }
 
-    const fetchFireworksModels = async () => {
-      setFireworksLoading(true);
-      setFireworksError(null);
-      try {
-        const response = await fetch("/api/fireworks/models");
-        const data = await response.json();
-        const models = Array.isArray(data.models) ? data.models : [];
-        if (!response.ok && models.length === 0) {
-          throw new Error(data?.error || "Failed to load Fireworks models");
-        }
-        if (models.length === 0) {
-          throw new Error(data?.error || "No Fireworks models returned");
-        }
-        const options = models.map(
-          (model: { id: string; name?: string; description?: string }) => ({
-            id: `fireworks:${model.id}`,
-            name: formatModelDisplayName(
-              "fireworks",
-              `fireworks:${model.id}`,
-              model.name,
-            ),
-            description: model.description || "Fireworks model",
-            provider: "fireworks" as const,
-          }),
-        );
-        setFireworksModels(sortModelOptionsAlphabetically(options));
-      } catch (error) {
-        setFireworksError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load Fireworks models",
-        );
-        setFireworksModels([]);
-      } finally {
-        setFireworksLoading(false);
+    setFireworksLoading(true);
+    setFireworksError(null);
+    try {
+      const response = await fetch("/api/fireworks/models");
+      const data = await response.json();
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (!response.ok && models.length === 0) {
+        throw new Error(data?.error || "Failed to load Fireworks models");
       }
+      if (models.length === 0) {
+        throw new Error(data?.error || "No Fireworks models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string }) => ({
+          id: `fireworks:${model.id}`,
+          name: formatModelDisplayName(
+            "fireworks",
+            `fireworks:${model.id}`,
+            model.name,
+          ),
+          description: model.description || "Fireworks model",
+          provider: "fireworks" as const,
+        }),
+      );
+      setFireworksModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      setFireworksError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load Fireworks models",
+      );
+      setFireworksModels([]);
+    } finally {
+      setFireworksLoading(false);
+    }
+  }, [status?.fireworks?.configured]);
+
+  useEffect(() => {
+    fetchGroqModels();
+    fetchOpenrouterModels();
+    fetchFireworksModels();
+  }, [fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels]);
+
+  useEffect(() => {
+    const handleApiKeysUpdated = () => {
+      fetchOllamaModels();
+      fetchGroqModels();
+      fetchOpenrouterModels();
+      fetchFireworksModels();
     };
 
-    fetchFireworksModels();
-  }, [status?.fireworks?.configured]);
+    window.addEventListener('api-keys-updated', handleApiKeysUpdated);
+
+    return () => {
+      window.removeEventListener('api-keys-updated', handleApiKeysUpdated);
+    };
+  }, [fetchOllamaModels, fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels]);
+
 
   useEffect(() => {
     const repoFullName = currentSession?.repoFullName;
@@ -1970,6 +1980,53 @@ export default function ChatInterface() {
     if (!modelName) return null;
     return { provider: prefix as ModelProvider, modelName };
   };
+
+  const handleDeleteFile = useCallback(
+    async (path: string, message: string) => {
+      if (!selectedRepo) {
+        setApplyRepoError("No repository selected.");
+        return;
+      }
+      if (!status?.github?.configured) {
+        setApplyRepoError(
+          "GitHub is not configured. Set GITHUB_TOKEN in your hosting environment variables (or .env.local locally).",
+        );
+        return;
+      }
+
+      setApplyingRepoChanges(true);
+      setApplyRepoError(null);
+
+      try {
+        const [owner, repo] = selectedRepo.full_name.split("/");
+        const { SecureStorage } = await import('@/lib/secureStorage');
+        const token = await SecureStorage.getKey('github');
+        const github = new (await import('@/services/github')).GitHubService(token);
+
+        await github.deleteFile(owner, repo, path, message);
+
+        const successMessage: ChatMessage = {
+          role: "assistant",
+          content: `✅ **Successfully deleted ${path}** from ${selectedRepo.full_name}.`,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, successMessage]);
+        loadRepoContext(selectedRepo);
+      } catch (error) {
+        const errorMessage = `❌ **Failed to delete ${path}**: ${error instanceof Error ? error.message : "Unknown error"}`;
+        setApplyRepoError(errorMessage);
+        const errorContent: ChatMessage = {
+          role: "assistant",
+          content: errorMessage,
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, errorContent]);
+      } finally {
+        setApplyingRepoChanges(false);
+      }
+    },
+    [selectedRepo, status?.github?.configured, loadRepoContext],
+  );
 
   const addAttachments = useCallback((files: FileList) => {
     setAttachmentError(null);

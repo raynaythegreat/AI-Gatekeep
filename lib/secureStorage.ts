@@ -11,6 +11,8 @@ export interface ApiKeys {
   mistral: string;
   perplexity: string;
   zai: string;
+  nanobanana: string;
+  ideogram: string;
   github: string;
   vercel: string;
   render: string;
@@ -27,6 +29,8 @@ const API_KEY_MAP = {
   mistral: 'MISTRAL_API_KEY',
   perplexity: 'PERPLEXITY_API_KEY',
   zai: 'ZAI_API_KEY',
+  nanobanana: 'NANOBANANA_API_KEY',
+  ideogram: 'IDEOGRAM_API_KEY',
   github: 'GITHUB_TOKEN',
   vercel: 'VERCEL_TOKEN',
   render: 'RENDER_API_KEY',

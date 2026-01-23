@@ -25,6 +25,8 @@ interface ApiKeys {
   mistral: string;
   perplexity: string;
   zai: string;
+  nanobanana: string;
+  ideogram: string;
   github: string;
   vercel: string;
   render: string;
@@ -55,6 +57,8 @@ const providers: ProviderConfig[] = [
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
   { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
   { key: 'zai', label: 'Z.ai', placeholder: 'Enter API key', icon: '⚡', category: 'ai', description: 'GLM-4.7 flagship coding models', docsUrl: 'https://z.ai/model-api', envKey: 'ZAI_API_KEY' },
+  { key: 'nanobanana', label: 'Nanobanana', placeholder: 'Enter API key', icon: '🍌', category: 'ai', description: 'Image generation API', docsUrl: 'https://nanobananaapi.ai', envKey: 'NANOBANANA_API_KEY' },
+  { key: 'ideogram', label: 'Ideogram', placeholder: 'Enter API key', icon: '🎨', category: 'ai', description: 'Advanced image generation', docsUrl: 'https://ideogram.ai/api', envKey: 'IDEOGRAM_API_KEY' },
 
   // Development Tools
   { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management', docsUrl: 'https://github.com/settings/tokens', envKey: 'GITHUB_TOKEN' },
@@ -77,6 +81,8 @@ const SettingsPage: React.FC = () => {
     mistral: '',
     perplexity: '',
     zai: '',
+    nanobanana: '',
+    ideogram: '',
     github: '',
     vercel: '',
     render: '',
@@ -259,6 +265,12 @@ const SettingsPage: React.FC = () => {
           break;
         case 'zai':
           result = await ApiTester.testZai(apiKeys.zai || '');
+          break;
+        case 'nanobanana':
+          result = await ApiTester.testNanobanana(apiKeys.nanobanana || '');
+          break;
+        case 'ideogram':
+          result = await ApiTester.testIdeogram(apiKeys.ideogram || '');
           break;
         case 'github':
           result = await ApiTester.testGitHub(apiKeys.github || '');

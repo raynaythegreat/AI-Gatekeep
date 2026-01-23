@@ -159,12 +159,14 @@ export default function ModelSelector({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-900 rounded-lg text-sm font-bold hover:bg-white dark:hover:bg-surface-800 hover:border-gold-500/50 transition-all"
+        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 hover:bg-white dark:hover:bg-surface-800 hover:border-gold-500/50 transition-all shadow-sm group"
       >
-        <span className="text-lg">{selectedOption.icon}</span>
-        <span className="hidden sm:inline">{selectedOption.name}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-lg group-hover:scale-110 transition-transform">{selectedOption.icon}</span>
+          <span className="hidden sm:inline text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{selectedOption.name}</span>
+        </div>
         <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-surface-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
