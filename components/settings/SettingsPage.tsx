@@ -103,7 +103,7 @@ const SettingsPage: React.FC = () => {
     authHeader: 'Authorization',
   });
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount (keeping existing logic)
   useEffect(() => {
     const saved = localStorage.getItem('api-keys');
     if (saved) {
@@ -129,49 +129,54 @@ const SettingsPage: React.FC = () => {
     }
   }, []);
 
-  // Auto-save to localStorage whenever keys change
-  useEffect(() => {
-    localStorage.setItem('api-keys', JSON.stringify(apiKeys));
-    setSaved(true);
-    const timer = setTimeout(() => setSaved(false), 2000);
-    return () => clearTimeout(timer);
-  }, [apiKeys]);
-
-  // Auto-save system prompt to localStorage
-  useEffect(() => {
-    localStorage.setItem('system-prompt', systemPrompt);
-  }, [systemPrompt]);
-
   const updateKey = (provider: keyof ApiKeys, value: string) => {
     setApiKeys(prev => ({ ...prev, [provider]: value }));
   };
 
-  // Save API key to .env.local
-  const saveToEnv = async (provider: keyof ApiKeys) => {
+  // Save API key securely
+  const saveApiKey = async (provider: keyof ApiKeys) => {
     const providerConfig = providers.find(p => p.key === provider);
     if (!providerConfig?.envKey || !apiKeys[provider]) return;
 
     setSaving(provider);
     try {
-      const response = await fetch('/api/settings/env', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: providerConfig.envKey,
-          value: apiKeys[provider],
-        }),
-      });
+      // Try Electron secure storage first
+      const isElectron = typeof window !== 'undefined' && window.api !== undefined;
+      if (isElectron) {
+        const envKeys: Record<string, string> = {};
+        envKeys[providerConfig.envKey!] = apiKeys[provider];
+        // Use timeout to avoid blocking
+        setTimeout(async () => {
+          try {
+            await (window.api as any).apiKeys.set(envKeys);
+            console.log('Saved API key securely to Electron storage');
+          } catch (error) {
+            console.error('Failed to save to Electron storage, falling back:', error);
+          }
+        }, 0);
+      } else {
+        // Fallback to .env.local for browser
+        const response = await fetch('/api/settings/env', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: providerConfig.envKey,
+            value: apiKeys[provider],
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to save to .env.local');
+        if (!response.ok) {
+          throw new Error('Failed to save to .env.local');
+        }
+        console.log('Saved API key to .env.local');
       }
 
       // Show success feedback
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
-      console.error('Error saving to .env.local:', error);
-      alert('Failed to save API key to .env.local. Please check console for details.');
+      console.error('Error saving API key:', error);
+      alert(`Failed to save ${providerConfig.label} API key. Please check console for details.`);
     } finally {
       setSaving(null);
     }
@@ -222,8 +227,25 @@ const SettingsPage: React.FC = () => {
   };
 
   const runTest = async (provider: string) => {
-    // Save before testing
-    localStorage.setItem('api-keys', JSON.stringify(apiKeys));
+    // Save before testing (securely if in Electron)
+    const isElectron = typeof window !== 'undefined' && window.api !== undefined;
+    if (isElectron) {
+      const providerConfig = providers.find(p => p.key === provider);
+      if (providerConfig?.envKey && apiKeys[provider as keyof ApiKeys]) {
+        const envKeys: Record<string, string> = {};
+        envKeys[providerConfig.envKey] = apiKeys[provider as keyof ApiKeys];
+        setTimeout(async () => {
+          try {
+            await (window.api as any).apiKeys.set(envKeys);
+            console.log(`Saved ${provider} key securely before testing`);
+          } catch (error) {
+            console.error('Failed to save to Electron storage:', error);
+          }
+        }, 0);
+      }
+    } else {
+      localStorage.setItem('api-keys', JSON.stringify(apiKeys));
+    }
 
     setTesting(provider);
     let result: TestResult;
@@ -633,7 +655,7 @@ const SettingsPage: React.FC = () => {
                   {testing === key ? 'Testing...' : 'Test'}
                 </button>
                 <button
-                  onClick={() => saveToEnv(key)}
+                  onClick={() => saveApiKey(key)}
                   disabled={saving === key || !apiKeys[key]}
                   className="flex-1 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border-2 border-emerald-500/30 hover:bg-emerald-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   title="Save to .env.local"
@@ -738,7 +760,7 @@ const SettingsPage: React.FC = () => {
                   {testing === key ? 'Testing...' : 'Test'}
                 </button>
                 <button
-                  onClick={() => saveToEnv(key)}
+                  onClick={() => saveApiKey(key)}
                   disabled={saving === key || !apiKeys[key]}
                   className="flex-1 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border-2 border-emerald-500/30 hover:bg-emerald-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   title="Save to .env.local"
