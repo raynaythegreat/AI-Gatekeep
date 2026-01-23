@@ -11,7 +11,6 @@ export type ModelProvider =
   | "gemini"
   | "fireworks"
   | "mistral"
-  | "cohere"
   | "perplexity"
   | "huggingface";
 
@@ -56,10 +55,6 @@ export const MODELS: ModelOption[] = [
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'mistral', icon: '🌊', description: 'Top-tier reasoning' },
   { id: 'mistral-medium-latest', name: 'Mistral Medium', provider: 'mistral', icon: '🌊', description: 'Balanced performance' },
 
-  // Cohere
-  { id: 'command-r-plus', name: 'Command R+', provider: 'cohere', icon: '🧠', description: 'Advanced RAG' },
-  { id: 'command-r', name: 'Command R', provider: 'cohere', icon: '🧠', description: 'Efficient commands' },
-
   // Perplexity
   { id: 'llama-3.1-sonar-large-128k-online', name: 'Sonar Large Online', provider: 'perplexity', icon: '🔍', description: 'With web search' },
   { id: 'llama-3.1-sonar-small-128k-online', name: 'Sonar Small Online', provider: 'perplexity', icon: '🔍', description: 'Fast with search' },
@@ -78,14 +73,61 @@ export default function ModelSelector({
 }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [availableProviders, setAvailableProviders] = useState<Set<ModelProvider>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = MODELS.find(m => m.id === selectedModel) || MODELS[0];
+  // Check available API keys on mount
+  useEffect(() => {
+    const checkAvailableKeys = async () => {
+      try {
+        const { SecureStorage } = await import('@/lib/secureStorage');
+        const keys = await SecureStorage.loadKeys();
+        console.log('Raw API keys loaded:', Object.keys(keys));
 
-  const filteredModels = MODELS.filter(model =>
+        const providers: ModelProvider[] = [];
+        if (keys.anthropic && keys.anthropic.trim()) providers.push('claude' as ModelProvider);
+        if (keys.openai && keys.openai.trim()) providers.push('openai' as ModelProvider);
+        if (keys.groq && keys.groq.trim()) providers.push('groq' as ModelProvider);
+        if (keys.openrouter && keys.openrouter.trim()) providers.push('openrouter' as ModelProvider);
+        if (keys.fireworks && keys.fireworks.trim()) providers.push('fireworks' as ModelProvider);
+        if (keys.gemini && keys.gemini.trim()) providers.push('gemini' as ModelProvider);
+        if (keys.mistral && keys.mistral.trim()) providers.push('mistral' as ModelProvider);
+        if (keys.perplexity && keys.perplexity.trim()) providers.push('perplexity' as ModelProvider);
+        if (keys.huggingface && keys.huggingface.trim()) providers.push('huggingface' as ModelProvider);
+        // Ollama is always available (local)
+        providers.push('ollama' as ModelProvider);
+
+        console.log('Available API key providers:', providers);
+        setAvailableProviders(new Set<ModelProvider>(providers));
+      } catch (error) {
+        console.error('Failed to check available API keys:', error);
+        // Fallback to only Ollama when no keys are available
+        console.log('Falling back to only Ollama models');
+        setAvailableProviders(new Set<ModelProvider>(['ollama']));
+      }
+    };
+
+    checkAvailableKeys();
+  }, []);
+
+  // Filter models by available providers and search query
+  const availableModels = MODELS.filter(model => availableProviders.has(model.provider));
+
+  // Prioritize popular models
+  const popularModelIds = ['gpt-5.1', 'gpt-5', 'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-sonnet-4.5'];
+  const popularModels = availableModels.filter(model => popularModelIds.includes(model.id));
+  const otherModels = availableModels.filter(model => !popularModelIds.includes(model.id));
+
+  // Combine with popular models first
+  const allAvailableModels = [...popularModels, ...otherModels];
+
+  const filteredModels = allAvailableModels.filter(model =>
     model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     model.provider.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log('Available models:', availableModels.map(m => `${m.provider}:${m.name}`));
+  const selectedOption = availableModels.find(m => m.id === selectedModel) || availableModels[0] || MODELS[0];
 
   // Group models by provider
   const groupedModels = filteredModels.reduce((acc, model) => {
@@ -112,7 +154,7 @@ export default function ModelSelector({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-secondary text-foreground border-2 border-border rounded-lg text-sm font-bold hover:border-gold-500 transition-all"
+        className="flex items-center gap-2 px-3 py-2 border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-900 rounded-lg text-sm font-bold hover:bg-white dark:hover:bg-surface-800 hover:border-gold-500/50 transition-all"
       >
         <span className="text-lg">{selectedOption.icon}</span>
         <span className="hidden sm:inline">{selectedOption.name}</span>
@@ -128,14 +170,14 @@ export default function ModelSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-surface-900 border-2 border-border rounded-xl shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="p-3 border-b-2 border-border">
+        <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="p-3 border-b border-surface-200 dark:border-surface-700">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search models..."
-              className="w-full px-3 py-2 bg-surface-800 text-foreground border-2 border-border rounded-lg text-sm focus:outline-none focus:border-gold-500 transition-colors"
+              className="w-full px-3 py-2 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-foreground border border-surface-200 dark:border-surface-700 rounded-lg text-sm focus:outline-none focus:border-gold-500 transition-colors"
               autoFocus
             />
           </div>
@@ -143,9 +185,9 @@ export default function ModelSelector({
           <div className="max-h-96 overflow-y-auto p-2">
             {Object.entries(groupedModels).map(([provider, models]) => (
               <div key={provider} className="mb-3">
-                <div className="px-3 py-1 text-[10px] font-black text-foreground/60 uppercase tracking-widest">
-                  {provider}
-                </div>
+                 <div className="px-3 py-1 text-[10px] font-black text-surface-600 dark:text-foreground/60 uppercase tracking-widest">
+                   {provider}
+                 </div>
                 <div className="space-y-1">
                   {models.map((model) => (
                     <button
@@ -157,27 +199,27 @@ export default function ModelSelector({
                       }}
                       className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                         model.id === selectedModel
-                          ? 'bg-surface-700 border-2 border-gold-500 shadow-md'
-                          : 'hover:bg-surface-800 border-2 border-transparent'
+                          ? 'bg-gold-500/10 dark:bg-accent border-2 border-gold-500 shadow-md'
+                          : 'hover:bg-surface-100 dark:hover:bg-accent border-2 border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-xl">{model.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <div className={`font-bold text-sm truncate ${
-                            model.id === selectedModel
-                              ? 'text-foreground'
-                              : 'text-foreground'
-                          }`}>
-                            {model.name}
-                          </div>
-                          <div className={`text-[10px] truncate ${
-                            model.id === selectedModel
-                              ? 'text-foreground/80'
-                              : 'text-foreground/60'
-                          }`}>
-                            {model.description}
-                          </div>
+                           <div className={`font-bold text-sm truncate ${
+                             model.id === selectedModel
+                               ? 'text-surface-900 dark:text-foreground'
+                               : 'text-surface-900 dark:text-foreground'
+                           }`}>
+                             {model.name}
+                           </div>
+                           <div className={`text-[10px] truncate ${
+                             model.id === selectedModel
+                               ? 'text-surface-700 dark:text-foreground/80'
+                               : 'text-surface-600 dark:text-foreground/60'
+                           }`}>
+                             {model.description}
+                           </div>
                         </div>
                       </div>
                       {model.id === selectedModel && (
@@ -189,11 +231,16 @@ export default function ModelSelector({
               </div>
             ))}
 
-            {filteredModels.length === 0 && (
-              <div className="text-center py-8 text-foreground/60 text-sm">
-                No models found
-              </div>
-            )}
+             {filteredModels.length === 0 && (
+               <div className="text-center py-8 px-4">
+                 <div className="text-surface-600 dark:text-foreground/60 text-sm mb-2">
+                   No models available
+                 </div>
+                 <div className="text-surface-500 dark:text-foreground/50 text-xs">
+                   Configure API keys in Settings to access AI models
+                 </div>
+               </div>
+             )}
           </div>
         </div>
       )}

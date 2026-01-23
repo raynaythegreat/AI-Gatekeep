@@ -26,7 +26,6 @@ function getApiKeyFromRequest(request: NextRequest, provider: string): string | 
     opencode: 'OPENCODE_API_KEY',
     fireworks: 'FIREWORKS_API_KEY',
     mistral: 'MISTRAL_API_KEY',
-    cohere: 'COHERE_API_KEY',
     perplexity: 'PERPLEXITY_API_KEY',
     huggingface: 'HUGGINGFACE_API_KEY',
   };
@@ -132,7 +131,6 @@ const MODEL_CONFIG: Record<
       | "opencodezen"
       | "fireworks"
       | "mistral"
-      | "cohere"
       | "perplexity"
       | "huggingface";
     apiModel: string;
@@ -176,10 +174,6 @@ const MODEL_CONFIG: Record<
   "mistral-large-latest": { provider: "mistral", apiModel: "mistral-large-latest" },
   "mistral-medium-latest": { provider: "mistral", apiModel: "mistral-medium-latest" },
 
-  // Cohere
-  "command-r-plus": { provider: "cohere", apiModel: "command-r-plus" },
-  "command-r": { provider: "cohere", apiModel: "command-r" },
-
   // Perplexity
   "llama-3.1-sonar-large-128k-online": {
     provider: "perplexity",
@@ -201,8 +195,8 @@ const MODEL_PROVIDERS = [
   "opencodezen",
   "fireworks",
   "mistral",
-  "cohere",
   "perplexity",
+  "huggingface",
 ] as const;
 type ModelProvider = (typeof MODEL_PROVIDERS)[number];
 
@@ -687,7 +681,6 @@ export async function POST(request: NextRequest) {
       opencode: getApiKeyFromRequest(request, 'opencodezen') || getApiKeyFromRequest(request, 'opencode') || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
       mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
-      cohere: getApiKeyFromRequest(request, 'cohere') || process.env.COHERE_API_KEY,
       perplexity: getApiKeyFromRequest(request, 'perplexity') || process.env.PERPLEXITY_API_KEY,
       huggingface: getApiKeyFromRequest(request, 'huggingface') || process.env.HUGGINGFACE_API_KEY,
     }[provider];
@@ -708,10 +701,10 @@ export async function POST(request: NextRequest) {
                   ? "Set FIREWORKS_API_KEY."
                   : provider === "mistral"
                     ? "Set MISTRAL_API_KEY."
-                    : provider === "cohere"
-                      ? "Set COHERE_API_KEY."
-                      : provider === "perplexity"
-                        ? "Set PERPLEXITY_API_KEY."
+                    : provider === "perplexity"
+                      ? "Set PERPLEXITY_API_KEY."
+                      : provider === "huggingface"
+                        ? "Set HUGGINGFACE_API_KEY."
                 : "";
       return new Response(
         JSON.stringify({
@@ -1286,67 +1279,6 @@ export async function POST(request: NextRequest) {
                   } catch (e) {
                     // Ignore parse errors
                   }
-                }
-              }
-            }
-          } else if (provider === "cohere") {
-            const cohereApiKey = providerKey;
-            if (!cohereApiKey) {
-              throw new Error("COHERE_API_KEY is not configured");
-            }
-
-            const cohereUrl = "https://api.cohere.ai/v1/chat";
-            const lastMessage = messages[messages.length - 1];
-            const chatHistory = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
-              role: m.role === "user" ? "USER" : "CHATBOT",
-              message: m.content,
-            }));
-
-            const response = await fetch(cohereUrl, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${cohereApiKey}`,
-              },
-              body: JSON.stringify({
-                model: apiModel,
-                message: lastMessage.content,
-                chat_history: chatHistory,
-                preamble: contextPrompt,
-                stream: true,
-              }),
-            });
-
-            if (!response.ok || !response.body) {
-              const errorText = await response.text();
-              throw new Error(errorText || "Cohere request failed");
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              const chunk = decoder.decode(value, { stream: true });
-              const lines = chunk.split("\n").filter((line) => line.trim());
-
-              for (const line of lines) {
-                try {
-                  const parsed = JSON.parse(line);
-                  if (parsed.event_type === "text-generation") {
-                    const content = parsed.text;
-                    if (content) {
-                      controller.enqueue(
-                        encoder.encode(
-                          `data: ${JSON.stringify({ type: "text", content })}\n\n`,
-                        ),
-                      );
-                    }
-                  }
-                } catch (e) {
-                  // Ignore parse errors
                 }
               }
             }

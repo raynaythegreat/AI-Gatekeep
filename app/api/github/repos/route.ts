@@ -21,19 +21,45 @@ export async function GET(request: NextRequest) {
     const token = getGitHubToken(request);
     if (!token) {
       return NextResponse.json(
-        { error: "GitHub token not provided. Please configure it in Settings." },
+        {
+          error: "GitHub token not configured",
+          details: "Please set up your GitHub token in Settings > Deployment Tools > GitHub. Make sure it has 'repo' scope for private repositories."
+        },
         { status: 401 }
       );
     }
 
     const github = new GitHubService(token);
     const repos = await github.listRepositories();
-    return NextResponse.json({ repos });
+
+    // Limit to first 20 repos for performance
+    const limitedRepos = repos.slice(0, 20);
+
+    return NextResponse.json({ repos: limitedRepos, total: repos.length });
   } catch (error) {
     console.error("Failed to list repos:", error);
+
+    let errorMessage = "Failed to list repositories";
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('Bad credentials')) {
+        errorMessage = "Invalid GitHub token";
+        statusCode = 401;
+      } else if (error.message.includes('403') || error.message.includes('Forbidden')) {
+        errorMessage = "GitHub token lacks required permissions. Please ensure it has 'repo' scope.";
+        statusCode = 403;
+      } else if (error.message.includes('rate limit')) {
+        errorMessage = "GitHub API rate limit exceeded. Please try again later.";
+        statusCode = 429;
+      } else {
+        errorMessage = error.message;
+      }
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to list repositories" },
-      { status: 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 }

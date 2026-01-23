@@ -23,7 +23,6 @@ interface ApiKeys {
   fireworks: string;
   gemini: string;
   mistral: string;
-  cohere: string;
   perplexity: string;
   huggingface: string;
   github: string;
@@ -54,7 +53,6 @@ const providers: ProviderConfig[] = [
   { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform', docsUrl: 'https://fireworks.ai/api-keys', envKey: 'FIREWORKS_API_KEY' },
   { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra', docsUrl: 'https://aistudio.google.com/app/apikey', envKey: 'GEMINI_API_KEY' },
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
-  { key: 'cohere', label: 'Cohere', placeholder: 'Enter API key', icon: '🧠', category: 'ai', description: 'Command & Embed models', docsUrl: 'https://dashboard.cohere.com/api-keys', envKey: 'COHERE_API_KEY' },
   { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
   { key: 'huggingface', label: 'Hugging Face', placeholder: 'hf_...', icon: '🤗', category: 'ai', description: 'Access thousands of open-source models', docsUrl: 'https://huggingface.co/settings/tokens', envKey: 'HUGGINGFACE_API_KEY' },
 
@@ -77,7 +75,6 @@ const SettingsPage: React.FC = () => {
     fireworks: '',
     gemini: '',
     mistral: '',
-    cohere: '',
     perplexity: '',
     huggingface: '',
     github: '',
@@ -97,6 +94,7 @@ const SettingsPage: React.FC = () => {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [requestedAction, setRequestedAction] = useState<'enable' | 'disable'>('enable');
+  const [showApiKeys, setShowApiKeys] = useState<Record<string, boolean>>({});
   const { enabled: fileAccessEnabled, toggleAccess: toggleFileAccess } = useFileAccess();
   const [newCustomEndpoint, setNewCustomEndpoint] = useState<Omit<CustomEndpoint, 'id'>>({
     name: '',
@@ -112,6 +110,7 @@ const SettingsPage: React.FC = () => {
       try {
         const { SecureStorage } = await import('@/lib/secureStorage');
         const keys = await SecureStorage.loadKeys();
+        console.log('Settings: Loaded API keys:', Object.keys(keys));
         setApiKeys(prev => ({ ...prev, ...keys }));
       } catch (error) {
         console.error('Failed to load API keys:', error);
@@ -140,6 +139,10 @@ const SettingsPage: React.FC = () => {
     setApiKeys(prev => ({ ...prev, [provider]: value }));
   };
 
+  const toggleApiKeyVisibility = (provider: string) => {
+    setShowApiKeys(prev => ({ ...prev, [provider]: !prev[provider] }));
+  };
+
   // Save API key securely
   const saveApiKey = async (provider: keyof ApiKeys) => {
     const providerConfig = providers.find(p => p.key === provider);
@@ -150,7 +153,11 @@ const SettingsPage: React.FC = () => {
       // Use centralized secure storage
       const { SecureStorage } = await import('@/lib/secureStorage');
       await SecureStorage.saveKeys({ [provider]: apiKeys[provider] });
-      console.log(`Saved ${providerConfig.label} API key securely`);
+      console.log(`Settings: Saved ${providerConfig.label} API key securely`);
+
+      // Verify it was saved
+      const savedKeys = await SecureStorage.loadKeys();
+      console.log(`Settings: Verification - ${provider} key exists:`, !!(savedKeys as any)[provider]);
 
       // Show success feedback
       setSaved(true);
@@ -208,24 +215,16 @@ const SettingsPage: React.FC = () => {
   };
 
   const runTest = async (provider: string) => {
-    // Save before testing (securely if in Electron)
-    const isElectron = typeof window !== 'undefined' && window.api !== undefined;
-    if (isElectron) {
-      const providerConfig = providers.find(p => p.key === provider);
-      if (providerConfig?.envKey && apiKeys[provider as keyof ApiKeys]) {
-        const envKeys: Record<string, string> = {};
-        envKeys[providerConfig.envKey] = apiKeys[provider as keyof ApiKeys];
-        setTimeout(async () => {
-          try {
-            await (window.api as any).apiKeys.set(envKeys);
-            console.log(`Saved ${provider} key securely before testing`);
-          } catch (error) {
-            console.error('Failed to save to Electron storage:', error);
-          }
-        }, 0);
+    // Save before testing using centralized secure storage
+    const providerConfig = providers.find(p => p.key === provider);
+    if (providerConfig?.envKey && apiKeys[provider as keyof ApiKeys]) {
+      try {
+        const { SecureStorage } = await import('@/lib/secureStorage');
+        await SecureStorage.saveKeys({ [provider]: apiKeys[provider as keyof ApiKeys] });
+        console.log(`Saved ${provider} key securely before testing`);
+      } catch (error) {
+        console.error('Failed to save to secure storage:', error);
       }
-    } else {
-      localStorage.setItem('api-keys', JSON.stringify(apiKeys));
     }
 
     setTesting(provider);
@@ -253,9 +252,6 @@ const SettingsPage: React.FC = () => {
           break;
         case 'mistral':
           result = await ApiTester.testMistral(apiKeys.mistral || '');
-          break;
-        case 'cohere':
-          result = await ApiTester.testCohere(apiKeys.cohere || '');
           break;
         case 'perplexity':
           result = await ApiTester.testPerplexity(apiKeys.perplexity || '');
@@ -622,13 +618,32 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              <input
-                type="password"
-                value={apiKeys[key]}
-                onChange={(e) => updateKey(key, e.target.value)}
-                placeholder={placeholder}
-                className="w-full px-3 py-2 mb-3 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-xs input-flat"
-              />
+              <div className="relative mb-3">
+                <input
+                  type={showApiKeys[key] ? "text" : "password"}
+                  value={apiKeys[key]}
+                  onChange={(e) => updateKey(key, e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full px-3 py-2 pr-10 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-xs input-flat"
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleApiKeyVisibility(key)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  title={showApiKeys[key] ? "Hide API key" : "Show API key"}
+                >
+                  {showApiKeys[key] ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
 
               <div className="flex gap-2 mb-3">
                 <button
@@ -727,13 +742,32 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              <input
-                type="password"
-                value={apiKeys[key]}
-                onChange={(e) => updateKey(key, e.target.value)}
-                placeholder={placeholder}
-                className="w-full px-3 py-2 mb-3 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-xs input-flat"
-              />
+              <div className="relative mb-3">
+                <input
+                  type={showApiKeys[key] ? "text" : "password"}
+                  value={apiKeys[key]}
+                  onChange={(e) => updateKey(key, e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full px-3 py-2 pr-10 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-xs input-flat"
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleApiKeyVisibility(key)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  title={showApiKeys[key] ? "Hide API key" : "Show API key"}
+                >
+                  {showApiKeys[key] ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
 
               <div className="flex gap-2 mb-3">
                 <button
@@ -1020,8 +1054,13 @@ const SettingsPage: React.FC = () => {
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-8 border-t-2 border-border">
-        <div className="text-xs text-muted-foreground font-bold">
-          All API keys are stored securely on your device using OS-level encryption.
+        <div className="space-y-2">
+          <div className="text-xs text-muted-foreground font-bold">
+            All API keys are stored securely on your device using OS-level encryption.
+          </div>
+          <div className="text-xs text-muted-foreground">
+            💡 <strong>Tip:</strong> Configure at least one AI provider API key to start using the chat. Check the browser console (F12) for debugging information.
+          </div>
         </div>
         <div className="flex gap-3">
           <button
