@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading OS Athena...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0f;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .loading-container {
+      text-align: center;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 32px;
+      letter-spacing: -1px;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      border: 4px solid rgba(255, 215, 0, 0.2);
+      border-top-color: #FFD700;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .status {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-top: 16px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .version {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .dots {
+      display: inline-block;
+    }
+
+    .dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-container">
+    <div class="logo">OS ATHENA</div>
+    <div class="spinner"></div>
+    <div class="status">
+      Initializing application<span class="dots"></span>
+    </div>
+    <div class="version">v1.3.0</div>
+  </div>
+
+  <script>
+    // Try to connect to the server
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    function checkServer() {
+      attempts++;
+      fetch('http://localhost:3456')
+        .then(() => {
+          // Server is ready, reload to actual app
+          window.location.href = 'http://localhost:3456';
+        })
+        .catch(() => {
+          if (attempts < maxAttempts) {
+            setTimeout(checkServer, 1000);
+          } else {
+            document.querySelector('.status').innerHTML =
+              'Server failed to start. Please check the logs.<br><small>Try restarting the application.</small>';
+          }
+        });
+    }
+
+    // Start checking after a brief delay
+    setTimeout(checkServer, 1000);
+  </script>
+</body>
+</html>

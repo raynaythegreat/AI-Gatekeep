@@ -64,18 +64,19 @@ function createWindow() {
     x: undefined,
     y: undefined,
     backgroundColor: '#0a0a0f',
+    show: true, // Show immediately to prevent black screen appearance
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.js'),
       sandbox: true,
+      backgroundThrottling: false, // Prevent throttling when window is in background
       // Updated CSP to be more permissive for development/Next.js
       contentSecurityPolicy: "default-src 'self' http://localhost:* https://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*; style-src 'self' 'unsafe-inline' http://localhost:* https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: http://localhost:* https://*; connect-src 'self' http://localhost:* https://*;"
     },
     ...(iconPath && { icon: iconPath }),
     title: 'OS Athena',
-    show: false,
     autoHideMenuBar: true,
     frame: false,
     titleBarStyle: 'hidden',
@@ -86,12 +87,19 @@ function createWindow() {
   // Remove application menu completely for cleaner UI
   mainWindow.setMenu(null);
 
-  mainWindow.loadURL(`http://localhost:${PORT}`);
+  // Load loading page first, then switch to actual app when server is ready
+  const loadingPage = `file://${path.join(__dirname, 'loading.html')}`;
+  mainWindow.loadFile(path.join(__dirname, 'loading.html')).then(() => {
+    log('Loading page displayed');
+  }).catch((err) => {
+    log(`Failed to load loading page: ${err.message}`, 'WARN');
+    // Fallback: try to load the main URL directly
+    mainWindow.loadURL(`http://localhost:${PORT}`);
+  });
 
-  // Show window when ready to avoid white flash
+  // Window is already shown, just log when content is ready
   mainWindow.once('ready-to-show', () => {
-    log('Window ready, showing...');
-    mainWindow.show();
+    log('Window content ready');
   });
 
   // Error handling for load failures
@@ -185,6 +193,17 @@ function waitForServer(resolve, reject, attempts = 0) {
 
   http.get(`http://localhost:${PORT}`, (res) => {
     log(`Server is ready on port ${PORT} (attempt ${attempts + 1})`);
+
+    // Server is ready, navigate to the actual app
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      log('Loading main application...');
+      mainWindow.loadURL(`http://localhost:${PORT}`).then(() => {
+        log('Main application loaded successfully');
+      }).catch((err) => {
+        log(`Failed to load main app: ${err.message}`, 'ERROR');
+      });
+    }
+
     resolve();
   }).on('error', (err) => {
     if (attempts >= maxAttempts) {

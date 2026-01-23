@@ -28,7 +28,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="dark">
+      <head>
+        <style dangerouslySetInnerHTML={{__html: `
+          body {
+            background: #0a0a0f;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+          }
+          #__next { min-height: 100vh; }
+        `}} />
+      </head>
       <body className="antialiased overflow-x-hidden">
         <ThemeProvider>
           <ChatHistoryProvider>

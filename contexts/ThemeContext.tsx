@@ -36,7 +36,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   if (!mounted) {
-    return <div className="min-h-screen bg-[color:var(--background)]" />;
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 mx-auto border-4 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-400 text-sm">Initializing OS Athena...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
