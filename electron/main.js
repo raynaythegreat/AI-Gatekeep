@@ -66,8 +66,7 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.js'),
-      webSecurity: true,
-      contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; font-src 'self' data: https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
+      webSecurity: true
     },
     ...(iconPath && { icon: iconPath }),
     backgroundColor: '#0a0a0f',
