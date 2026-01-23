@@ -23,5 +23,11 @@ contextBridge.exposeInMainWorld('api', {
   writeFile: (path, content) => ipcRenderer.invoke('write-file', { path, content }),
   listDirectory: (path) => ipcRenderer.invoke('list-directory', path),
   getFileStats: (path) => ipcRenderer.invoke('get-file-stats', path),
-  selectDirectory: () => ipcRenderer.invoke('select-directory')
+  selectDirectory: () => ipcRenderer.invoke('select-directory'),
+  apiKeys: {
+    get: () => ipcRenderer.invoke('api-keys:get'),
+    set: (keys) => ipcRenderer.invoke('api-keys:set', keys),
+    delete: (keyNames) => ipcRenderer.invoke('api-keys:delete', keyNames),
+    getStatus: () => ipcRenderer.invoke('api-keys:get-status')
+  }
 });

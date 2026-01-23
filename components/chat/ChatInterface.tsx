@@ -1337,7 +1337,7 @@ export default function ChatInterface() {
     if (currentSession?.chatMode && currentSession.chatMode !== chatMode) {
       setChatMode(currentSession.chatMode);
     }
-  }, [currentSession?.id, currentSession?.chatMode]);
+  }, [currentSession?.id, currentSession?.chatMode, chatMode]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -3098,6 +3098,7 @@ export default function ChatInterface() {
     selectedModelInfo.provider,
     selectedRepo,
     updateCurrentSession,
+    chatMode,
   ]);
 
   const applyPendingRepoChanges = useCallback(

@@ -68,7 +68,8 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
     },
     ...(iconPath && { icon: iconPath }),
     title: 'OS Athena',
@@ -79,9 +80,6 @@ function createWindow() {
     transparent: false
   });
 
-  // Fix GPU crash by disabling GPU acceleration
-  app.commandLine.appendSwitch('disable-gpu', 'disable-software-rasterizer');
-  app.commandLine.appendSwitch('in-process-gpu');
 
   // Remove application menu completely for cleaner UI
   mainWindow.setMenu(null);
@@ -234,6 +232,9 @@ function markFirstRunComplete() {
 
 // Desktop integration is now handled by electron/install-desktop-entry.sh
 // Run that script manually or during installation to set up desktop integration
+
+// Fix GPU crash and window issues
+app.disableHardwareAcceleration();
 
 app.whenReady().then(async () => {
   setupLogging();
@@ -483,3 +484,89 @@ ipcMain.handle('window-maximize', async () => {
     
     return false;
   }
+
+  const keysFilePath = path.join(app.getPath('userData'), 'encrypted-keys.json');
+
+  async function loadEncryptedKeys() {
+    try {
+      if (fsSync.existsSync(keysFilePath)) {
+        const encryptedData = await fs.readFile(keysFilePath, 'utf-8');
+        return JSON.parse(encryptedData);
+      }
+      return {};
+    } catch (error) {
+      log(`Failed to load encrypted keys: ${error.message}`, 'ERROR');
+      return {};
+    }
+  }
+
+  async function saveEncryptedKeys(keys) {
+    try {
+      await fs.writeFile(keysFilePath, JSON.stringify(keys, null, 2), 'utf-8');
+      log('Encrypted keys saved');
+      return { success: true };
+    } catch (error) {
+      log(`Failed to save encrypted keys: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
+  }
+
+  ipcMain.handle('api-keys:get', async () => {
+    const encryptedKeys = await loadEncryptedKeys();
+    const decryptedKeys = {};
+
+    for (const [key, value] of Object.entries(encryptedKeys)) {
+      if (safeStorage.isEncryptionAvailable()) {
+        try {
+          const buffer = Buffer.from(value, 'base64');
+          decryptedKeys[key] = safeStorage.decryptString(buffer);
+        } catch (error) {
+          log(`Failed to decrypt key ${key}: ${error.message}`, 'ERROR');
+        }
+      } else {
+        decryptedKeys[key] = value;
+      }
+    }
+
+    return { success: true, keys: decryptedKeys };
+  });
+
+  ipcMain.handle('api-keys:set', async (event, keys) => {
+    const encryptedKeys = {};
+    const existingKeys = await loadEncryptedKeys();
+
+    for (const [key, value] of Object.entries(keys)) {
+      if (safeStorage.isEncryptionAvailable()) {
+        encryptedKeys[key] = safeStorage.encryptString(value).toString('base64');
+      } else {
+        encryptedKeys[key] = value;
+      }
+      log(`Encrypted key: ${key}`);
+    }
+
+    await saveEncryptedKeys({ ...existingKeys, ...encryptedKeys });
+    return { success: true };
+  });
+
+  ipcMain.handle('api-keys:delete', async (event, keyNames) => {
+    const existingKeys = await loadEncryptedKeys();
+    
+    for (const key of keyNames) {
+      delete existingKeys[key];
+      log(`Deleted key: ${key}`);
+    }
+
+    await saveEncryptedKeys(existingKeys);
+    return { success: true };
+  });
+
+  ipcMain.handle('api-keys:get-status', async () => {
+    const encryptedKeys = await loadEncryptedKeys();
+    const status = {};
+
+    for (const key of Object.keys(encryptedKeys)) {
+      status[key] = true;
+    }
+
+    return { success: true, status };
+  });

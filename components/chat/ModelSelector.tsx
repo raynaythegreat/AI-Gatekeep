@@ -146,22 +146,26 @@ export default function ModelSelector({
                       }}
                       className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                         model.id === selectedModel
-                          ? 'bg-gold-500/20 border-2 border-gold-500/50'
+                          ? 'bg-gold-500/40 border-2 border-gold-500'
                           : 'hover:bg-secondary border-2 border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-xl">{model.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <div className="font-bold text-sm text-foreground truncate">
+                          <div className={`font-bold text-sm truncate ${
+                            model.id === selectedModel ? 'text-white' : 'text-foreground'
+                          }`}>
                             {model.name}
                           </div>
-                          <div className="text-[10px] text-muted-foreground truncate">
+                          <div className={`text-[10px] truncate ${
+                            model.id === selectedModel ? 'text-white/80' : 'text-muted-foreground'
+                          }`}>
                             {model.description}
                           </div>
                         </div>
                         {model.id === selectedModel && (
-                          <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <svg className="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         )}
