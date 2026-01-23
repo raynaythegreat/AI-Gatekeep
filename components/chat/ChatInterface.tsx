@@ -70,7 +70,10 @@ type ModelProvider =
   | "ollama"
   | "gemini"
   | "opencodezen"
-  | "fireworks";
+  | "fireworks"
+  | "mistral"
+  | "cohere"
+  | "perplexity";
 const MODEL_PROVIDERS: ModelProvider[] = [
   "claude",
   "openai",
@@ -80,6 +83,9 @@ const MODEL_PROVIDERS: ModelProvider[] = [
   "gemini",
   "opencodezen",
   "fireworks",
+  "mistral",
+  "cohere",
+  "perplexity",
 ];
 
 interface ModelOption {
@@ -223,6 +229,8 @@ const MODEL_TOKEN_CASE: Record<string, string> = {
   gemma: "Gemma",
   mixtral: "Mixtral",
   mistral: "Mistral",
+  cohere: "Cohere",
+  perplexity: "Perplexity",
   deepseek: "DeepSeek",
   gemini: "Gemini",
   phi: "Phi",
@@ -1137,6 +1145,72 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
       name: "RNJ-1 8B",
       description: "Research model",
       provider: "ollama",
+    },
+  ],
+  Mistral: [
+    {
+      id: "mistral-large-latest",
+      name: "Mistral Large",
+      description: "Top-tier reasoning",
+      provider: "mistral",
+    },
+    {
+      id: "mistral-medium-latest",
+      name: "Mistral Medium",
+      description: "Balanced performance",
+      provider: "mistral",
+    },
+    {
+      id: "mistral-small-latest",
+      name: "Mistral Small",
+      description: "Fast & efficient",
+      provider: "mistral",
+    },
+    {
+      id: "codestral-latest",
+      name: "Codestral",
+      description: "Code specialist",
+      provider: "mistral",
+    },
+  ],
+  Cohere: [
+    {
+      id: "command-r-plus",
+      name: "Command R+",
+      description: "Advanced RAG",
+      provider: "cohere",
+    },
+    {
+      id: "command-r",
+      name: "Command R",
+      description: "Efficient commands",
+      provider: "cohere",
+    },
+    {
+      id: "command",
+      name: "Command",
+      description: "General purpose",
+      provider: "cohere",
+    },
+  ],
+  Perplexity: [
+    {
+      id: "llama-3.1-sonar-large-128k-online",
+      name: "Sonar Large Online",
+      description: "With web search",
+      provider: "perplexity",
+    },
+    {
+      id: "llama-3.1-sonar-small-128k-online",
+      name: "Sonar Small Online",
+      description: "Fast with search",
+      provider: "perplexity",
+    },
+    {
+      id: "llama-3.1-sonar-large-128k-chat",
+      name: "Sonar Large Chat",
+      description: "Without search",
+      provider: "perplexity",
     },
   ],
 };

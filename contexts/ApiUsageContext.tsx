@@ -17,7 +17,10 @@ type Provider =
   | "ollama"
   | "gemini"
   | "opencodezen"
-  | "fireworks";
+  | "fireworks"
+  | "mistral"
+  | "cohere"
+  | "perplexity";
 
 interface UsageRecord {
   provider: Provider;
@@ -45,6 +48,9 @@ interface ApiUsageState {
   ollama: ProviderUsage;
   opencodezen: ProviderUsage;
   fireworks: ProviderUsage;
+  mistral: ProviderUsage;
+  cohere: ProviderUsage;
+  perplexity: ProviderUsage;
 }
 
 interface ApiLimits {
@@ -56,6 +62,9 @@ interface ApiLimits {
   ollama: { daily: number; weekly: number; note: string };
   opencodezen: { daily: number; weekly: number; note: string };
   fireworks: { daily: number; weekly: number; note: string };
+  mistral: { daily: number; weekly: number; note: string };
+  cohere: { daily: number; weekly: number; note: string };
+  perplexity: { daily: number; weekly: number; note: string };
 }
 
 interface ProviderBilling {
@@ -148,6 +157,21 @@ const DEFAULT_LIMITS: ApiLimits = {
     weekly: Infinity,
     note: "Fireworks paid API - budget varies by plan",
   },
+  mistral: {
+    daily: Infinity,
+    weekly: Infinity,
+    note: "Paid API - budget varies by plan",
+  },
+  cohere: {
+    daily: Infinity,
+    weekly: Infinity,
+    note: "Paid API - budget varies by plan",
+  },
+  perplexity: {
+    daily: Infinity,
+    weekly: Infinity,
+    note: "Paid API - online search models",
+  },
 };
 
 const DEFAULT_USAGE: ProviderUsage = {
@@ -165,6 +189,9 @@ const DEFAULT_STATE: ApiUsageState = {
   ollama: { ...DEFAULT_USAGE },
   opencodezen: { ...DEFAULT_USAGE },
   fireworks: { ...DEFAULT_USAGE },
+  mistral: { ...DEFAULT_USAGE },
+  cohere: { ...DEFAULT_USAGE },
+  perplexity: { ...DEFAULT_USAGE },
 };
 
 const DEFAULT_BILLING: ProviderBilling = {
@@ -192,6 +219,9 @@ const DEFAULT_BILLING_STATE: BillingState = {
   },
   opencodezen: { ...DEFAULT_BILLING },
   fireworks: { ...DEFAULT_BILLING },
+  mistral: { ...DEFAULT_BILLING },
+  cohere: { ...DEFAULT_BILLING },
+  perplexity: { ...DEFAULT_BILLING },
 };
 
 const DEFAULT_RATE_LIMIT_BUCKET: RateLimitBucket = {
@@ -216,6 +246,9 @@ const DEFAULT_RATE_LIMITS_STATE: RateLimitsState = {
   ollama: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   opencodezen: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   fireworks: { ...DEFAULT_PROVIDER_RATE_LIMIT },
+  mistral: { ...DEFAULT_PROVIDER_RATE_LIMIT },
+  cohere: { ...DEFAULT_PROVIDER_RATE_LIMIT },
+  perplexity: { ...DEFAULT_PROVIDER_RATE_LIMIT },
 };
 
 function getStartOfDay(date: Date = new Date()): number {
@@ -297,6 +330,9 @@ export function ApiUsageProvider({ children }: { children: ReactNode }) {
       ollama: { today: 0, thisWeek: 0, thisMonth: 0 },
       opencodezen: { today: 0, thisWeek: 0, thisMonth: 0 },
       fireworks: { today: 0, thisWeek: 0, thisMonth: 0 },
+      mistral: { today: 0, thisWeek: 0, thisMonth: 0 },
+      cohere: { today: 0, thisWeek: 0, thisMonth: 0 },
+      perplexity: { today: 0, thisWeek: 0, thisMonth: 0 },
     };
 
     for (const record of records) {

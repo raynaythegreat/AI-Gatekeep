@@ -40,7 +40,10 @@ export interface ChatSession {
     | "ollama"
     | "gemini"
     | "opencodezen"
-    | "fireworks";
+    | "fireworks"
+    | "mistral"
+    | "cohere"
+    | "perplexity";
   model?: string;
   repoName?: string | null;
   repoFullName?: string | null;

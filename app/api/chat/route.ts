@@ -93,7 +93,10 @@ const MODEL_CONFIG: Record<
       | "groq"
       | "gemini"
       | "opencodezen"
-      | "fireworks";
+      | "fireworks"
+      | "mistral"
+      | "cohere"
+      | "perplexity";
     apiModel: string;
   }
 > = {
@@ -236,6 +239,22 @@ const MODEL_CONFIG: Record<
   "groq-llama-3.1-8b": { provider: "groq", apiModel: "llama-3.1-8b-instant" },
   "groq-gemma2-9b-it": { provider: "groq", apiModel: "gemma2-9b-it" },
   "groq-mixtral-8x7b": { provider: "groq", apiModel: "mixtral-8x7b" },
+
+  // Mistral
+  "mistral-large-latest": { provider: "mistral", apiModel: "mistral-large-latest" },
+  "mistral-medium-latest": { provider: "mistral", apiModel: "mistral-medium-latest" },
+  "mistral-small-latest": { provider: "mistral", apiModel: "mistral-small-latest" },
+  "codestral-latest": { provider: "mistral", apiModel: "codestral-latest" },
+
+  // Cohere
+  "command-r-plus": { provider: "cohere", apiModel: "command-r-plus" },
+  "command-r": { provider: "cohere", apiModel: "command-r" },
+  "command": { provider: "cohere", apiModel: "command" },
+
+  // Perplexity
+  "llama-3.1-sonar-large-128k-online": { provider: "perplexity", apiModel: "llama-3.1-sonar-large-128k-online" },
+  "llama-3.1-sonar-small-128k-online": { provider: "perplexity", apiModel: "llama-3.1-sonar-small-128k-online" },
+  "llama-3.1-sonar-large-128k-chat": { provider: "perplexity", apiModel: "llama-3.1-sonar-large-128k-chat" },
 };
 
 const MODEL_PROVIDERS = [
@@ -247,6 +266,9 @@ const MODEL_PROVIDERS = [
   "gemini",
   "opencodezen",
   "fireworks",
+  "mistral",
+  "cohere",
+  "perplexity",
 ] as const;
 type ModelProvider = (typeof MODEL_PROVIDERS)[number];
 
@@ -729,6 +751,9 @@ export async function POST(request: NextRequest) {
       groq: groqApiKey,
       opencodezen: process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
+      mistral: process.env.MISTRAL_API_KEY,
+      cohere: process.env.COHERE_API_KEY,
+      perplexity: process.env.PERPLEXITY_API_KEY,
     }[provider];
     const providerKey =
       typeof rawProviderKey === "string" ? rawProviderKey.trim() : rawProviderKey;
@@ -745,6 +770,12 @@ export async function POST(request: NextRequest) {
                 ? "Set OPENCODE_API_KEY."
                 : provider === "fireworks"
                   ? "Set FIREWORKS_API_KEY."
+                  : provider === "mistral"
+                    ? "Set MISTRAL_API_KEY."
+                    : provider === "cohere"
+                      ? "Set COHERE_API_KEY."
+                      : provider === "perplexity"
+                        ? "Set PERPLEXITY_API_KEY."
                 : "";
       return new Response(
         JSON.stringify({
@@ -1256,6 +1287,189 @@ export async function POST(request: NextRequest) {
                   }
                 } catch (parseError) {
                   // Ignore parsing errors for incomplete chunks
+                }
+              }
+            }
+          } else if (provider === "mistral") {
+            const mistralApiKey = providerKey;
+            if (!mistralApiKey) {
+              throw new Error("MISTRAL_API_KEY is not configured");
+            }
+
+            const mistralUrl = "https://api.mistral.ai/v1/chat/completions";
+            const mistralMessages = [
+              { role: "system", content: contextPrompt },
+              ...messages,
+            ];
+
+            const response = await fetch(mistralUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${mistralApiKey}`,
+              },
+              body: JSON.stringify({
+                model: apiModel,
+                messages: mistralMessages,
+                stream: true,
+              }),
+            });
+
+            if (!response.ok || !response.body) {
+              const errorText = await response.text();
+              throw new Error(errorText || "Mistral request failed");
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split("\n").filter((line) => line.trim());
+
+              for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                  const data = line.slice(6);
+                  if (data === "[DONE]") continue;
+
+                  try {
+                    const parsed = JSON.parse(data);
+                    const content = parsed.choices?.[0]?.delta?.content;
+                    if (content) {
+                      controller.enqueue(
+                        encoder.encode(
+                          `data: ${JSON.stringify({ type: "text", content })}\n\n`,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    // Ignore parse errors
+                  }
+                }
+              }
+            }
+          } else if (provider === "cohere") {
+            const cohereApiKey = providerKey;
+            if (!cohereApiKey) {
+              throw new Error("COHERE_API_KEY is not configured");
+            }
+
+            const cohereUrl = "https://api.cohere.ai/v1/chat";
+            const lastMessage = messages[messages.length - 1];
+            const chatHistory = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
+              role: m.role === "user" ? "USER" : "CHATBOT",
+              message: m.content,
+            }));
+
+            const response = await fetch(cohereUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${cohereApiKey}`,
+              },
+              body: JSON.stringify({
+                model: apiModel,
+                message: lastMessage.content,
+                chat_history: chatHistory,
+                preamble: contextPrompt,
+                stream: true,
+              }),
+            });
+
+            if (!response.ok || !response.body) {
+              const errorText = await response.text();
+              throw new Error(errorText || "Cohere request failed");
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split("\n").filter((line) => line.trim());
+
+              for (const line of lines) {
+                try {
+                  const parsed = JSON.parse(line);
+                  if (parsed.event_type === "text-generation") {
+                    const content = parsed.text;
+                    if (content) {
+                      controller.enqueue(
+                        encoder.encode(
+                          `data: ${JSON.stringify({ type: "text", content })}\n\n`,
+                        ),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  // Ignore parse errors
+                }
+              }
+            }
+          } else if (provider === "perplexity") {
+            const perplexityApiKey = providerKey;
+            if (!perplexityApiKey) {
+              throw new Error("PERPLEXITY_API_KEY is not configured");
+            }
+
+            const perplexityUrl = "https://api.perplexity.ai/chat/completions";
+            const perplexityMessages = [
+              { role: "system", content: contextPrompt },
+              ...messages,
+            ];
+
+            const response = await fetch(perplexityUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${perplexityApiKey}`,
+              },
+              body: JSON.stringify({
+                model: apiModel,
+                messages: perplexityMessages,
+                stream: true,
+              }),
+            });
+
+            if (!response.ok || !response.body) {
+              const errorText = await response.text();
+              throw new Error(errorText || "Perplexity request failed");
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split("\n").filter((line) => line.trim());
+
+              for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                  const data = line.slice(6);
+                  if (data === "[DONE]") continue;
+
+                  try {
+                    const parsed = JSON.parse(data);
+                    const content = parsed.choices?.[0]?.delta?.content;
+                    if (content) {
+                      controller.enqueue(
+                        encoder.encode(
+                          `data: ${JSON.stringify({ type: "text", content })}\n\n`,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    // Ignore parse errors
+                  }
                 }
               }
             }

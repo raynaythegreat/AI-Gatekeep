@@ -243,8 +243,8 @@ export class ApiTester {
   }
 
   static async testRender(apiKey: string): Promise<TestResult> {
-    if (!validateApiKey(apiKey, /^rnd_/)) {
-      return { status: 'not_configured', message: 'Invalid API key format (should start with rnd_)' };
+    if (!validateApiKey(apiKey)) {
+      return { status: 'not_configured', message: 'API key not configured' };
     }
     try {
       const start = Date.now();
