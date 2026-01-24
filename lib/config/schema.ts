@@ -12,6 +12,10 @@ export const RuntimeEnvSchema = z.object({
   GROQ_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
+  OPENCODE_API_KEY: z.string().optional(),
+  MISTRAL_API_KEY: z.string().optional(),
+  PERPLEXITY_API_KEY: z.string().optional(),
+  ZAI_API_KEY: z.string().optional(),
 
   // Fireworks
   FIREWORKS_API_KEY: z.string().optional(),

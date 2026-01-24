@@ -5,7 +5,7 @@ export async function buildChatApiHeaders(baseHeaders: Record<string, string> = 
   const headers = { ...baseHeaders };
   
   try {
-    const keyNames: (keyof import('./secureStorage').ApiKeys)[] = ['anthropic', 'openai', 'gemini', 'groq', 'openrouter', 'fireworks', 'mistral', 'cohere', 'perplexity', 'zai', 'nanobanana', 'ideogram', 'github', 'vercel', 'render', 'ollamaBaseUrl'];
+    const keyNames: (keyof import('./secureStorage').ApiKeys)[] = ['anthropic', 'openai', 'gemini', 'groq', 'openrouter', 'fireworks', 'mistral', 'perplexity', 'zai', 'nanobanana', 'ideogram', 'github', 'vercel', 'render', 'ngrok', 'ollamaBaseUrl', 'opencodezen', 'mobilePassword'];
     const headerMap: Record<(keyof import('./secureStorage').ApiKeys), string> = {
       anthropic: 'X-API-Key-Anthropic',
       openai: 'X-API-Key-Openai',
@@ -14,7 +14,6 @@ export async function buildChatApiHeaders(baseHeaders: Record<string, string> = 
       openrouter: 'X-API-Key-Openrouter',
       fireworks: 'X-API-Key-Fireworks',
       mistral: 'X-API-Key-Mistral',
-      cohere: 'X-API-Key-Cohere',
       perplexity: 'X-API-Key-Perplexity',
       zai: 'X-API-Key-Zai',
       nanobanana: 'X-API-Key-Nanobanana',
@@ -22,11 +21,14 @@ export async function buildChatApiHeaders(baseHeaders: Record<string, string> = 
       github: 'X-API-Key-GitHub',
       vercel: 'X-API-Key-Vercel',
       render: 'X-API-Key-Render',
-      ollamaBaseUrl: '' // Ollama uses URL, not a token
+      ngrok: 'X-API-Key-Ngrok',
+      ollamaBaseUrl: '', // Ollama uses URL, not a token
+      opencodezen: 'X-API-Key-Opencodezen',
+      mobilePassword: '' // Mobile password is not sent as API header
     };
     
     for (const keyName of keyNames) {
-      if (keyName === 'ollamaBaseUrl') continue;
+      if (keyName === 'ollamaBaseUrl' || keyName === 'mobilePassword') continue;
       const key = await SecureStorage.getKey(keyName);
       if (key) {
         headers[headerMap[keyName]] = key;

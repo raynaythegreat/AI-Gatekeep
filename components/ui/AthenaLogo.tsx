@@ -8,105 +8,25 @@ export default function AthenaLogo({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      {/* Golden Apple Logo */}
       <defs>
-        <linearGradient id="athenaGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFD54D" />
-          <stop offset="100%" stopColor="#FFB300" />
+        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFD700" />
+          <stop offset="100%" stopColor="#FFA500" />
         </linearGradient>
       </defs>
       
-      <rect
-        width="64"
-        height="64"
-        rx="8"
-        fill="#0A0A0A"
-      />
+      {/* Apple Shape */}
+      <ellipse cx="32" cy="32" rx="18" ry="20" fill="url(#goldGradient)" />
       
-      <g>
-        <path
-          d="M20 56 L20 50 C20 42 22 36 26 32 C28 30 30 28 32 28 C34 28 36 30 38 32 C42 36 44 42 44 50 L44 56"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        
-        <path
-          d="M20 56 L24 58 L28 56 M44 56 L40 58 L36 56"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        
-        <path
-          d="M32 8 L28 10 L26 14 L28 18 L32 20 L36 18 L38 14 L36 10 Z"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="1.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        
-        <path
-          d="M26 14 L28 10 L24 8 L20 10 L18 14 L18 18 L22 20 L24 18"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="1.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        
-        <path
-          d="M38 14 L36 10 L40 8 L44 10 L46 14 L46 18 L42 20 L40 18"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="1.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        
-        <circle
-          cx="32"
-          cy="28"
-          r="4"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="1.5"
-          fill="none"
-        />
-        
-        <path
-          d="M28 32 L32 36 L36 32"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="1.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        
-        <path
-          d="M32 36 L32 42"
-          stroke="url(#athenaGoldGradient)"
-          strokeWidth="1.5"
-          strokeDasharray="2 2"
-        />
-        
-        <circle
-          cx="26"
-          cy="16"
-          r="1.5"
-          fill="url(#athenaGoldGradient)"
-        />
-        
-        <circle
-          cx="38"
-          cy="16"
-          r="1.5"
-          fill="url(#athenaGoldGradient)"
-        />
-      </g>
+      {/* Apple Indent (top) */}
+      <ellipse cx="32" cy="20" rx="8" ry="10" fill="white" />
+      
+      {/* Stem */}
+      <path d="M32 10 Q34 14 32 16 Q30 14 32 10" stroke="#8B6914" strokeWidth="1.5" fill="#8B6914" />
+      
+      {/* Leaf */}
+      <path d="M32 10 Q38 6 42 10 Q38 12 32 10" fill="#228B22" />
     </svg>
   );
 }

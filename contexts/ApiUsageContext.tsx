@@ -50,8 +50,8 @@ interface ApiUsageState {
   opencodezen: ProviderUsage;
   fireworks: ProviderUsage;
   mistral: ProviderUsage;
-  cohere: ProviderUsage;
   perplexity: ProviderUsage;
+  cohere: ProviderUsage;
   zai: ProviderUsage;
 }
 
@@ -65,8 +65,8 @@ interface ApiLimits {
   opencodezen: { daily: number; weekly: number; note: string };
   fireworks: { daily: number; weekly: number; note: string };
   mistral: { daily: number; weekly: number; note: string };
-  cohere: { daily: number; weekly: number; note: string };
   perplexity: { daily: number; weekly: number; note: string };
+  cohere: { daily: number; weekly: number; note: string };
   zai: { daily: number; weekly: number; note: string };
 }
 
@@ -165,11 +165,6 @@ const DEFAULT_LIMITS: ApiLimits = {
     weekly: Infinity,
     note: "Paid API - budget varies by plan",
   },
-  cohere: {
-    daily: Infinity,
-    weekly: Infinity,
-    note: "Paid API - budget varies by plan",
-  },
   perplexity: {
     daily: Infinity,
     weekly: Infinity,
@@ -180,12 +175,18 @@ const DEFAULT_LIMITS: ApiLimits = {
     weekly: Infinity,
     note: "Paid API - GLM flagship models",
   },
+  cohere: {
+    daily: Infinity,
+    weekly: Infinity,
+    note: "Paid API - Command models",
+  },
 };
 
 const DEFAULT_USAGE: ProviderUsage = {
   today: 0,
   thisWeek: 0,
   thisMonth: 0,
+  lastRequest: undefined,
 };
 
 const DEFAULT_STATE: ApiUsageState = {
@@ -198,8 +199,8 @@ const DEFAULT_STATE: ApiUsageState = {
   opencodezen: { ...DEFAULT_USAGE },
   fireworks: { ...DEFAULT_USAGE },
   mistral: { ...DEFAULT_USAGE },
-  cohere: { ...DEFAULT_USAGE },
   perplexity: { ...DEFAULT_USAGE },
+  cohere: { ...DEFAULT_USAGE },
   zai: { ...DEFAULT_USAGE },
 };
 
@@ -229,8 +230,8 @@ const DEFAULT_BILLING_STATE: BillingState = {
   opencodezen: { ...DEFAULT_BILLING },
   fireworks: { ...DEFAULT_BILLING },
   mistral: { ...DEFAULT_BILLING },
-  cohere: { ...DEFAULT_BILLING },
   perplexity: { ...DEFAULT_BILLING },
+  cohere: { ...DEFAULT_BILLING },
   zai: { ...DEFAULT_BILLING },
 };
 
@@ -257,8 +258,8 @@ const DEFAULT_RATE_LIMITS_STATE: RateLimitsState = {
   opencodezen: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   fireworks: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   mistral: { ...DEFAULT_PROVIDER_RATE_LIMIT },
-  cohere: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   perplexity: { ...DEFAULT_PROVIDER_RATE_LIMIT },
+  cohere: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   zai: { ...DEFAULT_PROVIDER_RATE_LIMIT },
 };
 
@@ -342,7 +343,6 @@ export function ApiUsageProvider({ children }: { children: ReactNode }) {
       opencodezen: { today: 0, thisWeek: 0, thisMonth: 0 },
       fireworks: { today: 0, thisWeek: 0, thisMonth: 0 },
       mistral: { today: 0, thisWeek: 0, thisMonth: 0 },
-      cohere: { today: 0, thisWeek: 0, thisMonth: 0 },
       perplexity: { today: 0, thisWeek: 0, thisMonth: 0 },
       zai: { today: 0, thisWeek: 0, thisMonth: 0 },
     };

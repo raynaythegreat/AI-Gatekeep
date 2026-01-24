@@ -4,7 +4,7 @@ const GettingStarted = () => {
   return (
     <div className="p-6 bg-surface-50 dark:bg-black min-h-full">
       <div className="max-w-2xl">
-        <h2 className="text-2xl font-display font-bold text-surface-900 dark:text-white mb-6">Getting Started with OS Athena</h2>
+         <h2 className="text-2xl font-display font-bold text-surface-900 dark:text-white mb-6">Getting Started</h2>
         <div className="space-y-6">
           <div className="bg-white dark:bg-surface-900 p-6 rounded-xl border border-surface-200 dark:border-surface-800 shadow-sm">
             <h3 className="font-semibold text-surface-900 dark:text-white mb-3 flex items-center gap-2">

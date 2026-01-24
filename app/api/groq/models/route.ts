@@ -1,12 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { buildChatApiHeaders } from "@/lib/chatHeaders";
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 interface GroqModel {
   id: string;
   object?: string;
   created?: number;
   owned_by?: string;
+  name?: string;
 }
 
 interface GroqModelsResponse {
@@ -43,24 +45,26 @@ function isLikelyChatModel(modelId: string): boolean {
   return !NON_CHAT_MODEL_HINTS.some((needle) => lower.includes(needle));
 }
 
-export async function GET() {
-  const apiKey = process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
+export async function GET(request: NextRequest) {
+  const headers = await buildChatApiHeaders();
+  const apiKey = headers['X-API-Key-Groq'] ||
+    process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
   const warning =
     !process.env.GROQ_API_KEY && process.env.NEXT_PUBLIC_GROQ_API_KEY
       ? "NEXT_PUBLIC_GROQ_API_KEY is set; move it to GROQ_API_KEY to avoid exposing your key to the browser."
       : null;
 
-  if (!apiKey) {
+  if (!apiKey || !apiKey.trim()) {
     return NextResponse.json(
       { models: buildFallbackModels(), error: "GROQ_API_KEY is not configured.", warning },
-      { status: 200 }
+      { status: 400 }
     );
   }
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/models", {
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey.trim()}`,
         "Content-Type": "application/json",
       },
       cache: "no-store",
@@ -77,20 +81,26 @@ export async function GET() {
       .filter((model) => isLikelyChatModel(model.id))
       .map((model) => ({
         id: model.id,
-        name: model.id,
+        name: model.name || model.id,
         description: "Groq",
+        provider: 'groq' as const
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    return NextResponse.json({ models, warning });
+    return NextResponse.json({
+      success: true,
+      models,
+      warning
+    });
   } catch (error) {
+    console.error('Groq models fetch error:', error);
     return NextResponse.json(
       {
         models: buildFallbackModels(),
         error: error instanceof Error ? error.message : "Failed to load Groq models",
         warning,
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }

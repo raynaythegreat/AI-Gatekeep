@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { buildChatApiHeaders } from "@/lib/chatHeaders";
 
 export const dynamic = "force-dynamic";
 
@@ -34,14 +35,22 @@ function isFreeModel(model: OpenRouterModel): boolean {
   );
 }
 
-export async function GET() {
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+export async function GET(request: NextRequest) {
+  const headers = await buildChatApiHeaders();
+  const apiKey = headers['X-API-Key-Openrouter'] || process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+
+  if (!apiKey || !apiKey.trim()) {
+    return NextResponse.json({
+      error: "OpenRouter API key is not configured",
+      models: []
+    }, { status: 400 });
+  }
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/models", {
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        ...(apiKey ? { Authorization: `Bearer ${apiKey.trim()}` } : {}),
       },
       cache: "no-store",
     });
@@ -59,15 +68,19 @@ export async function GET() {
         id: model.id,
         name: model.name || model.id,
         description: buildShortDescription(model),
-        contextLength: model.context_length ?? null,
+        provider: 'openrouter' as const
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    return NextResponse.json({ models });
+    return NextResponse.json({
+      success: true,
+      models
+    });
   } catch (error) {
+    console.error('OpenRouter models fetch error:', error);
     return NextResponse.json(
       { models: [], error: error instanceof Error ? error.message : "Failed to load OpenRouter models" },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }

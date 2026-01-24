@@ -191,9 +191,9 @@ export default function HistoryPage({ onResumeChat, onNewChat }: HistoryPageProp
             </div>
             <button
               onClick={onNewChat}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gold-500 text-white text-sm font-bold shadow-sm hover:bg-gold-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-gold-500 text-white text-xs font-medium hover:bg-gold-600 transition-colors flex items-center justify-center gap-1.5"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               New Chat
@@ -211,7 +211,7 @@ export default function HistoryPage({ onResumeChat, onNewChat }: HistoryPageProp
             <p className="text-surface-500 mb-6">Start a new conversation to get started</p>
             <button
               onClick={onNewChat}
-              className="px-6 py-2.5 rounded-xl bg-gold-500 text-white font-medium shadow-sm hover:bg-gold-600 transition-colors"
+              className="px-4 py-1.5 rounded-lg bg-gold-500 text-white font-medium hover:bg-gold-600 transition-colors"
             >
               Start New Chat
             </button>

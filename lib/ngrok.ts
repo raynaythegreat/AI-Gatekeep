@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
 import { createSubprocessEnv, resolveCommand } from "@/lib/command";
+import { SecureStorage } from "@/lib/secureStorage";
+import { NgrokService, NgrokCreateOptions, NgrokTunnel as ImportedNgrokTunnel } from "@/services/ngrok";
 
 type NgrokTunnel = {
   public_url?: unknown;
@@ -62,11 +64,156 @@ export async function getNgrokPublicUrl(
   }
 }
 
+interface MobileDeploymentInfo {
+  tunnelId?: string;
+  publicUrl?: string;
+  mobileUrl?: string;
+  deploymentId?: string;
+  createdAt?: string;
+  activatedAt?: string;
+}
+
+function getMobileDeployment(): MobileDeploymentInfo | null {
+  try {
+    const stored = localStorage.getItem('mobile-deployment');
+    if (!stored) return null;
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
+}
+
+function setMobileDeployment(info: MobileDeploymentInfo): void {
+  localStorage.setItem('mobile-deployment', JSON.stringify(info));
+}
+
+export async function getMobileTunnelStatus(): Promise<{
+  active: boolean;
+  tunnelId?: string;
+  publicUrl?: string;
+  needsReactivation: boolean;
+}> {
+  const deployment = getMobileDeployment();
+  if (!deployment || !deployment.tunnelId) {
+    return { active: false, needsReactivation: false };
+  }
+
+  const apiKey = await SecureStorage.getKey('ngrok');
+  if (!apiKey || !deployment.tunnelId) {
+    return { active: false, needsReactivation: true, tunnelId: deployment.tunnelId };
+  }
+
+  try {
+    const { NgrokService } = await import('@/services/ngrok');
+    const ngrok = new NgrokService(apiKey);
+
+    const tunnel = await ngrok.getTunnel(deployment.tunnelId);
+    if (tunnel) {
+      return {
+        active: true,
+        tunnelId: tunnel.id,
+        publicUrl: tunnel.public_url,
+        needsReactivation: false
+      };
+    }
+
+    return { active: false, needsReactivation: true, tunnelId: deployment.tunnelId };
+  } catch (error) {
+    console.warn('Failed to check tunnel status:', error);
+    return { active: false, needsReactivation: true, tunnelId: deployment.tunnelId };
+  }
+}
+
+export async function ensureMobileTunnelActive(): Promise<{
+  success: boolean;
+  publicUrl?: string;
+  tunnelId?: string;
+  error?: string;
+}> {
+  const status = await getMobileTunnelStatus();
+
+  if (status.active) {
+    return {
+      success: true,
+      publicUrl: status.publicUrl,
+      tunnelId: status.tunnelId
+    };
+  }
+
+  const deployment = getMobileDeployment();
+  if (!deployment?.tunnelId) {
+    return {
+      success: false,
+      error: 'No mobile deployment configured'
+    };
+  }
+
+  if (status.needsReactivation) {
+    console.log('Mobile tunnel inactive, reactivating...');
+
+    try {
+      const { NgrokService } = await import('@/services/ngrok');
+      const apiKey = await SecureStorage.getKey('ngrok');
+      const ngrok = new NgrokService(apiKey);
+
+      const options: NgrokCreateOptions = {
+        port: 3456,
+        proto: 'http'
+      };
+
+      const tunnel = await ngrok.createTunnel(options);
+
+      const updatedDeployment: MobileDeploymentInfo = {
+        ...deployment,
+        tunnelId: tunnel.id,
+        publicUrl: tunnel.public_url,
+        activatedAt: new Date().toISOString()
+      };
+
+      setMobileDeployment(updatedDeployment);
+
+      console.log(`Mobile tunnel reactivated: ${tunnel.public_url}`);
+
+      return {
+        success: true,
+        publicUrl: tunnel.public_url,
+        tunnelId: tunnel.id
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to reactivate tunnel'
+      };
+    }
+  }
+
+  return {
+    success: false,
+    error: 'Unknown tunnel state'
+  };
+}
+
 export async function ensureNgrokTunnel(port: number): Promise<{
   publicUrl: string | null;
   started: boolean;
   error?: string;
 }> {
+  const apiKey = await SecureStorage.getKey('ngrok');
+  if (apiKey) {
+    try {
+      const { NgrokService } = await import('@/services/ngrok');
+      const ngrok = new NgrokService(apiKey);
+
+      const tunnel = await ngrok.createTunnel({ port });
+      return {
+        publicUrl: tunnel.public_url,
+        started: true
+      };
+    } catch (error) {
+      console.warn('API tunnel failed, falling back to CLI:', error);
+    }
+  }
+
   const existing = await getNgrokPublicUrl(port);
   if (existing) return { publicUrl: existing, started: false };
 

@@ -6,6 +6,7 @@ import ChatInterface from "@/components/chat/ChatInterface";
 import HistoryPage from "@/components/chat/HistoryPage";
 import ReposPage from "@/components/github/ReposPage";
 import DeploymentsPage from "@/components/deploy/DeploymentsPage";
+import MobilePage from '@/app/mobile/page';
 import SettingsPage from "@/components/settings/SettingsPage";
 import { useChatHistory } from "@/contexts/ChatHistoryContext";
 
@@ -46,7 +47,8 @@ export default function HomePage() {
       {activeTab === "history" && <HistoryPage onResumeChat={handleResumeChat} onNewChat={handleNewChat} />}
       {activeTab === "repos" && <ReposPage />}
       {activeTab === "deploy" && <DeploymentsPage />}
-      {activeTab === "settings" && <SettingsPage />}
+      {activeTab === "settings" && <SettingsPage setActiveTab={setActiveTab} />}
+      {activeTab === "mobile" && <MobilePage />}
     </DashboardLayout>
   );
 }

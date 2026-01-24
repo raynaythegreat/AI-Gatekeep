@@ -462,14 +462,63 @@ export class ApiTester {
     }
   }
 
-  static async testCustom(baseUrl: string, endpoint?: string, apiKey?: string): Promise<TestResult> {
-    if (!baseUrl) return { status: 'not_configured', message: 'Base URL not configured' };
-
-    // Basic URL validation
+   static async testNgrok(apiKey: string): Promise<TestResult> {
+    if (!apiKey || apiKey.length < 10) {
+      return {
+        status: 'not_configured',
+        message: 'Ngrok API key required'
+      };
+    }
+  
     try {
-      new URL(baseUrl);
-    } catch {
-      return { status: 'error', message: 'Invalid URL format' };
+      const start = Date.now();
+      const response = await fetchWithTimeout(
+        'https://api.ngrok.com/account',
+        { 
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        },
+        5000
+      );
+      
+      if (response.status === 401) {
+        throw new Error('Invalid ngrok API key');
+      }
+      
+      if (response.status === 403) {
+        throw new Error('Forbidden - Check API key permissions');
+      }
+      
+      if (response.status === 429) {
+        throw new Error('Rate limited - try again later');
+      }
+      
+      const account = await response.json();
+      const latency = Date.now() - start;
+      
+      return {
+        status: 'success',
+        message: `Connected - ${account.name || account.email || 'Account active'}`,
+        latency
+      };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Failed to fetch') && apiKey.length > 20) {
+        return {
+          status: 'success',
+          message: 'API key format valid (will verify on first use)',
+          latency: 0
+        };
+      }
+      
+      return { status: 'error', message: formatError(error) };
+    }
+  }
+
+  static async testCustom(baseUrl: string, endpoint: string, apiKey?: string): Promise<TestResult> {
+    if (!baseUrl) {
+      return {
+        status: 'not_configured',
+        message: 'Base URL required'
+      };
     }
 
     try {

@@ -3,17 +3,48 @@ const path = require('path');
 const fsSync = require('fs');
 const fs = require('fs').promises;
 const os = require('os');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const http = require('http');
 
 let mainWindow;
 let nextServer;
+let serverReady = false;
+let serverStartupTimeout = null;
 const isDev = process.env.NODE_ENV !== 'production';
 const PORT = 3456;
+const SERVER_STARTUP_TIMEOUT = 60000;
+const SERVER_POLL_INTERVAL = 1000;
 
 // File access state
 let fileAccessEnabled = false;
 let allowedDirectories = []; // Fixed port for the bundled app
+
+// Port cleanup - kill any orphaned processes on port 3456
+function cleanupPort() {
+  return new Promise((resolve) => {
+    const commands = [
+      `fuser -k ${PORT}/tcp 2>/dev/null || true`,
+      `lsof -ti:${PORT} | xargs -r kill -9 2>/dev/null || true`,
+      `pkill -f "next-server" || true`,
+      `pkill -f "node.*server.js" || true`
+    ];
+
+    let completed = 0;
+    commands.forEach(cmd => {
+      exec(cmd, (err) => {
+        if (err) {
+          log(`Port cleanup command completed: ${cmd}`);
+        } else {
+          log(`Port cleanup executed: ${cmd}`);
+        }
+        completed++;
+        if (completed === commands.length) {
+          setTimeout(() => resolve(), 500);
+        }
+      });
+    });
+  });
+}
 
 // Logging setup
 const logDir = path.join(app.getPath('userData'), 'logs');
@@ -122,25 +153,31 @@ function createWindow() {
 async function startNextServer() {
   log('Starting Next.js server...');
 
+  await cleanupPort();
+
   return new Promise((resolve, reject) => {
     const rootDir = path.join(__dirname, '..');
 
+    serverStartupTimeout = setTimeout(() => {
+      if (!serverReady) {
+        log('Server startup timeout reached', 'ERROR');
+        if (nextServer) {
+          killServerProcess();
+        }
+        reject(new Error('Server startup timeout'));
+      }
+    }, SERVER_STARTUP_TIMEOUT);
+
     if (isDev) {
       log('Starting development server...');
-      const { spawn } = require('child_process');
       nextServer = spawn('npm', ['run', 'dev'], {
         cwd: rootDir,
-        shell: true,
-        stdio: 'inherit',
+        shell: false,
+        stdio: ['ignore', 'pipe', 'pipe'],
         env: { ...process.env, PORT: PORT.toString() }
       });
 
-      nextServer.on('error', (err) => {
-        log(`Failed to start dev server: ${err.message}`, 'ERROR');
-        reject(err);
-      });
-
-      waitForServer(resolve, reject);
+      setupServerProcessHandlers(nextServer, resolve, reject);
     } else {
       const standaloneDir = path.join(rootDir, '.next', 'standalone');
       const serverPath = path.join(standaloneDir, 'server.js');
@@ -150,6 +187,10 @@ async function startNextServer() {
       if (!fsSync.existsSync(serverPath)) {
         const error = new Error('Standalone server not found. Run: npm run build');
         log(error.message, 'ERROR');
+        if (serverStartupTimeout) {
+          clearTimeout(serverStartupTimeout);
+          serverStartupTimeout = null;
+        }
         reject(error);
         return;
       }
@@ -160,62 +201,144 @@ async function startNextServer() {
       log('Starting standalone server...');
 
       try {
-        // Start the standalone server in background
-        const { spawn } = require('child_process');
         nextServer = spawn('node', [serverPath], {
           cwd: standaloneDir,
           env: process.env,
           stdio: ['ignore', 'pipe', 'pipe']
         });
 
-        nextServer.stdout.on('data', (data) => {
-          log(`Server: ${data.toString().trim()}`);
-        });
-
-        nextServer.stderr.on('data', (data) => {
-          log(`Server Error: ${data.toString().trim()}`, 'WARN');
-        });
-
-        nextServer.on('error', (err) => {
-          log(`Server process error: ${err.message}`, 'ERROR');
-          reject(err);
-        });
-
-        waitForServer(resolve, reject);
+        setupServerProcessHandlers(nextServer, resolve, reject);
       } catch (err) {
         log(`Failed to start standalone server: ${err.message}`, 'ERROR');
+        if (serverStartupTimeout) {
+          clearTimeout(serverStartupTimeout);
+          serverStartupTimeout = null;
+        }
         reject(err);
       }
     }
   });
 }
 
-function waitForServer(resolve, reject, attempts = 0) {
-  const maxAttempts = 30;
+function setupServerProcessHandlers(server, resolve, reject) {
+  let serverOutput = '';
 
-  http.get(`http://localhost:${PORT}`, (res) => {
-    log(`Server is ready on port ${PORT} (attempt ${attempts + 1})`);
+  server.stdout.on('data', (data) => {
+    const output = data.toString();
+    serverOutput += output;
 
-    // Server is ready, navigate to the actual app
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      log('Loading main application...');
-      mainWindow.loadURL(`http://localhost:${PORT}`).then(() => {
-        log('Main application loaded successfully');
-      }).catch((err) => {
-        log(`Failed to load main app: ${err.message}`, 'ERROR');
+    if (output.includes('Ready') || output.includes('started') || output.includes('listening')) {
+      log(`Server ready message detected`);
+    }
+
+    if (output.trim()) {
+      log(`Server stdout: ${output.trim()}`);
+    }
+  });
+
+  server.stderr.on('data', (data) => {
+    const output = data.toString();
+    serverOutput += output;
+
+    if (output.includes('EADDRINUSE')) {
+      log('Port already in use, cleaning up...', 'WARN');
+      cleanupPort().then(() => {
+        log('Port cleanup completed, but server already started', 'WARN');
       });
     }
 
-    resolve();
-  }).on('error', (err) => {
-    if (attempts >= maxAttempts) {
-      log('Server failed to start within timeout', 'ERROR');
-      reject(new Error('Server startup timeout'));
+    if (output.trim()) {
+      log(`Server stderr: ${output.trim()}`, 'WARN');
+    }
+  });
+
+  server.on('error', (err) => {
+    log(`Server process error: ${err.message}`, 'ERROR');
+    if (serverStartupTimeout) {
+      clearTimeout(serverStartupTimeout);
+      serverStartupTimeout = null;
+    }
+    reject(err);
+  });
+
+  server.on('exit', (code, signal) => {
+    log(`Server process exited with code ${code}, signal ${signal}`);
+    serverReady = false;
+    if (serverStartupTimeout) {
+      clearTimeout(serverStartupTimeout);
+      serverStartupTimeout = null;
+    }
+  });
+
+  waitForServer(resolve, reject);
+}
+
+function killServerProcess() {
+  if (!nextServer) return;
+
+  log('Killing server process...');
+
+  try {
+    if (nextServer.pid) {
+      exec(`pkill -P ${nextServer.pid} 2>/dev/null || true`);
+      nextServer.kill('SIGTERM');
+      setTimeout(() => {
+        if (nextServer && !nextServer.killed) {
+          nextServer.kill('SIGKILL');
+        }
+      }, 2000);
+    }
+  } catch (err) {
+    log(`Error killing server: ${err.message}`, 'WARN');
+  }
+
+  nextServer = null;
+}
+
+function waitForServer(resolve, reject, attempts = 0) {
+  const maxAttempts = Math.floor(SERVER_STARTUP_TIMEOUT / SERVER_POLL_INTERVAL);
+
+  http.get(`http://localhost:${PORT}`, (res) => {
+    if (res.statusCode === 200 || res.statusCode === 404) {
+      log(`Server is ready on port ${PORT} (attempt ${attempts + 1})`);
+      serverReady = true;
+      if (serverStartupTimeout) {
+        clearTimeout(serverStartupTimeout);
+        serverStartupTimeout = null;
+      }
+
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        log('Loading main application...');
+        mainWindow.loadURL(`http://localhost:${PORT}`).then(() => {
+          log('Main application loaded successfully');
+        }).catch((err) => {
+          log(`Failed to load main app: ${err.message}`, 'ERROR');
+        });
+      }
+
+      resolve();
       return;
     }
-
-    setTimeout(() => waitForServer(resolve, reject, attempts + 1), 1000);
+    retryWait(resolve, reject, attempts, maxAttempts);
+  }).on('error', (err) => {
+    retryWait(resolve, reject, attempts, maxAttempts);
   });
+}
+
+function retryWait(resolve, reject, attempts, maxAttempts) {
+  if (attempts >= maxAttempts) {
+    log('Server failed to start within timeout', 'ERROR');
+    serverReady = false;
+    if (serverStartupTimeout) {
+      clearTimeout(serverStartupTimeout);
+      serverStartupTimeout = null;
+    }
+    reject(new Error(`Server startup timeout after ${SERVER_STARTUP_TIMEOUT}ms`));
+    return;
+  }
+
+  log(`Waiting for server... attempt ${attempts + 1}/${maxAttempts}`);
+  setTimeout(() => waitForServer(resolve, reject, attempts + 1), SERVER_POLL_INTERVAL);
 }
 
 function checkFirstRun() {
@@ -275,20 +398,46 @@ app.whenReady().then(async () => {
     markFirstRunComplete();
   }
 
+  // Auto-activate mobile tunnel on app startup (before server starts)
+  try {
+    const { ensureMobileTunnelActive } = await import('@/lib/ngrok');
+    const result = await ensureMobileTunnelActive();
+    
+    if (result.success && result.publicUrl) {
+      log(`Mobile tunnel activated: ${result.publicUrl}`);
+      if (result.tunnelId) {
+        log(`Mobile tunnel ID: ${result.tunnelId}`);
+      }
+      log('Mobile tunnel will persist across app restarts (no auto-cleanup on quit)');
+    } else if (result.error) {
+      log(`Mobile tunnel activation failed: ${result.error}`, 'WARN');
+    } else if (result.tunnelId) {
+      log('Mobile deployment exists but tunnel is inactive, will reactivate on connection');
+    }
+  } catch (error) {
+    log('Failed to check mobile tunnel status:', error, 'WARN');
+  }
+
   try {
     await startNextServer();
     log('Next.js server is ready, creating window...');
     createWindow();
   } catch (error) {
     log(`Failed to start application: ${error.message}`, 'ERROR');
+    log(`Stack trace: ${error.stack}`, 'ERROR');
+
+    killServerProcess();
+    await cleanupPort();
 
     const { dialog } = require('electron');
     dialog.showErrorBox(
       'OS Athena Failed to Start',
-      `Error: ${error.message}\n\nCheck logs at:\n${logFile}`
+      `Error: ${error.message}\n\nCheck logs at:\n${logFile}\n\nTry closing any existing instances and restarting.`
     );
 
-    app.quit();
+    setTimeout(() => {
+      app.quit();
+    }, 2000);
   }
 
   app.on('activate', () => {
@@ -307,10 +456,12 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   log('App quitting...');
-  if (nextServer && nextServer.kill) {
-    log('Stopping Next.js server...');
-    nextServer.kill();
+  serverReady = false;
+  if (serverStartupTimeout) {
+    clearTimeout(serverStartupTimeout);
+    serverStartupTimeout = null;
   }
+  killServerProcess();
 });
 
 app.on('will-quit', () => {

@@ -84,7 +84,7 @@ export default function TitleBar() {
             <circle cx="39" cy="26" r="1" fill="url(#goldGradient)" />
           </g>
         </svg>
-        <span className="text-sm font-bold text-foreground tracking-tight">OS Athena</span>
+         <span className="text-sm font-bold text-foreground tracking-tight">AI Command</span>
       </div>
 
       <div

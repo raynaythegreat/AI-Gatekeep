@@ -97,12 +97,12 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
 
   return (
     <div
-      className={`flex gap-4 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-500`}
+      className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
     >
       <div
-        className={`max-w-[90%] sm:max-w-[75%] rounded-xl px-5 py-4 ${isUser
-            ? "bg-gradient-to-br from-gold-500 to-amber-600 text-white rounded-2xl rounded-br-md shadow-xl shadow-gold-500/25"
-            : "bg-card border-2 border-gold-500/20 text-foreground rounded-bl-md shadow-lg hover:shadow-xl shadow-gold-500/10 transition-shadow"}`}
+        className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-5 py-4 ${isUser
+            ? "bg-foreground text-background rounded-tr-sm shadow-sm"
+            : "bg-background border border-border text-foreground rounded-tl-sm shadow-sm"}`}
       >
         {isUser ? (
           <div className="space-y-2">
@@ -114,7 +114,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="rounded-xl bg-black/10 border border-white/20 overflow-hidden shadow-lg"
+                    className="rounded-xl bg-background/20 overflow-hidden"
                   >
                     {attachment.kind === "image" && attachment.previewUrl ? (
                       <a
@@ -133,12 +133,12 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                       </a>
                     ) : (
                       <div className="h-20 flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                         </svg>
                       </div>
                     )}
-                    <div className="px-2 py-1.5 text-[10px] text-white/90 font-medium truncate bg-black/20">
+                    <div className="px-2 py-1.5 text-[10px] font-medium truncate bg-background/20">
                       {attachment.name}
                     </div>
                   </div>
@@ -160,7 +160,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                         language={match ? match[1] : undefined}
                       />
                     ) : (
-                      <code className="bg-secondary px-1.5 py-0.5 rounded-md text-[0.9em] font-mono text-foreground font-medium" {...(props as any)}>
+                      <code className="bg-muted px-1.5 py-0.5 rounded-md text-[0.9em] font-mono text-foreground font-medium" {...(props as any)}>
                         {children}
                       </code>
                     );
@@ -170,7 +170,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                 {message.content || ""}
               </ReactMarkdown>
             </div>
-            <div className="text-[10px] text-muted-foreground/60 font-medium">
+            <div className="text-[10px] text-muted-foreground font-medium">
               {timestamp}
             </div>
             {message.attachments && message.attachments.length > 0 && (
@@ -178,7 +178,7 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-secondary/50 text-[11px] font-medium"
+                    className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50 border border-border text-[11px] font-medium"
                   >
                     <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -235,33 +235,31 @@ export default function MessageList({
   if (messages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-6 py-12 text-center">
-        {/* Quote */}
-        <div className="max-w-2xl mb-8">
-          <blockquote className="text-2xl md:text-3xl font-display font-semibold text-foreground leading-relaxed mb-4">
-            &ldquo;Wisdom begins in wonder.&rdquo;
+        <div className="max-w-2xl mb-12">
+          <blockquote className="text-2xl md:text-3xl font-display font-medium text-foreground leading-relaxed mb-4">
+            &ldquo;Strategy is the art of making use of time and space.&rdquo;
           </blockquote>
-          <p className="text-sm font-medium text-gold-600 dark:text-gold-400 uppercase tracking-widest">
-            — Athena
+          <p className="text-sm text-muted-foreground uppercase tracking-widest">
+            — Athena, Goddess of Wisdom
           </p>
         </div>
-        
-        {/* Instructions */}
-        <div className="max-w-xl space-y-3">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <div className="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-gold-600 dark:text-gold-400">1</span>
+
+        <div className="max-w-xl space-y-4">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
+              <span className="text-foreground font-medium">1</span>
             </div>
             <span>Select a model from the dropdown above</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <div className="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-gold-600 dark:text-gold-400">2</span>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
+              <span className="text-foreground font-medium">2</span>
             </div>
             <span>Optionally select a repository for context</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <div className="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-gold-600 dark:text-gold-400">3</span>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
+              <span className="text-foreground font-medium">3</span>
             </div>
             <span>Type your message or add files to begin</span>
           </div>

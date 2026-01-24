@@ -30,6 +30,10 @@ export function summarizeProvidersFromEnv(): string[] {
   if (process.env.GROQ_API_KEY) providers.push("groq");
   if (process.env.FIREWORKS_API_KEY) providers.push("fireworks");
   if (process.env.OLLAMA_BASE_URL) providers.push("ollama");
+  if (process.env.OPENCODE_API_KEY) providers.push("opencodezen");
+  if (process.env.MISTRAL_API_KEY) providers.push("mistral");
+  if (process.env.PERPLEXITY_API_KEY) providers.push("perplexity");
+  if (process.env.ZAI_API_KEY) providers.push("zai");
   
   return providers;
 }

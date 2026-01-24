@@ -1679,9 +1679,23 @@ export default function ChatInterface() {
       );
       setGroqModels(sortModelOptionsAlphabetically(options));
     } catch (error) {
-      setGroqError(
-        error instanceof Error ? error.message : "Failed to load Groq models",
-      );
+      let errorMessage = "Failed to load Groq models";
+
+      if (error instanceof Error) {
+        const errorText = error.message;
+
+        if (errorText.includes("PRECONDITION_FAILED") || errorText.includes("suspended")) {
+          errorMessage = "Groq account suspended - check your account status";
+        } else if (errorText.includes("spending limit")) {
+          errorMessage = "Groq spending limit reached - check billing";
+        } else if (errorText.includes("rate limit")) {
+          errorMessage = "Groq rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+
+      setGroqError(errorMessage);
       setGroqModels([]);
     } finally {
       setGroqLoading(false);
@@ -1715,11 +1729,23 @@ export default function ChatInterface() {
       );
       setOpenrouterModels(sortModelOptionsAlphabetically(options));
     } catch (error) {
-      setOpenrouterError(
-        error instanceof Error
-          ? error.message
-          : "Failed to load OpenRouter models",
-      );
+      let errorMessage = "Failed to load OpenRouter models";
+
+      if (error instanceof Error) {
+        const errorText = error.message;
+
+        if (errorText.includes("PRECONDITION_FAILED") || errorText.includes("suspended")) {
+          errorMessage = "OpenRouter account suspended - check your account status";
+        } else if (errorText.includes("insufficient credits") || errorText.includes("credits")) {
+          errorMessage = "OpenRouter insufficient credits - add credits to your account";
+        } else if (errorText.includes("rate limit")) {
+          errorMessage = "OpenRouter rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+
+      setOpenrouterError(errorMessage);
       setOpenrouterModels([]);
     } finally {
       setOpenrouterLoading(false);
@@ -1760,11 +1786,23 @@ export default function ChatInterface() {
       );
       setFireworksModels(sortModelOptionsAlphabetically(options));
     } catch (error) {
-      setFireworksError(
-        error instanceof Error
-          ? error.message
-          : "Failed to load Fireworks models",
-      );
+      let errorMessage = "Failed to load Fireworks models";
+
+      if (error instanceof Error) {
+        const errorText = error.message;
+
+        if (errorText.includes("PRECONDITION_FAILED") || errorText.includes("suspended")) {
+          errorMessage = "Fireworks account suspended - check billing at https://fireworks.ai/account/billing";
+        } else if (errorText.includes("monthly spending limit")) {
+          errorMessage = "Fireworks monthly spending limit reached - check billing";
+        } else if (errorText.includes("failed to pay past invoices")) {
+          errorMessage = "Fireworks billing issue - check your account";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+
+      setFireworksError(errorMessage);
       setFireworksModels([]);
     } finally {
       setFireworksLoading(false);
@@ -3869,11 +3907,11 @@ export default function ChatInterface() {
     >
       <div className="p-2 border-b border-gold-500/10 bg-white dark:bg-surface-900">
         <button
-          onClick={() => {
-            const inputValue = window.prompt(
-              "Enter provider:model (claude|openai|groq|openrouter|ollama|gemini|opencodezen|fireworks)",
-              selectedModel,
-            );
+            onClick={() => {
+              const inputValue = window.prompt(
+                "Enter provider:model (claude|openai|groq|openrouter|ollama|gemini|opencodezen|fireworks|mistral|perplexity|zai)",
+                selectedModel,
+              );
             if (!inputValue) return;
             const parsed = parseModelInput(inputValue);
             if (!parsed) {
@@ -3989,21 +4027,16 @@ export default function ChatInterface() {
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-full">
-      {/* Compact Top Bar: Logo + Mode + Repo + Model + Actions */}
+      {/* Compact Top Bar: Mode + Repo + Model + Actions */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3 border-b-2 border-gold-500/10 bg-gradient-to-r from-surface-50 to-white dark:from-surface-900 dark:to-surface-950 shadow-sm">
-        {/* Left: Logo + Mode Toggle + Auto Approve */}
+        {/* Left: Mode Toggle + Auto Approve */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Owl Logo */}
-          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gold-500/10 border-2 border-gold-500/20">
-            <AthenaLogo className="w-5 h-5 text-gold-600 dark:text-gold-400" />
-          </div>
-
           {/* Plan/Build Toggle */}
           <div className="inline-flex rounded-full border-2 border-gold-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
             <button
               type="button"
               onClick={() => handleModeChange("plan")}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
+              className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
                 chatMode === "plan"
                   ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
                   : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
@@ -4011,11 +4044,14 @@ export default function ChatInterface() {
               title="Plan mode: Review and approve changes before committing"
             >
               Plan
+              {chatMode === "plan" && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-[9px] font-bold text-white shadow-sm">P</span>
+              )}
             </button>
             <button
               type="button"
               onClick={() => handleModeChange("build")}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
+              className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
                 chatMode === "build"
                   ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
                   : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
@@ -4023,21 +4059,11 @@ export default function ChatInterface() {
               title="Build mode: Apply and commit planned changes"
             >
               Build
+              {chatMode === "build" && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-green-500 text-[9px] font-bold text-white shadow-sm">B</span>
+              )}
             </button>
           </div>
-
-          {/* Mode Status */}
-          {chatMode === "plan" ? (
-            <span className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500 text-white text-xs font-bold border border-blue-600">
-              <span>📋</span>
-              <span>Planning</span>
-            </span>
-          ) : (
-            <span className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-500 text-white text-xs font-bold border border-green-600">
-              <span>🔨</span>
-              <span>Building</span>
-            </span>
-          )}
 
           {/* Auto Approve Toggle - only show in build mode */}
           {chatMode === "build" && (
@@ -4581,6 +4607,12 @@ export default function ChatInterface() {
 
       {/* Input */}
       <div className="border-t border-gold-500/10 bg-surface-50 dark:bg-surface-900 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+        {/* Logo in input area */}
+        <div className="absolute top-4 left-4 z-10 hidden sm:flex">
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gold-500/10 border-2 border-gold-500/20 shadow-flat">
+            <AthenaLogo className="w-5 h-5 text-gold-600 dark:text-gold-400" />
+          </div>
+        </div>
         <ChatInput
           value={input}
           onChange={setInput}

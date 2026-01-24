@@ -23,7 +23,6 @@ function getApiKeyFromRequest(request: NextRequest, provider: string): string | 
     openrouter: 'OPENROUTER_API_KEY',
     ollama: 'OLLAMA_API_KEY',
     opencodezen: 'OPENCODE_API_KEY',
-    opencode: 'OPENCODE_API_KEY',
     fireworks: 'FIREWORKS_API_KEY',
     mistral: 'MISTRAL_API_KEY',
     perplexity: 'PERPLEXITY_API_KEY',
@@ -216,6 +215,13 @@ const MODEL_CONFIG: Record<
     provider: "perplexity",
     apiModel: "llama-3.1-sonar-small-128k-online",
   },
+
+  // OpenCode Zen models
+  "opencode-gpt-4": { provider: "opencodezen", apiModel: "gpt-4" },
+  "opencode-gpt-4-turbo": { provider: "opencodezen", apiModel: "gpt-4-turbo" },
+  "opencode-gpt-3.5-turbo": { provider: "opencodezen", apiModel: "gpt-3.5-turbo" },
+  "opencode-o1": { provider: "opencodezen", apiModel: "o1" },
+  "opencode-o1-mini": { provider: "opencodezen", apiModel: "o1-mini" },
 };
 
 const MODEL_PROVIDERS = [
@@ -711,8 +717,7 @@ export async function POST(request: NextRequest) {
       openrouter: openrouterApiKey,
       ollama: getApiKeyFromRequest(request, 'ollama') || process.env.OLLAMA_API_KEY,
       groq: groqApiKey,
-      opencodezen: getApiKeyFromRequest(request, 'opencodezen') || getApiKeyFromRequest(request, 'opencode') || process.env.OPENCODE_API_KEY,
-      opencode: getApiKeyFromRequest(request, 'opencodezen') || getApiKeyFromRequest(request, 'opencode') || process.env.OPENCODE_API_KEY,
+      opencodezen: getApiKeyFromRequest(request, 'opencodezen') || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
       mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
       cohere: getApiKeyFromRequest(request, 'cohere') || process.env.COHERE_API_KEY,

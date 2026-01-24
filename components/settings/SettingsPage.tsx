@@ -23,7 +23,6 @@ interface ApiKeys {
   fireworks: string;
   gemini: string;
   mistral: string;
-  cohere: string;
   perplexity: string;
   zai: string;
   nanobanana: string;
@@ -31,6 +30,7 @@ interface ApiKeys {
   github: string;
   vercel: string;
   render: string;
+  ngrok: string;
   ollamaBaseUrl: string;
   customBaseUrl: string;
   customEndpoint: string;
@@ -56,7 +56,6 @@ const providers: ProviderConfig[] = [
   { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform', docsUrl: 'https://fireworks.ai/api-keys', envKey: 'FIREWORKS_API_KEY' },
   { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra', docsUrl: 'https://aistudio.google.com/app/apikey', envKey: 'GEMINI_API_KEY' },
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
-  { key: 'cohere', label: 'Cohere', placeholder: 'Enter API key', icon: '🌲', category: 'ai', description: 'Command R+ models', docsUrl: 'https://dashboard.cohere.com/api-keys', envKey: 'COHERE_API_KEY' },
   { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
   { key: 'zai', label: 'Z.ai', placeholder: 'Enter API key', icon: '⚡', category: 'ai', description: 'GLM-4.7 flagship coding models', docsUrl: 'https://z.ai/model-api', envKey: 'ZAI_API_KEY' },
   { key: 'nanobanana', label: 'Nanobanana', placeholder: 'Enter API key', icon: '🍌', category: 'ai', description: 'Image generation API', docsUrl: 'https://nanobananaapi.ai', envKey: 'NANOBANANA_API_KEY' },
@@ -66,13 +65,18 @@ const providers: ProviderConfig[] = [
   { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management', docsUrl: 'https://github.com/settings/tokens', envKey: 'GITHUB_TOKEN' },
   { key: 'vercel', label: 'Vercel', placeholder: 'vercel_...', icon: '▲', category: 'deployment', description: 'One-click deployments', docsUrl: 'https://vercel.com/account/tokens', envKey: 'VERCEL_TOKEN' },
   { key: 'render', label: 'Render', placeholder: 'rnd_...', icon: '🚀', category: 'deployment', description: 'Cloud deployment platform', docsUrl: 'https://dashboard.render.com/u/settings#api-keys', envKey: 'RENDER_API_KEY' },
+  { key: 'ngrok', label: 'Ngrok', placeholder: 'your_ngrok_api_key', icon: '🚇', category: 'deployment', description: 'Persistent tunneling for mobile access', docsUrl: 'https://dashboard.ngrok.com/api-keys', envKey: 'NGROK_API_KEY' },
 
   // Custom Models
   { key: 'customBaseUrl', label: 'Custom Base URL', placeholder: 'https://api.example.com', icon: '🔗', category: 'custom', description: 'Custom API base URL' },
   { key: 'customEndpoint', label: 'Custom Endpoint', placeholder: '/v1/chat/completions', icon: '🔌', category: 'custom', description: 'Custom API endpoint path' },
 ];
 
-const SettingsPage: React.FC = () => {
+interface SettingsPageProps {
+  setActiveTab?: (tab: string) => void;
+}
+
+const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
     anthropic: '',
     openai: '',
@@ -81,7 +85,6 @@ const SettingsPage: React.FC = () => {
     fireworks: '',
     gemini: '',
     mistral: '',
-    cohere: '',
     perplexity: '',
     zai: '',
     nanobanana: '',
@@ -89,10 +92,13 @@ const SettingsPage: React.FC = () => {
     github: '',
     vercel: '',
     render: '',
+    ngrok: '',
     ollamaBaseUrl: 'http://localhost:11434',
     customBaseUrl: '',
     customEndpoint: '',
   });
+
+
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [testing, setTesting] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -262,9 +268,6 @@ const SettingsPage: React.FC = () => {
           break;
         case 'mistral':
           result = await ApiTester.testMistral(apiKeys.mistral || '');
-          break;
-        case 'cohere':
-          result = await ApiTester.testCohere(apiKeys.cohere || '');
           break;
         case 'perplexity':
           result = await ApiTester.testPerplexity(apiKeys.perplexity || '');
@@ -838,8 +841,10 @@ const SettingsPage: React.FC = () => {
               )}
             </div>
           ))}
+          </div>
         </div>
-      </div>
+
+      {/* Custom Models */}
 
       {/* Local Infrastructure */}
       <div className="space-y-6">

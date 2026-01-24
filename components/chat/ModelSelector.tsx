@@ -9,9 +9,9 @@ export type ModelProvider =
   | "openrouter"
   | "ollama"
   | "gemini"
+  | "opencodezen"
   | "fireworks"
   | "mistral"
-  | "cohere"
   | "perplexity"
   | "zai";
 
@@ -57,13 +57,16 @@ export const MODELS: ModelOption[] = [
   { id: 'glm-4.7', name: 'GLM-4.7', provider: 'zai', icon: '⚡', description: 'Flagship coding model' },
   { id: 'glm-4.6v', name: 'GLM-4.6V', provider: 'zai', icon: '⚡', description: 'Multimodal with vision' },
 
+  // OpenCode Zen
+  { id: 'opencode:gpt-4', name: 'GPT-4', provider: 'opencodezen', icon: '⚡', description: 'Advanced reasoning' },
+  { id: 'opencode:gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'opencodezen', icon: '⚡', description: 'Fast & capable' },
+  { id: 'opencode:gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'opencodezen', icon: '⚡', description: 'Quick responses' },
+  { id: 'opencode:o1', name: 'O1', provider: 'opencodezen', icon: '⚡', description: 'Reasoning model' },
+  { id: 'opencode:o1-mini', name: 'O1 Mini', provider: 'opencodezen', icon: '⚡', description: 'Fast reasoning' },
+
   // Mistral
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'mistral', icon: '🌊', description: 'Top-tier reasoning' },
   { id: 'mistral-medium-latest', name: 'Mistral Medium', provider: 'mistral', icon: '🌊', description: 'Balanced performance' },
-
-  // Cohere
-  { id: 'command-r-plus', name: 'Command R+', provider: 'cohere', icon: '🌲', description: 'Top-tier RAG & tool use' },
-  { id: 'command-r', name: 'Command R', provider: 'cohere', icon: '🌲', description: 'Efficient & capable' },
 
   // Perplexity
   { id: 'llama-3.1-sonar-large-128k-online', name: 'Sonar Large Online', provider: 'perplexity', icon: '🔍', description: 'With web search' },
@@ -84,7 +87,76 @@ export default function ModelSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [availableProviders, setAvailableProviders] = useState<Set<ModelProvider>>(new Set());
+  const [dynamicModels, setDynamicModels] = useState<ModelOption[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch models from APIs
+  const fetchModelsFromAPIs = useCallback(async (providers: ModelProvider[]) => {
+    const models: ModelOption[] = [];
+
+    // Fetch Groq models if configured
+    if (providers.includes('groq')) {
+      try {
+        const response = await fetch('/api/groq/models');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.models) {
+            models.push(...data.models);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch Groq models:', error);
+      }
+    }
+
+    // Fetch OpenCode Zen models if configured
+    if (providers.includes('opencodezen')) {
+      try {
+        const response = await fetch('/api/opencode/models');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.models) {
+            models.push(...data.models);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch OpenCode Zen models:', error);
+      }
+    }
+
+    // Fetch OpenRouter models if configured
+    if (providers.includes('openrouter')) {
+      try {
+        const response = await fetch('/api/openrouter/models');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.models) {
+            models.push(...data.models);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch OpenRouter models:', error);
+      }
+    }
+
+    // Fetch Fireworks models if configured
+    if (providers.includes('fireworks')) {
+      try {
+        const response = await fetch('/api/fireworks/models');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.models) {
+            models.push(...data.models);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch Fireworks models:', error);
+      }
+    }
+
+    return models;
+  }, []);
 
   // Check available API keys on mount and when dropdown opens
   const checkAvailableKeys = useCallback(async () => {
@@ -98,10 +170,10 @@ export default function ModelSelector({
       if (keys.openai && keys.openai.trim()) providers.push('openai' as ModelProvider);
       if (keys.groq && keys.groq.trim()) providers.push('groq' as ModelProvider);
       if (keys.openrouter && keys.openrouter.trim()) providers.push('openrouter' as ModelProvider);
+      if (keys.opencodezen && keys.opencodezen.trim()) providers.push('opencodezen' as ModelProvider);
       if (keys.fireworks && keys.fireworks.trim()) providers.push('fireworks' as ModelProvider);
       if (keys.gemini && keys.gemini.trim()) providers.push('gemini' as ModelProvider);
       if (keys.mistral && keys.mistral.trim()) providers.push('mistral' as ModelProvider);
-      if (keys.cohere && keys.cohere.trim()) providers.push('cohere' as ModelProvider);
       if (keys.perplexity && keys.perplexity.trim()) providers.push('perplexity' as ModelProvider);
       if (keys.zai && keys.zai.trim()) providers.push('zai' as ModelProvider);
       // Ollama is always available (local)
@@ -109,13 +181,21 @@ export default function ModelSelector({
 
       console.log('Available API key providers:', providers);
       setAvailableProviders(new Set<ModelProvider>(providers));
+
+      // Fetch dynamic models
+      if (providers.length > 0) {
+        setLoadingModels(true);
+        const fetchedModels = await fetchModelsFromAPIs(providers);
+        setDynamicModels(fetchedModels);
+        setLoadingModels(false);
+      }
     } catch (error) {
       console.error('Failed to check available API keys:', error);
       // Fallback to only Ollama when no keys are available
       console.log('Falling back to only Ollama models');
       setAvailableProviders(new Set<ModelProvider>(['ollama']));
     }
-  }, []);
+  }, [fetchModelsFromAPIs]);
 
   // Check on mount
   useEffect(() => {
@@ -129,8 +209,11 @@ export default function ModelSelector({
     }
   }, [isOpen, checkAvailableKeys]);
 
+  // Combine hardcoded MODELS with dynamic models
+  const allModels = [...MODELS, ...dynamicModels];
+
   // Filter models by available providers and search query
-  const availableModels = MODELS.filter(model => availableProviders.has(model.provider));
+  const availableModels = allModels.filter(model => availableProviders.has(model.provider));
 
   // Prioritize popular models
   const popularModelIds = ['gpt-5.1', 'gpt-5', 'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-sonnet-4.5'];

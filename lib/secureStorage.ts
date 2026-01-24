@@ -9,7 +9,6 @@ export interface ApiKeys {
   fireworks: string;
   gemini: string;
   mistral: string;
-  cohere: string;
   perplexity: string;
   zai: string;
   nanobanana: string;
@@ -18,6 +17,9 @@ export interface ApiKeys {
   vercel: string;
   render: string;
   ollamaBaseUrl: string;
+  ngrok: string;
+  mobilePassword: string;
+  opencodezen: string;
 }
 
 const API_KEY_MAP = {
@@ -28,7 +30,6 @@ const API_KEY_MAP = {
   fireworks: 'FIREWORKS_API_KEY',
   gemini: 'GEMINI_API_KEY',
   mistral: 'MISTRAL_API_KEY',
-  cohere: 'COHERE_API_KEY',
   perplexity: 'PERPLEXITY_API_KEY',
   zai: 'ZAI_API_KEY',
   nanobanana: 'NANOBANANA_API_KEY',
@@ -37,6 +38,9 @@ const API_KEY_MAP = {
   vercel: 'VERCEL_TOKEN',
   render: 'RENDER_API_KEY',
   ollamaBaseUrl: 'OLLAMA_BASE_URL',
+  ngrok: 'NGROK_API_KEY',
+  mobilePassword: 'MOBILE_PASSWORD',
+  opencodezen: 'OPENCODE_API_KEY',
 } as const;
 
 // Check if running in Electron

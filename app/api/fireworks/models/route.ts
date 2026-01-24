@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { buildChatApiHeaders } from "@/lib/chatHeaders";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +47,9 @@ function parseEnvList(value: string | undefined): FireworksModel[] {
     .map((id) => ({ id, name: id, description: "Fireworks" }));
 }
 
-export async function GET() {
-  const apiKey =
+export async function GET(request: NextRequest) {
+  const headers = await buildChatApiHeaders();
+  const apiKey = headers['X-API-Key-Fireworks'] ||
     process.env.FIREWORKS_API_KEY || process.env.FIREWORKS_IMAGE_API_KEY;
   const baseUrl =
     process.env.FIREWORKS_BASE_URL?.trim() ||
@@ -55,7 +57,22 @@ export async function GET() {
   const envModels = parseEnvList(process.env.FIREWORKS_CHAT_MODELS);
 
   if (envModels.length > 0) {
-    return NextResponse.json({ models: envModels });
+    return NextResponse.json({
+      success: true,
+      models: envModels.map((model) => ({
+        id: model.id,
+        name: model.name || model.id,
+        description: model.description || "Fireworks",
+        provider: 'fireworks' as const
+      }))
+    });
+  }
+
+  if (!apiKey || !apiKey.trim()) {
+    return NextResponse.json({
+      error: "Fireworks API key is not configured",
+      models: []
+    }, { status: 400 });
   }
 
   try {
@@ -66,7 +83,7 @@ export async function GET() {
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
-        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        Authorization: `Bearer ${apiKey.trim()}`,
       },
       cache: "no-store",
     });
@@ -88,24 +105,36 @@ export async function GET() {
         id: model.id,
         name: model.name || model.id,
         description: model.description || "Fireworks",
+        provider: 'fireworks' as const
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     if (models.length === 0) {
-      return NextResponse.json({ models: FALLBACK_MODELS });
+      return NextResponse.json({
+        success: true,
+        models: FALLBACK_MODELS.map((model) => ({
+          id: model.id,
+          name: model.name || model.id,
+          description: model.description || "Fireworks",
+          provider: 'fireworks' as const
+        }))
+      });
     }
 
-    return NextResponse.json({ models });
+    return NextResponse.json({
+      success: true,
+      models
+    });
   } catch (error) {
+    console.error('Fireworks models fetch error:', error);
     return NextResponse.json(
       {
-        models: FALLBACK_MODELS,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to load Fireworks models",
+        models: [],
+        error: error instanceof Error
+          ? error.message
+          : "Failed to load Fireworks models",
       },
-      { status: 200 },
+      { status: 500 }
     );
   }
 }

@@ -4,6 +4,7 @@ const tabTitles: Record<string, { title: string; subtitle: string }> = {
   chat: { title: "AI Chat", subtitle: "Build and improve your web projects with AI" },
   repos: { title: "GitHub Repos", subtitle: "Create, edit, and manage your repositories" },
   deploy: { title: "Deployments", subtitle: "Deploy your projects to Vercel or Render" },
+  mobile: { title: "Mobile", subtitle: "Deploy and manage mobile access with persistent tunnels" },
   history: { title: "Chat History", subtitle: "View and resume previous conversations" },
   settings: { title: "Settings", subtitle: "Configure your API keys and preferences" },
 };
@@ -17,7 +18,7 @@ export default function Header({ activeTab }: HeaderProps) {
 
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b-3 border-border bg-background sticky top-0 z-10 shadow-flat">
-      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6">
         <div className="md:hidden">
             {/* Mobile Title Placeholder */}
             <h1 className="text-lg font-bold text-primary">OS Athena</h1>
