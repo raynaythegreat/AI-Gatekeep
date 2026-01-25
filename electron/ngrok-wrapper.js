@@ -202,7 +202,7 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
   });
 
   try {
-    const result = await waitForTunnel();
+    const result = await waitForTunnel;
     return result;
   } catch (error) {
     return {
