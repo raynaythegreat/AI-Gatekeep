@@ -124,6 +124,58 @@ export default function MobileDeploymentModal({
     }
   };
 
+  const pollDeploymentEvents = useCallback(async (depId: string) => {
+    try {
+      const response = await fetch(`/api/vercel/deployments/${depId}/events`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Parse Vercel events into log entries
+      if (Array.isArray(data)) {
+        data.forEach((event: any) => {
+          if (event.type === 'stdout' || event.type === 'stderr') {
+            const message = event.payload?.text || event.text || '';
+            if (message.trim()) {
+              addLog(message.trim(), event.type === 'stderr' ? 'error' : 'info');
+            }
+          }
+        });
+      }
+
+      // Check deployment status
+      const statusResponse = await fetch(`/api/vercel/deployments/${depId}`);
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        const state = statusData.readyState || statusData.state;
+
+        if (state === 'READY') {
+          setDeploymentState('ready');
+          addLog('✓ Deployment complete!', 'success');
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
+        } else if (state === 'ERROR' || state === 'CANCELED') {
+          setDeploymentState('error');
+          addLog(`✗ Deployment failed: ${state}`, 'error');
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
+        } else if (state === 'BUILDING') {
+          setDeploymentState('building');
+        }
+      }
+    } catch (error) {
+      console.error('Poll events error:', error);
+      addLog(`Warning: Failed to fetch deployment status`, 'error');
+    }
+  }, [addLog]);
+
   const handleDeploy = async (e: React.FormEvent) => {
     e.preventDefault();
 
