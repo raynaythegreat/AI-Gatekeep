@@ -1996,7 +1996,8 @@ export default function ChatInterface() {
     try {
       const response = await fetch("/api/zai/models");
       const data = await response.json();
-      if (!response.ok || data.error) {
+      // Only throw on actual failure (not HTTP success with error message + fallback models)
+      if (!response.ok || data.success === false) {
         throw new Error(data.error || "Failed to load Z.ai models");
       }
       const models = Array.isArray(data.models) ? data.models : [];
