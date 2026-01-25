@@ -94,13 +94,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 ${
+            className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-150 ${
               activeTab === item.id
-                ? "bg-primary text-primary-foreground border-2 border-primary shadow-flat-blue"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground border-2 border-transparent hover:border-border"
+                ? "bg-blue-500 text-black shadow-flat"
+                : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
             }`}
           >
-            <span className={activeTab === item.id ? "text-primary-foreground" : "text-muted-foreground"}>
+            <span className="w-5 h-5 flex items-center justify-center">
               {item.icon}
             </span>
             {item.label}
