@@ -4906,6 +4906,26 @@ export default function ChatInterface() {
                 ? "💡 Describe your vision and I'll plan the approach..."
                 : "🔨 Give me a command and I'll build it..."
             }
+          toolbar={
+            <>
+              <PlanBuildToggle
+                chatMode={chatMode}
+                onModeChange={handleModeChange}
+                autoApprove={autoApprove}
+                onToggleAutoApprove={() => setAutoApprove(!autoApprove)}
+              />
+              <ModelSelector
+                modelName={modelInfo.name}
+                onToggleDropdown={() => setShowModelDropdown(!showModelDropdown)}
+                dropdownOpen={showModelDropdown}
+              >
+                {modelDropdown &&
+                  (isClient
+                    ? createPortal(modelDropdown, document.body)
+                    : modelDropdown)}
+              </ModelSelector>
+            </>
+          }
         />
       </div>
 
