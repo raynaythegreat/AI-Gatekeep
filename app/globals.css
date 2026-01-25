@@ -9,21 +9,19 @@
   --background: #FAFAFA;
   --foreground: #1A1A1A;
 
-  --primary: #FFC107; /* Bold vibrant gold */
-  --primary-foreground: #000000;
-
-  --secondary: #E0E0E0; /* Prominent gray */
+  /* NEW: Blue theme */
+  --primary: #0366D6;           /* GitHub blue */
+  --primary-foreground: #FFFFFF;
+  --secondary: #E0E0E0;
   --secondary-foreground: #1A1A1A;
-
   --muted: #F5F5F5;
   --muted-foreground: #666666;
-
-  --border: #CCCCCC; /* Visible border for flat design */
-
+  --border: #CCCCCC;
   --card: #FFFFFF;
   --card-foreground: #1A1A1A;
 
-  --accent: #FF6F00; /* Accent orange-gold */
+  /* NEW: Blue accent */
+  --accent: #1F6FEB;
   --accent-foreground: #FFFFFF;
 }
 
@@ -32,21 +30,19 @@
   --background: #0D0D0D;
   --foreground: #F5F5F5;
 
-  --primary: #FFD54D; /* Bright gold in dark mode */
+  /* NEW: Blue theme for dark mode */
+  --primary: #58A6FF;           /* VS Code blue */
   --primary-foreground: #000000;
-
-  --secondary: #1F1F1F; /* Prominent dark gray */
+  --secondary: #1F1F1F;
   --secondary-foreground: #F5F5F5;
-
   --muted: #1A1A1A;
   --muted-foreground: #999999;
-
-  --border: #333333; /* Visible border in dark mode */
-
+  --border: #333333;
   --card: #141414;
   --card-foreground: #F5F5F5;
 
-  --accent: #FFA726; /* Bright accent in dark */
+  /* NEW: Blue accent for dark */
+  --accent: #79B8FF;
   --accent-foreground: #000000;
 }
 
@@ -88,25 +84,125 @@ a {
   }
 }
 
+@layer components {
+  /* Standardized button utilities */
+
+  /* Primary button (blue gradient) */
+  .btn-primary {
+    @apply px-4 py-2.5 rounded-lg font-semibold text-sm
+           bg-gradient-to-r from-blue-500 to-blue-600
+           text-white border-2 border-blue-600
+           shadow-flat hover:shadow-flat-lg
+           hover:from-blue-600 hover:to-blue-700
+           active:translate-y-[2px] active:shadow-flat
+           transition-all duration-150;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply px-4 py-2.5 rounded-lg font-semibold text-sm
+           bg-surface-100 dark:bg-surface-800
+           text-foreground border-2 border-border
+           shadow-flat hover:shadow-flat-lg
+           hover:bg-surface-200 dark:hover:bg-surface-700
+           active:translate-y-[2px] active:shadow-flat
+           transition-all duration-150;
+  }
+
+  /* Icon button */
+  .btn-icon {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center
+           bg-surface-100 dark:bg-surface-800
+           text-muted-foreground hover:text-foreground
+           border-2 border-transparent
+           hover:bg-surface-200 dark:hover:bg-surface-700
+           active:scale-95
+           transition-all duration-150;
+  }
+
+  /* Pill toggle button */
+  .btn-toggle {
+    @apply px-4 py-2 rounded-full font-bold text-xs
+           border-2 border-blue-500/30
+           bg-surface-100 dark:bg-surface-900
+           shadow-flat
+           active:scale-95
+           transition-all duration-200;
+  }
+
+  .btn-toggle-active {
+    @apply bg-blue-500 text-black
+           border-2 border-blue-600
+           shadow-flat-lg;
+  }
+
+  /* Standardized form utilities */
+
+  /* Text input */
+  .input-base {
+    @apply w-full px-4 py-2.5 rounded-lg
+           bg-card text-foreground
+           border-2 border-border
+           placeholder:text-muted-foreground/60
+           focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+           transition-all duration-150;
+  }
+
+  /* Select dropdown */
+  .select-base {
+    @apply input-base cursor-pointer appearance-none
+           pr-10;
+  }
+
+  /* Textarea */
+  .textarea-base {
+    @apply input-base resize-none
+           min-h-[100px] leading-relaxed;
+  }
+
+  /* Card utilities */
+
+  /* Card container */
+  .card {
+    @apply bg-card rounded-xl border-2 border-border shadow-sm;
+  }
+
+  /* Card with hover */
+  .card-interactive {
+    @apply card hover:border-blue-500/30 hover:shadow-md transition-all duration-150 cursor-pointer;
+  }
+
+  /* Section container */
+  .section {
+    @apply p-6 space-y-4;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t-2 border-border/50;
+  }
+}
+
 @layer utilities {
-  .text-gold {
-    @apply text-gold-500 dark:text-gold-400;
+  /* NEW: Blue text utilities */
+  .text-blue {
+    @apply text-blue-500 dark:text-blue-400;
   }
 
-  .bg-gold {
-    @apply bg-gold-500;
+  .bg-blue {
+    @apply bg-blue-500;
   }
 
-  .border-gold {
-    @apply border-gold-500 border-2;
+  .border-blue {
+    @apply border-blue-500 border-2;
   }
 
-  .gradient-gold {
-    @apply bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600;
+  .gradient-blue {
+    @apply bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600;
   }
 
-  .gradient-text-gold {
-    @apply bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 bg-clip-text text-transparent;
+  .gradient-text-blue {
+    @apply bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent;
   }
 
   /* Flat design utilities - no blur, solid backgrounds */
@@ -131,23 +227,23 @@ a {
   }
 
   .btn-gold-primary {
-    @apply bg-gold-500 text-black font-bold
-      border-2 border-gold-600
-      shadow-flat-gold hover:shadow-flat-lg
+    @apply bg-blue-500 text-black font-bold
+      border-2 border-blue-600
+      shadow-flat-blue hover:shadow-flat-lg
       hover:translate-y-[-1px] active:translate-y-[1px]
       transition-all duration-150 rounded-lg;
   }
 
   .border-gold-primary {
-    @apply border-2 border-gold-500/40 dark:border-gold-500/30
-      hover:border-gold-500 dark:hover:border-gold-400
+    @apply border-2 border-blue-500/40 dark:border-blue-500/30
+      hover:border-blue-500 dark:hover:border-blue-400
       transition-all duration-150;
   }
 
   .input-gold-focus {
-    @apply border-2 border-gold-500/20
-      focus-within:border-gold-500/40
-      focus-within:ring-2 focus-within:ring-gold-500/20
+    @apply border-2 border-blue-500/20
+      focus-within:border-blue-500/40
+      focus-within:ring-2 focus-within:ring-blue-500/20
       transition-all duration-150;
   }
 }
