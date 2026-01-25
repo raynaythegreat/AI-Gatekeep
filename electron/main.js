@@ -432,11 +432,59 @@ app.whenReady().then(async () => {
     markFirstRunComplete();
   }
 
-  // Auto-activate mobile tunnel on app startup (before server starts)
+  // ==================================================
+  // Phase 1: Auto-Start Ngrok CLI Agent
+  // ==================================================
+  try {
+    log('Initializing ngrok tunnel auto-start...');
+
+    // Import the ngrok helper function
+    const { autoStartNgrokForElectron } = await import('@/lib/ngrok');
+
+    // Try to get API key from encrypted storage
+    let ngrokApiKey;
+    try {
+      const encryptedKeys = await loadEncryptedKeys();
+      if (encryptedKeys['NGROK_API_KEY']) {
+        // Decrypt the key using safeStorage
+        if (safeStorage.isEncryptionAvailable()) {
+          const buffer = Buffer.from(encryptedKeys['NGROK_API_KEY'], 'base64');
+          ngrokApiKey = safeStorage.decryptString(buffer);
+          log('Retrieved ngrok API key from secure storage');
+        }
+      }
+    } catch (keyError) {
+      log(`Could not retrieve ngrok API key: ${keyError.message}`, 'WARN');
+    }
+
+    // Auto-start ngrok with timeout and auto-install enabled
+    const ngrokResult = await autoStartNgrokForElectron(3456, ngrokApiKey, {
+      timeout: 20000,        // 20 seconds for ngrok to start
+      autoInstall: true,     // Install ngrok if missing
+      logFunction: (msg) => log(`ngrok: ${msg}`)
+    });
+
+    if (ngrokResult.success && ngrokResult.publicUrl) {
+      log(`✓ ngrok tunnel active: ${ngrokResult.publicUrl}`);
+      if (ngrokResult.installed) {
+        log('✓ ngrok CLI was installed automatically');
+      }
+    } else if (ngrokResult.error) {
+      log(`ngrok auto-start failed: ${ngrokResult.error}`, 'WARN');
+      log('App will continue without ngrok - you can start it manually from Settings', 'WARN');
+    }
+  } catch (ngrokError) {
+    log(`ngrok initialization error: ${ngrokError.message}`, 'WARN');
+    log('App will continue without ngrok tunnel', 'WARN');
+  }
+
+  // ==================================================
+  // Phase 2: Mobile Tunnel Activation (API-based)
+  // ==================================================
   try {
     const { ensureMobileTunnelActive } = await import('@/lib/ngrok');
-    const result = await ensureMobileTunnelActive();
-    
+    const result = await ensureMobileTunnelActive(ngrokApiKey);
+
     if (result.success && result.publicUrl) {
       log(`Mobile tunnel activated: ${result.publicUrl}`);
       if (result.tunnelId) {

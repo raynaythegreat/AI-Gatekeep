@@ -25,7 +25,7 @@ function getApiKeyFromRequest(request: NextRequest, provider: string): string | 
     opencodezen: 'OPENCODE_API_KEY',
     fireworks: 'FIREWORKS_API_KEY',
     mistral: 'MISTRAL_API_KEY',
-    zai: 'ZAI_API_KEY',
+    zai: 'ZAI_API_KEY', // Legacy name, also check ZHIPU_API_KEY below
   };
   
   const envName = envMap[provider];
@@ -35,7 +35,15 @@ function getApiKeyFromRequest(request: NextRequest, provider: string): string | 
       return envValue.trim();
     }
   }
-  
+
+  // Special handling: Z.ai supports both ZAI_API_KEY and ZHIPU_API_KEY
+  if (provider === 'zai') {
+    const zhipuKey = process.env.ZHIPU_API_KEY || process.env.NEXT_PUBLIC_ZHIPU_API_KEY;
+    if (zhipuKey && zhipuKey.trim()) {
+      return zhipuKey.trim();
+    }
+  }
+
   return null;
 }
 
@@ -701,7 +709,7 @@ export async function POST(request: NextRequest) {
       opencodezen: getApiKeyFromRequest(request, 'opencodezen') || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
       mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
-      zai: getApiKeyFromRequest(request, 'zai') || process.env.ZAI_API_KEY,
+      zai: getApiKeyFromRequest(request, 'zai'),
     }[provider];
     const providerKey =
       typeof rawProviderKey === "string" ? rawProviderKey.trim() : rawProviderKey;
@@ -720,9 +728,7 @@ export async function POST(request: NextRequest) {
                   ? "Set FIREWORKS_API_KEY."
                   : provider === "mistral"
                     ? "Set MISTRAL_API_KEY."
-                    : provider === "zai"
-                      ? "Set ZAI_API_KEY."
-                : "";
+                    : "";
       return new Response(
         JSON.stringify({
           error: `${provider.toUpperCase()} API key is not configured${envHint ? ` ${envHint}` : ""}`,
@@ -1307,7 +1313,7 @@ export async function POST(request: NextRequest) {
                 encoder.encode(
                   `data: ${JSON.stringify({
                     type: "error",
-                    content: "Z.ai API key is required to use GLM models. Please add your ZAI_API_KEY in Settings to continue.",
+                    error: "Z.ai API key is required to use GLM models. Please subscribe to GLM Coding Plan at https://z.ai/subscribe and add your API key in Settings to continue.",
                   })}\n\n`
                 )
               );
@@ -1315,10 +1321,11 @@ export async function POST(request: NextRequest) {
               return;
             }
 
-            // Use Z.ai Chat Completions API (OpenAI-compatible)
+            // Use Z.ai GLM Coding Plan endpoint (OpenAI-compatible)
+            // Note: GLM Coding Plan uses a different endpoint than standard API
             const zai = new OpenAI({
               apiKey: zaiApiKey,
-              baseURL: "https://open.bigmodel.cn/api/paas/v4",
+              baseURL: "https://api.z.ai/api/coding/paas/v4",
             });
 
             const response = await zai.chat.completions.create({
@@ -1365,7 +1372,7 @@ export async function POST(request: NextRequest) {
               })}\n\n`));
 
               controller.close();
-              throw; // Re-throw to be caught by outer handler if needed
+              // Error is already handled and sent to client
             }
           } else {
             // Claude (Anthropic)

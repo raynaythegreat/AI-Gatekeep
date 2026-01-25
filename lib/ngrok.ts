@@ -211,6 +211,155 @@ export async function ensureMobileTunnelActive(apiKey?: string): Promise<{
   };
 }
 
+/**
+ * Auto-start ngrok CLI for Electron main process
+ * This function is designed to be called during app startup to automatically
+ * spawn the ngrok agent without requiring user interaction.
+ *
+ * @param port - Port to expose via ngrok (default: 3456)
+ * @param apiKey - Optional ngrok API key
+ * @param options - Configuration options
+ * @returns Promise with tunnel URL and status
+ */
+export async function autoStartNgrokForElectron(
+  port: number = 3456,
+  apiKey?: string,
+  options?: {
+    timeout?: number;           // How long to wait for tunnel to be ready (default: 15000ms)
+    autoInstall?: boolean;       // Auto-install ngrok if not found (default: true)
+    logFunction?: (message: string) => void; // Optional logger function
+  }
+): Promise<{
+  success: boolean;
+  publicUrl?: string;
+  installed?: boolean;
+  error?: string;
+}> {
+  const log = options?.logFunction || console.log;
+  const timeout = options?.timeout || 15000;
+  const autoInstall = options?.autoInstall !== false;
+
+  try {
+    // Step 1: Check if tunnel already exists
+    log(`Checking for existing ngrok tunnel on port ${port}...`);
+    const existingUrl = await getNgrokPublicUrl(port, 2000);
+    if (existingUrl) {
+      log(`Found existing ngrok tunnel: ${existingUrl}`);
+      return { success: true, publicUrl: existingUrl, installed: true };
+    }
+
+    // Step 2: Check if ngrok is installed, install if needed
+    let ngrokPath = resolveCommand("ngrok");
+    let wasInstalled = !!ngrokPath;
+
+    if (!ngrokPath && autoInstall) {
+      log('ngrok CLI not found, attempting automatic installation...');
+      try {
+        const { installNgrok } = await import('@/lib/ngrok-installer');
+        const installResult = await installNgrok({
+          onProgress: (msg) => log(msg),
+        });
+
+        if (installResult.success && installResult.installedPath) {
+          log(`ngrok installed successfully at: ${installResult.installedPath}`);
+          const { getDefaultBinDirs, joinPathEntries } = await import('@/lib/platform');
+          const extraDirs = [installResult.installedPath.replace(/\/ngrok(\.exe)?$/, '')];
+          ngrokPath = resolveCommand("ngrok", extraDirs);
+          wasInstalled = true;
+        }
+      } catch (installError) {
+        log(`Auto-install error: ${installError}`);
+      }
+    }
+
+    if (!ngrokPath) {
+      const error = "ngrok CLI not found. Please install ngrok manually.";
+      log(error);
+      return {
+        success: false,
+        installed: false,
+        error
+      };
+    }
+
+    // Step 3: Start ngrok process
+    log(`Starting ngrok process: ${ngrokPath} http ${port}`);
+
+    const ngrokEnv = createSubprocessEnv();
+    if (apiKey) {
+      ngrokEnv.NGROK_API_KEY = apiKey;
+      log('Using provided API key for authentication');
+    }
+
+    const ngrokProcess = spawn(ngrokPath, ['http', String(port), '--log=stdout', '--log-format=json'], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: ngrokEnv,
+      detached: true,
+    });
+
+    // Step 4: Wait for tunnel to be ready
+    log('Waiting for ngrok tunnel to establish...');
+
+    await new Promise<void>((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        ngrokProcess.kill();
+        reject(new Error('Ngrok failed to start within timeout'));
+      }, timeout);
+
+      let output = '';
+      ngrokProcess.stdout?.on('data', (data) => {
+        output += data.toString();
+        const match = output.match(/https?:\/\/[a-z0-9\-]+\.ngrok(?:-free)?\.app/);
+        if (match) {
+          clearTimeout(timeoutId);
+          log(`Tunnel established: ${match[0]}`);
+          ngrokProcess.unref();
+          resolve();
+        }
+      });
+
+      ngrokProcess.stderr?.on('data', (data) => {
+        const error = data.toString();
+        if (error.includes('error') || error.includes('failed')) {
+          clearTimeout(timeoutId);
+          reject(new Error(`Ngrok error: ${error}`));
+        }
+      });
+
+      ngrokProcess.on('exit', (code) => {
+        if (code && code !== 0) {
+          clearTimeout(timeoutId);
+          reject(new Error(`Ngrok exited with code ${code}`));
+        }
+      });
+    });
+
+    // Step 5: Verify tunnel is accessible
+    for (let attempt = 0; attempt < 24; attempt++) {
+      const url = await getNgrokPublicUrl(port);
+      if (url) {
+        log(`ngrok tunnel verified and accessible: ${url}`);
+        return { success: true, publicUrl: url, installed: wasInstalled };
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    return {
+      success: false,
+      installed: wasInstalled,
+      error: "ngrok started but tunnel URL not found in API"
+    };
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Failed to auto-start ngrok: ${errorMessage}`);
+    return {
+      success: false,
+      error: errorMessage
+    };
+  }
+}
+
 export async function ensureNgrokTunnel(
   port: number,
   apiKey?: string,
