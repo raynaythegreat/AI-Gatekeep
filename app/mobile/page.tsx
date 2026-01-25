@@ -242,9 +242,20 @@ export default function MobilePage() {
     branch?: string;
   }) => {
     try {
+      // Load API keys from SecureStorage and send them to the server
+      const keys = await SecureStorage.loadKeys();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add API keys as headers for server-side deployment
+      if (keys.ngrok) headers['X-API-Key-Ngrok'] = keys.ngrok;
+      if (keys.vercel) headers['X-API-Key-Vercel'] = keys.vercel;
+      if (keys.github) headers['X-API-Key-Github'] = keys.github;
+
       const response = await fetch('/api/mobile/deploy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(params),
       });
 
