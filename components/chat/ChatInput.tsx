@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, type RefObject } from "react";
+import { useRef, useEffect, useState, type RefObject, type ReactNode } from "react";
 import Image from "next/image";
 
 interface ChatInputAttachment {
@@ -26,6 +26,7 @@ interface ChatInputProps {
   disabled?: boolean;
   loading?: boolean;
   placeholder?: string;
+  toolbar?: ReactNode;
 }
 
 export default function ChatInput({
@@ -43,6 +44,7 @@ export default function ChatInput({
   disabled,
   loading,
   placeholder = "Type your message...",
+  toolbar,
 }: ChatInputProps) {
   const fallbackTextareaRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = externalTextareaRef ?? fallbackTextareaRef;
