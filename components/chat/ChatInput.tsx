@@ -263,7 +263,7 @@ export default function ChatInput({
           )}
         </div>
          <p className="text-[10px] text-center text-muted-foreground/40 mt-3">
-           AI Command
+           OS Athena
          </p>
       </div>
     </div>
