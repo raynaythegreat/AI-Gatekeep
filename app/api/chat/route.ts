@@ -651,6 +651,7 @@ export async function POST(request: NextRequest) {
       repoContext,
       attachments,
       mode,
+      systemPrompt: customSystemPrompt,
     } = body;
 
     if (!messages || messages.length === 0) {
@@ -721,7 +722,7 @@ export async function POST(request: NextRequest) {
           : provider === "groq"
             ? "Set GROQ_API_KEY (recommended) or NEXT_PUBLIC_GROQ_API_KEY."
             : provider === "gemini"
-              ? "Set GEMINI_API_KEY."
+              ? "Set GEMINI_API_KEY in Settings or environment variables."
               : provider === "opencodezen"
                 ? "Set OPENCODE_API_KEY."
                 : provider === "fireworks"
@@ -739,6 +740,12 @@ export async function POST(request: NextRequest) {
 
     // Build context-aware system prompt
     let contextPrompt = SYSTEM_PROMPT;
+
+    // Prepend custom system prompt if provided
+    if (customSystemPrompt && typeof customSystemPrompt === 'string' && customSystemPrompt.trim()) {
+      contextPrompt = `${customSystemPrompt.trim()}\n\n${contextPrompt}`;
+    }
+
     const resolvedMode =
       mode === "plan" || mode === "build" ? (mode as keyof typeof MODE_PROMPTS) : null;
 
@@ -867,7 +874,7 @@ export async function POST(request: NextRequest) {
             }
           } else if (provider === "fireworks") {
             const fireworks = new OpenAI({
-              apiKey: providerKey,
+              apiKey: (typeof providerKey === 'string' ? providerKey : undefined) as string | undefined,
               baseURL: fireworksBaseUrl,
             });
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ApiTester, TestResult } from '@/services/apiTester';
 import { useFileAccess } from '@/contexts/FileAccessContext';
 import FileAccessPermissionModal from '@/components/FileAccessPermissionModal';
+import NgrokStatusCard from '@/components/settings/NgrokStatusCard';
 
 
 interface CustomEndpoint {
@@ -55,7 +56,7 @@ const providers: ProviderConfig[] = [
   { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform', docsUrl: 'https://fireworks.ai/api-keys', envKey: 'FIREWORKS_API_KEY' },
   { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra', docsUrl: 'https://aistudio.google.com/app/apikey', envKey: 'GEMINI_API_KEY' },
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
-  { key: 'zai', label: 'Z.ai', placeholder: 'Enter API key', icon: '⚡', category: 'ai', description: 'GLM-4.7 flagship coding models', docsUrl: 'https://z.ai/model-api', envKey: 'ZAI_API_KEY' },
+  { key: 'zai', label: 'Z.ai', placeholder: 'Enter API key', icon: '⚡', category: 'ai', description: 'GLM Coding Plan - 3× more usage', docsUrl: 'https://z.ai/subscribe', envKey: 'ZAI_API_KEY' },
   { key: 'nanobanana', label: 'Nanobanana', placeholder: 'Enter API key', icon: '🍌', category: 'ai', description: 'Image generation API', docsUrl: 'https://nanobananaapi.ai', envKey: 'NANOBANANA_API_KEY' },
   { key: 'ideogram', label: 'Ideogram', placeholder: 'Enter API key', icon: '🎨', category: 'ai', description: 'Advanced image generation', docsUrl: 'https://ideogram.ai/api', envKey: 'IDEOGRAM_API_KEY' },
 
@@ -146,6 +147,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
       setSystemPrompt(savedSystemPrompt);
     }
   }, []);
+
+  // Auto-save system prompt to localStorage
+  useEffect(() => {
+    if (systemPrompt.trim()) {
+      localStorage.setItem('system-prompt', systemPrompt.trim());
+    } else {
+      localStorage.removeItem('system-prompt');
+    }
+  }, [systemPrompt]);
 
   const updateKey = (provider: keyof ApiKeys, value: string) => {
     setApiKeys(prev => ({ ...prev, [provider]: value }));
@@ -452,7 +462,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           <div className="p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gold-500 text-white flex items-center justify-center text-xl border-2 border-gold-600 shadow-flat-gold">
+                <div className="w-10 h-10 rounded-lg bg-blue-500 text-white flex items-center justify-center text-xl border-2 border-blue-600 shadow-flat-blue">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
@@ -480,13 +490,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                 value={systemPrompt}
                 onChange={(e) => setSystemPrompt(e.target.value)}
                 placeholder="Example: You are a senior developer helping build modern web applications. Focus on clean, maintainable code with proper error handling. Always explain your reasoning before suggesting solutions."
-                className="w-full min-h-[120px] px-4 py-3 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:border-gold-500/40 focus:outline-none focus:ring-2 focus:ring-gold-500/10 transition-all font-mono text-sm resize-y"
+                className="w-full min-h-[120px] px-4 py-3 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-mono text-sm resize-y"
               />
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-muted-foreground font-medium">
                   {systemPrompt.length} characters
                 </span>
-                <span className="text-[10px] text-gold-600 dark:text-gold-400 font-medium">
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
                   Auto-saved
                 </span>
               </div>
@@ -507,7 +517,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
          <div className="max-w-3xl">
            <div className="p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
              <div className="flex items-start gap-4">
-               <div className="w-12 h-12 rounded-lg bg-gold-500/10 text-gold-600 dark:text-gold-400 flex items-center justify-center text-xl border-2 border-gold-500/20 flex-shrink-0">
+               <div className="w-12 h-12 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl border-2 border-blue-500/20 flex-shrink-0">
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                  </svg>
@@ -530,13 +540,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                    <div className={`p-4 rounded-lg border-2 ${
                      fileAccessEnabled
                        ? 'bg-emerald-500/10 border-emerald-500/30'
-                       : 'bg-surface-100 dark:bg-surface-900 border-gold-500/20'
+                       : 'bg-surface-100 dark:bg-surface-900 border-blue-500/20'
                    }`}>
                      <div className="flex items-center gap-3">
                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center border-2 ${
                          fileAccessEnabled
                            ? 'bg-emerald-500 text-white border-emerald-600'
-                           : 'bg-surface-200 dark:bg-surface-800 text-muted-foreground border-gold-500/20'
+                           : 'bg-surface-200 dark:bg-surface-800 text-muted-foreground border-blue-500/20'
                        }`}>
                          {fileAccessEnabled ? (
                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -563,7 +573,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                            fileAccessEnabled
                              ? 'bg-red-500/10 text-red-600 border-2 border-red-500/30 hover:bg-red-500/20'
-                             : 'bg-gradient-to-r from-gold-500 to-amber-500 text-black border-2 border-gold-600 hover:from-gold-600 hover:to-amber-600'
+                             : 'bg-gradient-to-r from-blue-500 to-blue-500 text-black border-2 border-blue-600 hover:from-blue-600 hover:to-blue-600'
                          }`}
                        >
                          {fileAccessEnabled ? 'Disable Access' : 'Enable Access'}
@@ -609,7 +619,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xl border-2 border-primary shadow-flat-gold">
+                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xl border-2 border-primary shadow-flat-blue">
                     {icon}
                   </div>
                   <div className="flex-1">
@@ -733,7 +743,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xl border-2 border-primary shadow-flat-gold">
+                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xl border-2 border-primary shadow-flat-blue">
                     {icon}
                   </div>
                   <div className="flex-1">
@@ -835,8 +845,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
               )}
             </div>
           ))}
-          </div>
         </div>
+
+        {/* Ngrok Status Card - Full Width */}
+        <div className="mt-4">
+          <NgrokStatusCard />
+        </div>
+      </div>
 
       {/* Custom Models */}
 
@@ -854,7 +869,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
         <div className="max-w-2xl">
           <div className="p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-2xl border-2 border-primary shadow-flat-gold">
+              <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-2xl border-2 border-primary shadow-flat-blue">
                 🦙
               </div>
               <div className="flex-1">
@@ -917,7 +932,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           </div>
           <button
             onClick={() => setShowAddCustom(!showAddCustom)}
-            className="px-3 py-1.5 rounded-lg bg-gold-500/10 dark:bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-500/20 transition-colors"
           >
             {showAddCustom ? 'Cancel' : '+ Add Custom Endpoint'}
           </button>
@@ -925,7 +940,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
 
         {/* Add new custom endpoint form */}
         {showAddCustom && (
-          <div className="p-6 rounded-xl bg-gradient-to-r from-gold-100/50 to-amber-100/50 dark:from-gold-500/10 dark:to-amber-500/10 border-2 border-gold-500/20 shadow-md space-y-4">
+          <div className="p-6 rounded-xl bg-gradient-to-r from-blue-100/50 to-blue-100/50 dark:from-blue-500/10 dark:to-blue-500/10 border-2 border-blue-500/20 shadow-md space-y-4">
             <h3 className="text-lg font-black text-foreground flex items-center gap-2">
               <span className="text-2xl">🔗</span>
               Add New Custom Endpoint
@@ -941,7 +956,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   value={newCustomEndpoint.name}
                   onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, name: e.target.value })}
                   placeholder="My Custom API"
-                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors text-sm"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-blue-500 transition-colors text-sm"
                 />
               </div>
 
@@ -954,7 +969,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   value={newCustomEndpoint.baseUrl}
                   onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, baseUrl: e.target.value })}
                   placeholder="https://api.example.com"
-                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-blue-500 transition-colors font-mono text-sm"
                 />
               </div>
 
@@ -967,7 +982,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   value={newCustomEndpoint.endpoint}
                   onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, endpoint: e.target.value })}
                   placeholder="/v1/chat/completions"
-                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-blue-500 transition-colors font-mono text-sm"
                 />
               </div>
 
@@ -980,7 +995,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   value={newCustomEndpoint.apiKey}
                   onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, apiKey: e.target.value })}
                   placeholder="Enter API key if required"
-                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-blue-500 transition-colors font-mono text-sm"
                 />
               </div>
             </div>
@@ -988,7 +1003,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
             <button
               onClick={addCustomEndpoint}
               disabled={!newCustomEndpoint.name || !newCustomEndpoint.baseUrl}
-              className="w-full px-4 py-3 bg-gold-500 dark:bg-gold-600 text-white text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-gold-500 hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-gold"
+              className="w-full px-4 py-3 bg-blue-500 dark:bg-blue-600 text-white text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-blue"
             >
               Add Endpoint
             </button>
@@ -1001,11 +1016,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
             {customEndpoints.map((endpoint) => (
               <div
                 key={endpoint.id}
-                className="p-5 rounded-lg bg-card border-2 border-border hover:border-gold-500/50 transition-all shadow-flat"
+                className="p-5 rounded-lg bg-card border-2 border-border hover:border-blue-500/50 transition-all shadow-flat"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gold-500 text-white flex items-center justify-center text-xl border-2 border-gold-600 shadow-flat-gold">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500 text-white flex items-center justify-center text-xl border-2 border-blue-600 shadow-flat-blue">
                       🔗
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1028,7 +1043,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   <button
                     onClick={() => testCustomEndpoint(endpoint)}
                     disabled={testing === `custom-${endpoint.id}`}
-                    className="flex-1 px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-gold-500 hover:bg-gold-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="flex-1 px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-blue-500 hover:bg-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {testing === `custom-${endpoint.id}` ? 'Testing...' : 'Test Connection'}
                   </button>
@@ -1062,7 +1077,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
             <p className="text-muted-foreground mb-4">No custom endpoints configured</p>
             <button
               onClick={() => setShowAddCustom(true)}
-              className="px-4 py-2 rounded-lg bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
+              className="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-500/20 transition-colors"
             >
               + Add First Custom Endpoint
             </button>
@@ -1084,7 +1099,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           <button
             onClick={runAllTests}
             disabled={testing === 'all'}
-            className="px-8 py-3 bg-primary text-primary-foreground text-sm font-black uppercase tracking-wider rounded-lg border-2 border-primary hover:bg-accent hover:border-accent disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-gold hover:shadow-flat-lg active:translate-y-[1px]"
+            className="px-8 py-3 bg-primary text-primary-foreground text-sm font-black uppercase tracking-wider rounded-lg border-2 border-primary hover:bg-accent hover:border-accent disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-blue hover:shadow-flat-lg active:translate-y-[1px]"
           >
             {testing === 'all' ? 'Testing All Connections...' : 'Test All Connections'}
           </button>
