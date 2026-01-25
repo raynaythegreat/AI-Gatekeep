@@ -178,7 +178,7 @@ async function startNextServer() {
 
   await cleanupPort();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const rootDir = path.join(__dirname, '..');
 
     serverStartupTimeout = setTimeout(() => {
@@ -469,13 +469,14 @@ app.whenReady().then(async () => {
   }
 
   // ==================================================
-  // Phase 1: Auto-Start Ngrok CLI Agent
+  // Phase 1: Auto-Start Ngrok CLI Agent (dev mode only)
   // ==================================================
-  try {
-    log('Initializing ngrok tunnel auto-start...');
+  if (isDev) {
+    try {
+      log('Initializing ngrok tunnel auto-start...');
 
-    // Import the ngrok helper function
-    const { autoStartNgrokForElectron } = await import('@/lib/ngrok');
+      // Import the ngrok helper function
+      const { autoStartNgrokForElectron } = await import('@/lib/ngrok');
 
     // Try to get API key from encrypted storage
     let ngrokApiKey;
@@ -509,17 +510,36 @@ app.whenReady().then(async () => {
       log(`ngrok auto-start failed: ${ngrokResult.error}`, 'WARN');
       log('App will continue without ngrok - you can start it manually from Settings', 'WARN');
     }
-  } catch (ngrokError) {
-    log(`ngrok initialization error: ${ngrokError.message}`, 'WARN');
-    log('App will continue without ngrok tunnel', 'WARN');
+    } catch (ngrokError) {
+      log(`ngrok initialization error: ${ngrokError.message}`, 'WARN');
+      log('App will continue without ngrok tunnel', 'WARN');
+    }
+  } else {
+    log('Ngrok auto-start skipped in packaged build - use Settings to start manually', 'INFO');
   }
 
   // ==================================================
-  // Phase 2: Mobile Tunnel Activation (API-based)
+  // Phase 2: Mobile Tunnel Activation (dev mode only)
   // ==================================================
-  try {
-    const { ensureMobileTunnelActive } = await import('@/lib/ngrok');
-    const result = await ensureMobileTunnelActive(ngrokApiKey);
+  if (isDev) {
+    try {
+      const { ensureMobileTunnelActive } = await import('@/lib/ngrok');
+      let ngrokApiKey;
+
+      // Try to get API key from encrypted storage
+      try {
+        const encryptedKeys = await loadEncryptedKeys();
+        if (encryptedKeys['NGROK_API_KEY']) {
+          if (safeStorage.isEncryptionAvailable()) {
+            const buffer = Buffer.from(encryptedKeys['NGROK_API_KEY'], 'base64');
+            ngrokApiKey = safeStorage.decryptString(buffer);
+          }
+        }
+      } catch (keyError) {
+        // Ignore key errors
+      }
+
+      const result = await ensureMobileTunnelActive(ngrokApiKey);
 
     if (result.success && result.publicUrl) {
       log(`Mobile tunnel activated: ${result.publicUrl}`);
@@ -532,14 +552,26 @@ app.whenReady().then(async () => {
     } else if (result.tunnelId) {
       log('Mobile deployment exists but tunnel is inactive, will reactivate on connection');
     }
-  } catch (error) {
-    log('Failed to check mobile tunnel status:', error, 'WARN');
+    } catch (error) {
+      log('Failed to check mobile tunnel status:', error, 'WARN');
+    }
+  } else {
+    log('Mobile tunnel activation skipped in packaged build', 'INFO');
   }
 
   try {
     await startNextServer();
     log('Next.js server is ready, creating window...');
     createWindow();
+
+    // Initialize auto-updater
+    try {
+      const { checkForUpdates } = require('./autoUpdater');
+      checkForUpdates(mainWindow);
+      log('Auto-updater initialized');
+    } catch (updateError) {
+      log(`Failed to initialize auto-updater: ${updateError.message}`, 'WARN');
+    }
   } catch (error) {
     log(`Failed to start application: ${error.message}`, 'ERROR');
     log(`Stack trace: ${error.stack}`, 'ERROR');
