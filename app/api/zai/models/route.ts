@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
   if (!apiKey || !apiKey.trim()) {
     return NextResponse.json(
       { success: true, models: buildFallbackModels(), error: "ZAI_API_KEY is not configured.", warning },
-      { status: 400 }
+      { status: 200 }
     );
   }
 
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         error: error instanceof Error ? error.message : "Failed to load Z.ai models",
         warning,
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }
