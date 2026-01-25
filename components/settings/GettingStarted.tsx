@@ -2,11 +2,11 @@ import React from 'react';
 
 const GettingStarted = () => {
   return (
-    <div className="p-6 bg-surface-50 dark:bg-black min-h-full">
+    <div className="p-6 bg-gray-50 dark:bg-black min-h-full">
       <div className="max-w-2xl">
          <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-6">Getting Started</h2>
         <div className="space-y-6">
-          <div className="bg-card dark:bg-surface-900 p-6 rounded-xl border-2 border-border dark:border-surface-800 shadow-flat">
+          <div className="bg-white dark:bg-surface-900 p-6 rounded-xl border-2 border-gray-200 dark:border-surface-800 shadow-flat">
             <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">1</span>
               Configure API Keys
@@ -19,7 +19,7 @@ const GettingStarted = () => {
             </p>
           </div>
 
-          <div className="bg-card dark:bg-surface-900 p-6 rounded-xl border-2 border-border dark:border-surface-800 shadow-flat">
+          <div className="bg-white dark:bg-surface-900 p-6 rounded-xl border-2 border-gray-200 dark:border-surface-800 shadow-flat">
             <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">2</span>
               Set Up Local AI (Optional)
@@ -32,7 +32,7 @@ const GettingStarted = () => {
             </p>
           </div>
 
-          <div className="bg-card dark:bg-surface-900 p-6 rounded-xl border-2 border-border dark:border-surface-800 shadow-flat">
+          <div className="bg-white dark:bg-surface-900 p-6 rounded-xl border-2 border-gray-200 dark:border-surface-800 shadow-flat">
             <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">3</span>
               Start Building

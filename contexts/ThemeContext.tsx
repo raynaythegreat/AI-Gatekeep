@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import AthenaLogo from "@/components/ui/AthenaLogo";
 
 type Theme = "light" | "dark";
 
@@ -12,7 +13,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,8 +21,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("theme") as Theme | null;
     if (stored) {
       setTheme(stored);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
+    } else {
+      // Default to light theme, especially after onboarding
+      setTheme("light");
     }
   }, []);
 
@@ -37,10 +39,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto border-4 border-yellow-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-400 text-sm">Initializing OS Athena...</p>
+          <div className="w-20 h-20 mx-auto animate-pulse">
+            <AthenaLogo className="w-full h-full" />
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Initializing OS Athena...</p>
         </div>
       </div>
     );
