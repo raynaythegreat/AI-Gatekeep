@@ -48,7 +48,15 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
   if (!(await isNgrokInstalled())) {
     return {
       success: false,
-      error: 'Ngrok not installed. Please install ngrok first.'
+      error: 'Ngrok not installed. Please install ngrok first. Download from https://ngrok.com/download'
+    };
+  }
+
+  // Validate API key if provided
+  if (apiKey && apiKey.trim().length < 10) {
+    return {
+      success: false,
+      error: 'Invalid ngrok API key. Please check your API key in Settings and ensure it is correct.'
     };
   }
 
@@ -58,8 +66,14 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
     NGROK_API_KEY: apiKey || ''
   };
 
-  // Start ngrok as detached process
-  const ngrokProcess = spawn(ngrokPath, ['http', String(port), '--log=stdout'], {
+  // Start ngrok as detached process with proper authentication
+  const ngrokArgs = ['http', String(port), '--log=stdout'];
+  
+  if (apiKey && apiKey.trim().length >= 10) {
+    logFunction('Using ngrok API key for authentication');
+  }
+
+  const ngrokProcess = spawn(ngrokPath, ngrokArgs, {
     env,
     detached: true,
     stdio: ['ignore', 'pipe', 'pipe']
@@ -68,16 +82,25 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
   let tunnelUrl = null;
   let tunnelId = null;
   let output = '';
+  let hasError = false;
+  let errorMessages = [];
 
   // Parse ngrok output to get tunnel URL
   ngrokProcess.stdout.on('data', (data) => {
     const text = data.toString();
     output += text;
 
-    // Extract tunnel URL from output
-    const urlMatch = text.match(/https?:\/\/[a-z0-9\-\.]+\.ngrok(?:\-free)?\.app/);
-    if (urlMatch && !tunnelUrl) {
-      tunnelUrl = urlMatch[0];
+    // Extract tunnel URL from output - support multiple formats
+    const urlMatches = output.match(/https?:\/\/[a-z0-9\-]+\.ngrok(?:-free)?\.app/g);
+    if (urlMatches && urlMatches.length > 0) {
+      // Use the most recent URL
+      tunnelUrl = urlMatches[urlMatches.length - 1];
+    }
+
+    // Check for authentication errors
+    if (text.includes('authentication') || text.includes('401') || text.includes('403') || text.includes('invalid')) {
+      hasError = true;
+      errorMessages.push(text.trim());
     }
 
     if (logFunction) {
@@ -88,8 +111,16 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
   ngrokProcess.stderr.on('data', (data) => {
     const text = data.toString();
     output += text;
+    
+    // Log stderr but don't treat all as errors
     if (logFunction) {
       logFunction('stderr: ' + text.trim());
+    }
+    
+    // Check for critical errors
+    if (text.includes('error') || text.includes('failed') || text.includes('401') || text.includes('403')) {
+      hasError = true;
+      errorMessages.push(text.trim());
     }
   });
 
@@ -100,11 +131,36 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
   const waitForTunnel = new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       ngrokProcess.kill();
-      reject(new Error('Ngrok tunnel start timeout'));
+      let errorMsg = 'Ngrok tunnel start timeout';
+      
+      if (hasError && errorMessages.length > 0) {
+        errorMsg += `: ${errorMessages.join(', ')}`;
+      }
+      
+      if (!tunnelUrl) {
+        errorMsg += '. No tunnel URL found. Check ngrok logs for details.';
+      }
+      
+      reject(new Error(errorMsg));
     }, timeout);
 
     const checkInterval = setInterval(() => {
       if (tunnelUrl) {
+        // Check if we have critical errors
+        if (hasError && errorMessages.some(msg => 
+          msg.includes('401') || msg.includes('403') || msg.includes('authentication')
+        )) {
+          clearInterval(checkInterval);
+          clearTimeout(timeoutId);
+          reject(new Error(`Ngrok authentication error: ${errorMessages.join(', ')}`));
+          return;
+        }
+        
+        // Successful tunnel
+        if (hasError && errorMessages.length > 0) {
+          logFunction(`Warning: ngrok started with some errors: ${errorMessages.join(', ')}`);
+        }
+        
         clearTimeout(timeoutId);
         clearInterval(checkInterval);
 
@@ -123,14 +179,24 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
     ngrokProcess.on('error', (err) => {
       clearTimeout(timeoutId);
       clearInterval(checkInterval);
-      reject(err);
+      reject(new Error(`Failed to start ngrok process: ${err.message}`));
     });
 
     ngrokProcess.on('exit', (code) => {
-      if (code !== 0 && code !== null) {
+      if (code && code !== 0 && code !== null) {
         clearTimeout(timeoutId);
         clearInterval(checkInterval);
-        reject(new Error(`Ngrok exited with code ${code}`));
+        let errorMsg = `Ngrok exited with code ${code}`;
+        
+        if (hasError && errorMessages.length > 0) {
+          errorMsg += `. Errors: ${errorMessages.join(', ')}`;
+        }
+        
+        if (!tunnelUrl) {
+          errorMsg += '. No tunnel URL was found.';
+        }
+        
+        reject(new Error(errorMsg));
       }
     });
   });
