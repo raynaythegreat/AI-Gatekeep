@@ -1,6 +1,8 @@
 "use client";
 
 import { useTheme } from "@/contexts/ThemeContext";
+
+
 import AthenaLogo from "@/components/ui/AthenaLogo";
 
 interface NavItem {
@@ -12,7 +14,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     id: "chat",
-    label: "AI Chat",
+    label: "OS Athena",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
@@ -79,11 +81,9 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     <aside className="hidden md:flex flex-col w-64 border-r border-border bg-background">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-8">
-        <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center border-3 border-primary shadow-flat-gold">
-          <AthenaLogo className="w-6 h-6" />
-        </div>
+        <AthenaLogo className="w-10 h-10" />
         <div>
-          <h1 className="font-sans font-bold text-xl text-foreground tracking-tight">AI Command</h1>
+          <h1 className="font-sans font-bold text-xl text-foreground tracking-tight">OS Athena</h1>
           <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">Menu</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             onClick={() => onTabChange(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 ${
               activeTab === item.id
-                ? "bg-primary text-primary-foreground border-2 border-primary shadow-flat-gold"
+                ? "bg-primary text-primary-foreground border-2 border-primary shadow-flat-blue"
                 : "text-muted-foreground hover:bg-secondary hover:text-foreground border-2 border-transparent hover:border-border"
             }`}
           >
