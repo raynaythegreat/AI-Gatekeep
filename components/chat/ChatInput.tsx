@@ -87,10 +87,10 @@ export default function ChatInput({
   const showStop = Boolean(loading);
 
   return (
-    <div className="bg-background px-3 sm:px-6 py-4 sm:py-8">
+    <div className="bg-gradient-to-b from-surface-50 to-background dark:from-surface-900 dark:to-background px-3 sm:px-6 py-4 sm:py-8">
       <div className="max-w-5xl mx-auto">
         {toolbar && (
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
             {toolbar}
           </div>
         )}
@@ -99,7 +99,7 @@ export default function ChatInput({
             {attachments.map((attachment) => (
               <div
                 key={attachment.id}
-                className="flex items-center gap-2 max-w-full rounded-lg border border-border bg-secondary px-2 py-1.5"
+                className="flex items-center gap-2 max-w-full rounded-lg border-2 border-border bg-surface-100 dark:bg-surface-800 px-2 py-1.5 shadow-sm"
               >
                 {attachment.kind === "image" && attachment.previewUrl ? (
                   <Image
@@ -150,7 +150,7 @@ export default function ChatInput({
         )}
         
         <div
-          className="flex items-center gap-3 bg-card rounded-xl border border-border p-3 focus-within:border-muted-foreground transition-all"
+          className="flex items-center gap-3 bg-card rounded-xl border-2 border-border p-3 focus-within:border-blue-500/50 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all shadow-sm"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -179,7 +179,7 @@ export default function ChatInput({
                 setShowAttachmentMenu((prev) => !prev);
               }}
               disabled={disabled}
-              className="flex-shrink-0 w-9 h-9 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center group"
+              className="flex-shrink-0 w-10 h-10 rounded-lg bg-surface-100 dark:bg-surface-800 border-2 border-transparent text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center group"
               aria-label="Attach"
             >
               <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -239,7 +239,7 @@ export default function ChatInput({
               type="button"
               onClick={onStop}
               disabled={!onStop}
-              className="flex-shrink-0 w-9 h-9 rounded-lg bg-red-500 text-white flex items-center justify-center hover:bg-red-600 border border-red-600 transition-all duration-150 active:scale-95"
+              className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-500 text-white flex items-center justify-center hover:bg-red-600 border-2 border-red-600 transition-all duration-150 active:scale-95 shadow-sm"
               aria-label="Stop"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -250,7 +250,7 @@ export default function ChatInput({
             <button
               onClick={onSubmit}
               disabled={disabled || (!value.trim() && attachments.length === 0)}
-              className="flex-shrink-0 w-9 h-9 rounded-lg bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted-foreground transition-all duration-150 active:scale-95 flex items-center justify-center"
+              className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:from-blue-600 hover:to-blue-700 border-2 border-blue-600 transition-all duration-150 active:scale-95 flex items-center justify-center shadow-flat hover:shadow-flat-lg"
               aria-label="Send"
             >
               <svg
