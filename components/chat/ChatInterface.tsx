@@ -1990,13 +1990,7 @@ export default function ChatInterface() {
   }, [status?.mistral?.configured]);
 
   const fetchZaiModels = useCallback(async () => {
-    if (!status?.zai?.configured) {
-      setZaiModels([]);
-      setZaiError(null);
-      setZaiLoading(false);
-      return;
-    }
-
+    // Always fetch Z.ai models - API returns fallback models even without key
     setZaiLoading(true);
     setZaiError(null);
     try {
@@ -2038,7 +2032,7 @@ export default function ChatInterface() {
     } finally {
       setZaiLoading(false);
     }
-  }, [status?.zai?.configured]);
+  }, []);
 
   useEffect(() => {
     fetchGroqModels();
