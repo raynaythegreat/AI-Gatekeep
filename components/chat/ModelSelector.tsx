@@ -56,6 +56,19 @@ const MODEL_ICONS: Record<ModelProvider, string> = {
   zai: "🧠",
 };
 
+const PROVIDER_COLORS: Record<ModelProvider, string> = {
+  claude: "text-purple-600 dark:text-purple-400",
+  openai: "text-green-600 dark:text-green-400",
+  groq: "text-blue-600 dark:text-blue-400",
+  openrouter: "text-indigo-600 dark:text-indigo-400",
+  ollama: "text-orange-600 dark:text-orange-400",
+  gemini: "text-cyan-600 dark:text-cyan-400",
+  opencodezen: "text-yellow-600 dark:text-yellow-400",
+  fireworks: "text-pink-600 dark:text-pink-400",
+  mistral: "text-emerald-600 dark:text-emerald-400",
+  zai: "text-rose-600 dark:text-rose-400",
+};
+
 export default function ModelSelector({
   selectedModel,
   selectedProvider,
@@ -352,7 +365,7 @@ export default function ModelSelector({
           <div className="max-h-96 overflow-y-auto p-2">
             {Object.entries(groupedModels).map(([provider, models]) => (
               <div key={provider} className="mb-3">
-                <div className="px-3 py-1 text-[10px] font-black text-surface-600 dark:text-foreground/60 uppercase tracking-widest flex items-center justify-between">
+                <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest flex items-center justify-between ${PROVIDER_COLORS[provider as ModelProvider] || "text-surface-600 dark:text-foreground/60"}`}>
                   <span>{provider}</span>
                   {providerModels[provider as ModelProvider]?.error && (
                     <button
