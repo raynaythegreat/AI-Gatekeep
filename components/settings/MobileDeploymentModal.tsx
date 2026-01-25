@@ -417,58 +417,76 @@ export default function MobileDeploymentModal({
             )}
           </form>
 
-          {deploying && currentStep > 0 && (
+          {/* Deployment Progress - Log Viewer */}
+          {deploying && (
             <div className="mt-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <div className="h-2 w-full bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-500 ${
-                        currentStep >= 1 ? 'bg-gold-500' : 'bg-surface-300 dark:bg-surface-600'
-                      }`}
-                      style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
-                    />
-                  </div>
+              {/* Status Badge */}
+              <div className="flex items-center gap-2">
+                <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${
+                  deploymentState === 'ready' || deploymentState === 'active'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                    : deploymentState === 'error'
+                    ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                    : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                }`}>
+                  {(deploymentState === 'building' || deploymentState === 'deploying' || deploymentState === 'creating_tunnel') && (
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  )}
+                  {deploymentState === 'creating_tunnel' && 'Creating Tunnel...'}
+                  {deploymentState === 'deploying' && 'Deploying...'}
+                  {deploymentState === 'building' && 'Building...'}
+                  {deploymentState === 'ready' && '✓ Ready'}
+                  {deploymentState === 'active' && '✓ Active'}
+                  {deploymentState === 'error' && '✗ Error'}
                 </div>
-                <span className="text-sm font-medium text-surface-700 dark:text-surface-300 w-16">
-                  Step {currentStep}/{STEPS.length}
-                </span>
               </div>
 
-              {steps.map((step, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    step.status === 'complete' ? 'bg-green-500' :
-                    step.status === 'in-progress' ? 'bg-gold-500' :
-                    step.status === 'error' ? 'bg-red-500' : 'bg-surface-300 dark:bg-surface-600'
-                  }`}>
-                    {step.status === 'in-progress' && (
-                      <svg className="animate-spin w-3 h-3 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8 8 8 0 018 8 0 00-16 0 0 008 0zm0 0a8 8 0 018 8 0 018 8 0 00-16 0 0 008 0z"></path>
-                      </svg>
-                    )}
-                    {step.status === 'complete' && (
-                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L5 5l7 7m0 0l7 7" />
-                      </svg>
-                    )}
-                    {step.status === 'error' && (
-                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12 12 12M6 6v6h12v-6H6z" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-sm font-medium ${
-                      step.status === 'complete' ? 'text-green-700 dark:text-green-400' :
-                      step.status === 'error' ? 'text-red-700 dark:text-red-400' : 'text-surface-700 dark:text-surface-300'
-                    }`}>
-                      {step.label}
-                    </p>
-                  </div>
+              {/* Build Logs Panel */}
+              <div className="bg-black dark:bg-surface-950 rounded-lg border border-surface-700 overflow-hidden">
+                <div className="px-4 py-2 bg-surface-800 border-b border-surface-700 flex items-center justify-between">
+                  <span className="text-xs font-medium text-surface-300">Build Logs</span>
+                  <span className="text-xs text-surface-500">{logs.length} entries</span>
                 </div>
-              ))}
+                <div className="p-3 font-mono text-xs overflow-y-auto max-h-96 space-y-1">
+                  {logs.length === 0 ? (
+                    <div className="text-surface-500">Waiting for logs...</div>
+                  ) : (
+                    logs.map((log, idx) => (
+                      <div
+                        key={idx}
+                        className={`${
+                          log.type === 'error'
+                            ? 'text-red-400'
+                            : log.type === 'success'
+                            ? 'text-green-400'
+                            : 'text-surface-300'
+                        }`}
+                      >
+                        {log.message}
+                      </div>
+                    ))
+                  )}
+                  <div ref={logsEndRef} />
+                </div>
+              </div>
+
+              {/* View on Vercel Link */}
+              {deploymentId && (
+                <a
+                  href={`https://vercel.com/deployments/${deploymentId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                >
+                  View on Vercel
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              )}
             </div>
           )}
 
