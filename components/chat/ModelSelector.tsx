@@ -179,7 +179,8 @@ export default function ModelSelector({
         providers.push("gemini" as ModelProvider);
       if (keys.mistral && keys.mistral.trim())
         providers.push("mistral" as ModelProvider);
-      if (keys.zai && keys.zai.trim()) providers.push("zai" as ModelProvider);
+      // Z.ai always available (has fallback models)
+      providers.push("zai" as ModelProvider);
       providers.push("ollama" as ModelProvider);
 
       setAvailableProviders(new Set<ModelProvider>(providers));
