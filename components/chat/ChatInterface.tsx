@@ -112,7 +112,6 @@ interface Status {
   nanobanana?: { configured: boolean };
   ideogram?: { configured: boolean };
   mistral?: { configured: boolean };
-  cohere?: { configured: boolean };
   perplexity?: { configured: boolean };
   zai?: { configured: boolean };
   ollama: {
@@ -233,7 +232,6 @@ const MODEL_TOKEN_CASE: Record<string, string> = {
   gemma: "Gemma",
   mixtral: "Mixtral",
   mistral: "Mistral",
-  cohere: "Cohere",
   perplexity: "Perplexity",
   deepseek: "DeepSeek",
   gemini: "Gemini",

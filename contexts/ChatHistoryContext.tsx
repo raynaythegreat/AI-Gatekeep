@@ -42,7 +42,6 @@ export interface ChatSession {
     | "opencodezen"
     | "fireworks"
     | "mistral"
-    | "cohere"
     | "perplexity"
     | "zai";
   model?: string;

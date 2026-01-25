@@ -59,12 +59,24 @@ interface DeploymentProgress {
   readyAt?: number;
 }
 
+interface MobileDeploymentModalProps {
+  open: boolean;
+  onClose: () => void;
+  onDeploy: (params: {
+    repository: string;
+    password: string;
+    branch?: string;
+  }) => Promise<any>;
+  preForkedRepo?: string;
+}
+
 export default function MobileDeploymentModal({
   open,
   onClose,
   onDeploy,
+  preForkedRepo,
 }: MobileDeploymentModalProps) {
-  const [repository, setRepository] = useState('os-athena-mobile');
+  const [repository, setRepository] = useState(preForkedRepo || 'os-athena-mobile');
   const [password, setPassword] = useState('');
   const [branch, setBranch] = useState('main');
   const [deploying, setDeploying] = useState(false);
@@ -105,10 +117,10 @@ export default function MobileDeploymentModal({
       setResult(null);
       setError('');
       setPassword('');
-      setRepository('os-athena-mobile');
+      setRepository(preForkedRepo || 'os-athena-mobile');
       setBranch('main');
     }
-  }, [open]);
+  }, [open, preForkedRepo]);
 
   const checkPrerequisites = async () => {
     try {
