@@ -1331,15 +1331,41 @@ export async function POST(request: NextRequest) {
               stream: true,
             });
 
-            for await (const chunk of response) {
-              const content = chunk.choices[0]?.delta?.content;
-              if (content) {
-                controller.enqueue(
-                  encoder.encode(
-                    `data: ${JSON.stringify({ type: "text", content })}\n\n`,
-                  ),
-                );
+            try {
+              for await (const chunk of response) {
+                const content = chunk.choices[0]?.delta?.content;
+                if (content) {
+                  controller.enqueue(
+                    encoder.encode(
+                      `data: ${JSON.stringify({ type: "text", content })}\n\n`,
+                    ),
+                  );
+                }
               }
+            } catch (streamError) {
+              // Log the actual error for debugging
+              console.error("[Z.ai Streaming Error]:", {
+                error: streamError,
+                message: streamError instanceof Error ? streamError.message : String(streamError),
+                stack: streamError instanceof Error ? streamError.stack : undefined,
+                model: apiModel,
+                baseURL: "https://open.bigmodel.cn/api/paas/v4"
+              });
+
+              // Send detailed error to client
+              const errorMessage = streamError instanceof Error
+                ? streamError.message
+                : "Unknown streaming error";
+
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                type: "error",
+                error: `Z.ai streaming failed: ${errorMessage}`,
+                details: errorMessage,
+                suggestion: "Check your API key, model availability, and account quota at https://open.bigmodel.cn/usercenter/apikeys"
+              })}\n\n`));
+
+              controller.close();
+              throw; // Re-throw to be caught by outer handler if needed
             }
           } else {
             // Claude (Anthropic)
