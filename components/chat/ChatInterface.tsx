@@ -1272,6 +1272,49 @@ function PlanBuildToggle({ chatMode, onModeChange, autoApprove, onToggleAutoAppr
   );
 }
 
+// Model Selector component
+interface ModelSelectorProps {
+  modelName: string;
+  onToggleDropdown: () => void;
+  dropdownOpen: boolean;
+  children: React.ReactNode;
+}
+
+function ModelSelector({ modelName, onToggleDropdown, dropdownOpen, children }: ModelSelectorProps) {
+  return (
+    <div className="relative w-full sm:w-auto sm:min-w-[160px] flex-shrink-0">
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onToggleDropdown();
+        }}
+        className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-blue-500/40 dark:border-blue-500/30 bg-surface-50 dark:bg-surface-900 text-blue-700 dark:text-blue-200 hover:border-blue-500 dark:hover:border-blue-400 hover:border-blue-500/60 hover:shadow-flat transition-all duration-150"
+        title={modelName}
+      >
+        <span className="min-w-0 font-medium truncate">
+          {modelName}
+        </span>
+        <svg
+          className="w-4 h-4 flex-shrink-0 text-slate-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+
+      {dropdownOpen && children}
+    </div>
+  );
+}
+
 export default function ChatInterface() {
   const {
     currentSession,
