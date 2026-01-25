@@ -190,6 +190,14 @@ export default function MobileDeploymentModal({
     }
   }, [deploymentState, vercelUrl, hasAutoOpened, addLog]);
 
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
+
   const handleDeploy = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -210,48 +218,41 @@ export default function MobileDeploymentModal({
 
     setDeploying(true);
     setError('');
+    setResult(null);
+    setLogs([]);
+    setHasAutoOpened(false);
+    setDeploymentState('creating_tunnel');
+
+    addLog('Starting mobile deployment...', 'info');
+    addLog('Creating ngrok tunnel...', 'info');
+
     try {
-      // Step 1: Preparing
-      setCurrentStep(1);
-      setSteps(prev => prev.map((s, i) => i === 0 ? {...s, status: 'in-progress'} : s));
-
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Step 2: Calling API
-      setSteps(prev => prev.map((s, i) =>
-        i === 0 ? {...s, status: 'complete'} :
-        i === 1 ? {...s, status: 'in-progress'} : s
-      ));
-      setCurrentStep(2);
-
       const deployResult = await onDeploy({ repository, password, branch });
 
-      // Step 3: Creating tunnel (only if deploy succeeded)
       if (deployResult.success && deployResult.tunnel) {
-        setSteps(prev => prev.map((s, i) =>
-          i === 1 ? {...s, status: 'complete'} :
-          i === 2 ? {...s, status: 'in-progress'} : s
-        ));
-        setCurrentStep(3);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        addLog(`✓ Tunnel created: ${deployResult.tunnel.id}`, 'success');
+        addLog(`Deploying to Vercel...`, 'info');
 
-        // Step 4: Deploying to Vercel
-        setSteps(prev => prev.map((s, i) =>
-          i === 2 ? {...s, status: 'complete'} :
-          i === 3 ? {...s, status: 'in-progress'} : s
-        ));
-        setCurrentStep(4);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        setDeploymentState('deploying');
+        setVercelUrl(deployResult.mobileUrl || deployResult.deployment?.url || null);
 
-        // Step 5: Complete
-        setSteps(prev => prev.map((s, i) =>
-          i === 3 ? {...s, status: 'complete'} :
-          i === 4 ? {...s, status: 'in-progress'} : s
-        ));
-        setCurrentStep(5);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        const depId = deployResult.deployment?.deploymentId;
+        if (depId) {
+          setDeploymentId(depId);
+          setDeploymentState('building');
+          addLog('Fetching build logs...', 'info');
 
-        setSteps(prev => prev.map(s => ({...s, status: 'complete'})));
+          // Start polling
+          pollIntervalRef.current = setInterval(() => {
+            pollDeploymentEvents(depId);
+          }, 2000);
+
+          // Initial poll
+          pollDeploymentEvents(depId);
+        } else {
+          addLog('Warning: No deployment ID received, cannot track progress', 'error');
+        }
+
         setResult(deployResult);
       } else {
         throw new Error(deployResult.error || 'Deployment failed - no tunnel or deployment URL returned');
@@ -261,13 +262,8 @@ export default function MobileDeploymentModal({
       const errorMsg = err instanceof Error ? err.message : 'Deployment failed';
       setError(errorMsg);
       setResult({ success: false, error: errorMsg });
-
-      // Fix error state - mark the CURRENT step as failed
-      setSteps(prev => prev.map((step, idx) => {
-        if (idx < currentStep - 1) return { ...step, status: 'complete' };
-        if (idx === currentStep - 1) return { ...step, status: 'error' };  // Current step
-        return step;
-      }));
+      setDeploymentState('error');
+      addLog(`✗ ${errorMsg}`, 'error');
     } finally {
       setDeploying(false);
     }
