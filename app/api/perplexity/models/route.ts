@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 
   if (!apiKey || !apiKey.trim()) {
     return NextResponse.json(
-      { models: buildFallbackModels(), error: "PERPLEXITY_API_KEY is not configured.", warning },
+      { success: true, models: buildFallbackModels(), error: "PERPLEXITY_API_KEY is not configured.", warning },
       { status: 400 }
     );
   }

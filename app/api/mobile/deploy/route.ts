@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       const vercel = new VercelService(vercelKey);
 
       const deployment = await vercel.deployFromGitHub({
-        projectName: 'os-athena-mobile',
+        projectName: repo,
         repository: ownerRepo,
         branch,
         environmentVariables: [
