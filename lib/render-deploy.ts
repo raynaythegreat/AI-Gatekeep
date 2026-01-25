@@ -72,11 +72,18 @@ function isTerminalDeployStatus(status: string): boolean {
 
 export async function startRenderDeploy(
   body: RenderDeployRequestBody,
-  options: { signal?: AbortSignal } = {}
+  options: { signal?: AbortSignal; apiKey?: string } = {}
 ): Promise<RenderDeployResult> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  // Add Render API key from secure storage if provided
+  if (options.apiKey) {
+    headers["X-API-Key-Render"] = options.apiKey;
+  }
+
   const response = await fetch("/api/render/deploy", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
     signal: options.signal,
   });

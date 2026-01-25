@@ -92,11 +92,18 @@ function scoreRootDirectory(dir: string) {
 
 export async function startVercelDeploy(
   body: VercelDeployRequestBody,
-  options: { signal?: AbortSignal } = {}
+  options: { signal?: AbortSignal; apiKey?: string } = {}
 ): Promise<VercelDeployResult & { strategy?: number; retriesUsed?: number }> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  // Add Vercel API key from secure storage if provided
+  if (options.apiKey) {
+    headers["X-API-Key-Vercel"] = options.apiKey;
+  }
+
   const response = await fetch("/api/vercel/deploy", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
     signal: options.signal,
   });

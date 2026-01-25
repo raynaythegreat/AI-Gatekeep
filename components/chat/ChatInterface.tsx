@@ -39,6 +39,7 @@ import {
   startRenderDeploy,
   waitForRenderDeployment,
 } from "@/lib/render-deploy";
+import { SecureStorage } from "@/lib/secureStorage";
 
 interface Repository {
   id: number;
@@ -2828,8 +2829,15 @@ export default function ChatInterface() {
 
           try {
             if (params.provider === "render") {
+              // Get Render API key from secure storage
+              const renderApiKey = await SecureStorage.getKey('render');
+              if (!renderApiKey) {
+                throw new Error("Render API key not configured. Please add it in Settings.");
+              }
+
               const started = await startRenderDeploy(strategy.body as any, {
                 signal: controller.signal,
+                apiKey: renderApiKey,
               });
               startedDeploymentId = started.deployId;
               startedLogsUrl = started.logsUrl || null;
@@ -2909,8 +2917,15 @@ export default function ChatInterface() {
                 errorMessage: errorDetails,
               };
             } else {
+              // Get Vercel API key from secure storage
+              const vercelApiKey = await SecureStorage.getKey('vercel');
+              if (!vercelApiKey) {
+                throw new Error("Vercel API key not configured. Please add it in Settings.");
+              }
+
               const started = await startVercelDeploy(strategy.body as any, {
                 signal: controller.signal,
+                apiKey: vercelApiKey,
               });
               startedDeploymentId = started.deploymentId;
               startedInspectorUrl = started.inspectorUrl || null;
