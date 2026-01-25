@@ -176,6 +176,20 @@ export default function MobileDeploymentModal({
     }
   }, [addLog]);
 
+  useEffect(() => {
+    if (deploymentState === 'ready' && vercelUrl && !hasAutoOpened) {
+      // Wait 1 second before opening
+      const timer = setTimeout(() => {
+        addLog(`Opening ${vercelUrl} in new tab...`, 'success');
+        window.open(vercelUrl, '_blank', 'noopener,noreferrer');
+        setHasAutoOpened(true);
+        setDeploymentState('active');
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [deploymentState, vercelUrl, hasAutoOpened, addLog]);
+
   const handleDeploy = async (e: React.FormEvent) => {
     e.preventDefault();
 
