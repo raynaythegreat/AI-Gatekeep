@@ -94,7 +94,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
           <div className="flex items-center gap-1">
             <button
               onClick={handleMinimize}
-              className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
+              className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-800 flex items-center justify-center transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
               title="Minimize"
               aria-label="Minimize"
             >
@@ -104,7 +104,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
             </button>
             <button
               onClick={handleMaximize}
-              className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
+              className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-800 flex items-center justify-center transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
               title="Maximize"
               aria-label="Maximize"
             >
@@ -114,7 +114,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
             </button>
             <button
               onClick={handleClose}
-              className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors text-foreground"
+              className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-all duration-150 text-foreground hover:text-red-500 active:scale-95"
               title="Close"
               aria-label="Close"
             >
@@ -141,23 +141,23 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
           className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 pb-[env(safe-area-inset-bottom)]"
         >
           <div className="flex items-center justify-between h-16 px-4">
-            
+
             {/* Navigation Items */}
-            <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-2 flex-1">
               {mobileNavItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onTabChange(item.id)}
-                  className={"flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors " + (
+                  className={"flex flex-col items-center justify-center flex-1 h-full py-1 px-1 rounded-lg transition-all duration-150 " + (
                     activeTab === item.id
-                      ? "text-gold-500"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      ? "text-blue-500 bg-blue-500/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
                       )}
                 >
-                  <span className={activeTab === item.id ? "text-gold-500" : ""}>
+                  <span className={activeTab === item.id ? "text-blue-500" : ""}>
                     {item.icon}
                   </span>
-                  <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+                  <span className="text-[10px] mt-1 font-bold">{item.label}</span>
                 </button>
               ))}
             </div>
@@ -166,7 +166,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
             <div className="flex items-center gap-1 ml-2">
               <button
                 onClick={handleMinimize}
-                className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
+                className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-800 flex items-center justify-center transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
                 title="Minimize"
                 aria-label="Minimize"
               >
@@ -176,7 +176,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
               </button>
               <button
                 onClick={handleMaximize}
-                className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
+                className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-800 flex items-center justify-center transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
                 title="Maximize"
                 aria-label="Maximize"
               >
@@ -186,7 +186,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
               </button>
               <button
                 onClick={handleClose}
-                className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors text-foreground"
+                className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-all duration-150 text-foreground hover:text-red-500 active:scale-95"
                 title="Close"
                 aria-label="Close"
               >
