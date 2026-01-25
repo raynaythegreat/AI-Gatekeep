@@ -14,7 +14,6 @@ export const RuntimeEnvSchema = z.object({
   GEMINI_API_KEY: z.string().optional(),
   OPENCODE_API_KEY: z.string().optional(),
   MISTRAL_API_KEY: z.string().optional(),
-  PERPLEXITY_API_KEY: z.string().optional(),
   ZAI_API_KEY: z.string().optional(),
 
   // Fireworks

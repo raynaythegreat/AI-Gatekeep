@@ -23,7 +23,6 @@ interface ApiKeys {
   fireworks: string;
   gemini: string;
   mistral: string;
-  perplexity: string;
   zai: string;
   nanobanana: string;
   ideogram: string;
@@ -56,7 +55,6 @@ const providers: ProviderConfig[] = [
   { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform', docsUrl: 'https://fireworks.ai/api-keys', envKey: 'FIREWORKS_API_KEY' },
   { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra', docsUrl: 'https://aistudio.google.com/app/apikey', envKey: 'GEMINI_API_KEY' },
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
-  { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
   { key: 'zai', label: 'Z.ai', placeholder: 'Enter API key', icon: '⚡', category: 'ai', description: 'GLM-4.7 flagship coding models', docsUrl: 'https://z.ai/model-api', envKey: 'ZAI_API_KEY' },
   { key: 'nanobanana', label: 'Nanobanana', placeholder: 'Enter API key', icon: '🍌', category: 'ai', description: 'Image generation API', docsUrl: 'https://nanobananaapi.ai', envKey: 'NANOBANANA_API_KEY' },
   { key: 'ideogram', label: 'Ideogram', placeholder: 'Enter API key', icon: '🎨', category: 'ai', description: 'Advanced image generation', docsUrl: 'https://ideogram.ai/api', envKey: 'IDEOGRAM_API_KEY' },
@@ -85,7 +83,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
     fireworks: '',
     gemini: '',
     mistral: '',
-    perplexity: '',
     zai: '',
     nanobanana: '',
     ideogram: '',
@@ -268,9 +265,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           break;
         case 'mistral':
           result = await ApiTester.testMistral(apiKeys.mistral || '');
-          break;
-        case 'perplexity':
-          result = await ApiTester.testPerplexity(apiKeys.perplexity || '');
           break;
         case 'zai':
           result = await ApiTester.testZai(apiKeys.zai || '');

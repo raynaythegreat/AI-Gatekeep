@@ -12,7 +12,6 @@ export type ModelProvider =
   | "opencodezen"
   | "fireworks"
   | "mistral"
-  | "perplexity"
   | "zai";
 
 export interface ModelOption {
@@ -54,7 +53,6 @@ const MODEL_ICONS: Record<ModelProvider, string> = {
   opencodezen: "⚡",
   fireworks: "🎆",
   mistral: "🌊",
-  perplexity: "🔍",
   zai: "🧠",
 };
 
@@ -181,8 +179,6 @@ export default function ModelSelector({
         providers.push("gemini" as ModelProvider);
       if (keys.mistral && keys.mistral.trim())
         providers.push("mistral" as ModelProvider);
-      if (keys.perplexity && keys.perplexity.trim())
-        providers.push("perplexity" as ModelProvider);
       if (keys.zai && keys.zai.trim()) providers.push("zai" as ModelProvider);
       providers.push("ollama" as ModelProvider);
 

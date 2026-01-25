@@ -9,7 +9,6 @@ export interface ApiKeys {
   fireworks: string;
   gemini: string;
   mistral: string;
-  perplexity: string;
   zai: string;
   nanobanana: string;
   ideogram: string;
@@ -30,7 +29,6 @@ const API_KEY_MAP = {
   fireworks: 'FIREWORKS_API_KEY',
   gemini: 'GEMINI_API_KEY',
   mistral: 'MISTRAL_API_KEY',
-  perplexity: 'PERPLEXITY_API_KEY',
   zai: 'ZAI_API_KEY',
   nanobanana: 'NANOBANANA_API_KEY',
   ideogram: 'IDEOGRAM_API_KEY',

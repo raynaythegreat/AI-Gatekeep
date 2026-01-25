@@ -342,34 +342,6 @@ export class ApiTester {
     }
   }
 
-  static async testPerplexity(apiKey: string): Promise<TestResult> {
-    if (!validateApiKey(apiKey, /^pplx-/)) {
-      return { status: 'not_configured', message: 'Invalid API key format (should start with pplx-)' };
-    }
-    try {
-      const start = Date.now();
-      const response = await fetchWithTimeout('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
-          messages: [{ role: 'user', content: 'Hi' }],
-          max_tokens: 10
-        })
-      }, 8000);
-      if (response.status === 401) throw new Error('Invalid API key');
-      if (response.status === 429) throw new Error('Rate limited - try again later');
-      if (!response.ok && response.status !== 400) throw new Error(`API error: ${response.status}`);
-      const latency = Date.now() - start;
-      return { status: 'success', message: 'Connected successfully', latency };
-    } catch (error) {
-      return { status: 'error', message: formatError(error) };
-    }
-  }
-
   static async testZai(apiKey: string): Promise<TestResult> {
     if (!validateApiKey(apiKey)) {
       return { status: 'not_configured', message: 'API key not configured' };

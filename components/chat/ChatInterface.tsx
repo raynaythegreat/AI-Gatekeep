@@ -72,7 +72,6 @@ type ModelProvider =
   | "opencodezen"
   | "fireworks"
   | "mistral"
-  | "perplexity"
   | "zai";
 const MODEL_PROVIDERS: ModelProvider[] = [
   "claude",
@@ -84,7 +83,6 @@ const MODEL_PROVIDERS: ModelProvider[] = [
   "opencodezen",
   "fireworks",
   "mistral",
-  "perplexity",
   "zai",
 ];
 
@@ -112,7 +110,6 @@ interface Status {
   nanobanana?: { configured: boolean };
   ideogram?: { configured: boolean };
   mistral?: { configured: boolean };
-  perplexity?: { configured: boolean };
   zai?: { configured: boolean };
   ollama: {
     configured: boolean;
@@ -232,7 +229,6 @@ const MODEL_TOKEN_CASE: Record<string, string> = {
   gemma: "Gemma",
   mixtral: "Mixtral",
   mistral: "Mistral",
-  perplexity: "Perplexity",
   deepseek: "DeepSeek",
   gemini: "Gemini",
   phi: "Phi",
@@ -1175,26 +1171,6 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
       provider: "mistral",
     },
   ],
-  Perplexity: [
-    {
-      id: "llama-3.1-sonar-large-128k-online",
-      name: "Sonar Large Online",
-      description: "With web search",
-      provider: "perplexity",
-    },
-    {
-      id: "llama-3.1-sonar-small-128k-online",
-      name: "Sonar Small Online",
-      description: "Fast with search",
-      provider: "perplexity",
-    },
-    {
-      id: "llama-3.1-sonar-large-128k-chat",
-      name: "Sonar Large Chat",
-      description: "Without search",
-      provider: "perplexity",
-    },
-  ],
   "Z.ai (Zhipu)": [
     {
       id: "glm-4.7",
@@ -1308,9 +1284,6 @@ export default function ChatInterface() {
   const [mistralModels, setMistralModels] = useState<ModelOption[]>([]);
   const [mistralError, setMistralError] = useState<string | null>(null);
   const [mistralLoading, setMistralLoading] = useState(false);
-  const [perplexityModels, setPerplexityModels] = useState<ModelOption[]>([]);
-  const [perplexityError, setPerplexityError] = useState<string | null>(null);
-  const [perplexityLoading, setPerplexityLoading] = useState(false);
   const [zaiModels, setZaiModels] = useState<ModelOption[]>([]);
   const [zaiError, setZaiError] = useState<string | null>(null);
   const [zaiLoading, setZaiLoading] = useState(false);
@@ -1325,7 +1298,6 @@ export default function ChatInterface() {
   const dismissOpenaiError = useCallback(() => setOpenaiError(null), []);
   const dismissGeminiError = useCallback(() => setGeminiError(null), []);
   const dismissMistralError = useCallback(() => setMistralError(null), []);
-  const dismissPerplexityError = useCallback(() => setPerplexityError(null), []);
   const dismissZaiError = useCallback(() => setZaiError(null), []);
   const [isClient, setIsClient] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
@@ -2017,57 +1989,6 @@ export default function ChatInterface() {
     }
   }, [status?.mistral?.configured]);
 
-  const fetchPerplexityModels = useCallback(async () => {
-    if (!status?.perplexity?.configured) {
-      setPerplexityModels([]);
-      setPerplexityError(null);
-      setPerplexityLoading(false);
-      return;
-    }
-
-    setPerplexityLoading(true);
-    setPerplexityError(null);
-    try {
-      const response = await fetch("/api/perplexity/models");
-      const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(data.error || "Failed to load Perplexity models");
-      }
-      const models = Array.isArray(data.models) ? data.models : [];
-      if (models.length === 0) {
-        throw new Error("No Perplexity models returned");
-      }
-      const options = models.map(
-        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
-          id: model.id,
-          name: model.name,
-          description: model.description,
-          provider: "perplexity" as const,
-          recommendedForCode: model.recommendedForCode || false,
-        }),
-      );
-      setPerplexityModels(sortModelOptionsAlphabetically(options));
-    } catch (error) {
-      let errorMessage = "Failed to load Perplexity models";
-      if (error instanceof Error) {
-        const errorText = error.message;
-        if (errorText.includes("401") || errorText.includes("403")) {
-          errorMessage = "Invalid Perplexity API key - check your key";
-        } else if (errorText.includes("402") || errorText.includes("credits")) {
-          errorMessage = "Perplexity insufficient credits - add credits to your account";
-        } else if (errorText.includes("429")) {
-          errorMessage = "Perplexity rate limit - try again later";
-        } else {
-          errorMessage = errorText;
-        }
-      }
-      setPerplexityError(errorMessage);
-      setPerplexityModels([]);
-    } finally {
-      setPerplexityLoading(false);
-    }
-  }, [status?.perplexity?.configured]);
-
   const fetchZaiModels = useCallback(async () => {
     if (!status?.zai?.configured) {
       setZaiModels([]);
@@ -2127,9 +2048,8 @@ export default function ChatInterface() {
     fetchOpenaiModels();
     fetchGeminiModels();
     fetchMistralModels();
-    fetchPerplexityModels();
     fetchZaiModels();
-  }, [fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels, fetchClaudeModels, fetchOpenaiModels, fetchGeminiModels, fetchMistralModels, fetchPerplexityModels, fetchZaiModels]);
+  }, [fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels, fetchClaudeModels, fetchOpenaiModels, fetchGeminiModels, fetchMistralModels, fetchZaiModels]);
 
   useEffect(() => {
     const handleApiKeysUpdated = () => {
@@ -2141,7 +2061,6 @@ export default function ChatInterface() {
       fetchOpenaiModels();
       fetchGeminiModels();
       fetchMistralModels();
-      fetchPerplexityModels();
       fetchZaiModels();
     };
 
@@ -2150,7 +2069,7 @@ export default function ChatInterface() {
     return () => {
       window.removeEventListener('api-keys-updated', handleApiKeysUpdated);
     };
-  }, [fetchOllamaModels, fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels, fetchClaudeModels, fetchOpenaiModels, fetchGeminiModels, fetchMistralModels, fetchPerplexityModels, fetchZaiModels]);
+  }, [fetchOllamaModels, fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels, fetchClaudeModels, fetchOpenaiModels, fetchGeminiModels, fetchMistralModels, fetchZaiModels]);
 
 
   useEffect(() => {
@@ -2677,10 +2596,9 @@ export default function ChatInterface() {
       "OpenCode Zen": MODEL_GROUPS["OpenCode Zen"],
       "OpenRouter Pro": MODEL_GROUPS["OpenRouter Pro"],
       "Mistral": mistralModels.length > 0 ? mistralModels : [],
-      "Perplexity": perplexityModels.length > 0 ? perplexityModels : [],
       "Z.ai (Zhipu)": zaiModels.length > 0 ? zaiModels : [],
     }),
-    [claudeModels, openaiModels, groqModels, openrouterModels, fireworksModels, geminiModels, mistralModels, perplexityModels, zaiModels, ollamaModels],
+    [claudeModels, openaiModels, groqModels, openrouterModels, fireworksModels, geminiModels, mistralModels, zaiModels, ollamaModels],
   );
 
   const selectedModelInfo: ModelOption = useMemo(() => {
@@ -4228,7 +4146,7 @@ export default function ChatInterface() {
         <button
             onClick={() => {
               const inputValue = window.prompt(
-                "Enter provider:model (claude|openai|groq|openrouter|ollama|gemini|opencodezen|fireworks|mistral|perplexity|zai)",
+                "Enter provider:model (claude|openai|groq|openrouter|ollama|gemini|opencodezen|fireworks|mistral|zai)",
                 selectedModel,
               );
             if (!inputValue) return;
@@ -5024,8 +4942,6 @@ export default function ChatInterface() {
         onDismissGeminiError={dismissGeminiError}
         mistralError={mistralError}
         onDismissMistralError={dismissMistralError}
-        perplexityError={perplexityError}
-        onDismissPerplexityError={dismissPerplexityError}
         zaiError={zaiError}
         onDismissZaiError={dismissZaiError}
       />

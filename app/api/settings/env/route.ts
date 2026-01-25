@@ -52,7 +52,6 @@ function serializeEnvFile(env: Record<string, string>): string {
       'OPENROUTER_API_KEY',
       'FIREWORKS_API_KEY',
       'MISTRAL_API_KEY',
-      'PERPLEXITY_API_KEY',
       'OPENCODE_API_KEY',
       'ZAI_API_KEY',
       'OLLAMA_API_KEY',

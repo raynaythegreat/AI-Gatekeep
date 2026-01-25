@@ -8,6 +8,8 @@ interface TunnelStatus {
   active: boolean;
   url?: string;
   id?: string;
+  recovering?: boolean;
+  errorMessage?: string;
 }
 
 interface ApiKeys {
@@ -105,10 +107,30 @@ export default function MobilePage() {
 
         if (response.ok) {
           const data = await response.json();
+
+          // Check if tunnel was verified and found
+          if (data.verified && !data.active) {
+            // Tunnel was verified but not found - trigger auto-recovery
+            console.log('Tunnel not found, attempting auto-recovery...');
+            setTunnelStatus({
+              active: false,
+              recovering: true,
+              errorMessage: 'Tunnel not found. Attempting to recover...'
+            });
+
+            await recoverTunnel(deployment);
+          } else {
+            setTunnelStatus({
+              active: data.active || true,
+              url: data.url || data.publicUrl,
+              id: data.id || data.tunnelId,
+            });
+          }
+        } else {
           setTunnelStatus({
-            active: data.active || true,
-            url: data.url || data.publicUrl,
-            id: data.id || data.tunnelId,
+            active: false,
+            url: undefined,
+            id: undefined
           });
         }
       } else {
@@ -120,6 +142,64 @@ export default function MobilePage() {
       }
     } catch (error) {
       console.error('Failed to check mobile status:', error);
+    }
+  };
+
+  const recoverTunnel = async (deployment: any) => {
+    try {
+      // Parse the repository name to get project info
+      const repository = deployment.repository || 'raynaythegreat/os-athena-mobile';
+      const projectName = deployment.projectName || repository.split('/')?.[1] || 'os-athena-mobile';
+
+      // Try to recover the tunnel
+      const recoverResponse = await fetch('/api/mobile/recover-tunnel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectName: projectName,
+          repository: repository
+        })
+      });
+
+      if (recoverResponse.ok) {
+        const data = await recoverResponse.json();
+        if (data.success && data.tunnel) {
+          // Update localStorage with new tunnel info
+          const updatedDeployment = {
+            ...deployment,
+            tunnelId: data.tunnel.id,
+            publicUrl: data.tunnel.public_url,
+          };
+          localStorage.setItem('mobile-deployment', JSON.stringify(updatedDeployment));
+
+          setTunnelStatus({
+            active: true,
+            url: data.tunnel.public_url,
+            id: data.tunnel.id,
+            recovering: false
+          });
+        } else {
+          setTunnelStatus({
+            active: false,
+            recovering: false,
+            errorMessage: data.error || 'Failed to recover tunnel'
+          });
+        }
+      } else {
+        const errorData = await recoverResponse.json().catch(() => ({}));
+        setTunnelStatus({
+          active: false,
+          recovering: false,
+          errorMessage: errorData.error || 'Failed to recover tunnel'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to recover tunnel:', error);
+      setTunnelStatus({
+        active: false,
+        recovering: false,
+        errorMessage: error instanceof Error ? error.message : 'Failed to recover tunnel'
+      });
     }
   };
 
@@ -174,11 +254,16 @@ export default function MobilePage() {
       }
 
       if (result.success && result.tunnel) {
+        // Extract project name from repository
+        const repoName = params.repository.split('/')?.[1] || 'os-athena-mobile';
+
         const deploymentInfo = {
           tunnelId: result.tunnel.id,
           publicUrl: result.tunnel.public_url,
           mobileUrl: result.mobileUrl,
           deploymentId: result.deployment?.deploymentId,
+          repository: params.repository,
+          projectName: repoName,
           activeAt: new Date().toISOString()
         };
         localStorage.setItem('mobile-deployment', JSON.stringify(deploymentInfo));
@@ -420,6 +505,55 @@ export default function MobilePage() {
               >
                 Stop Tunnel
               </button>
+            </div>
+          ) : tunnelStatus.recovering ? (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              <p className="text-surface-600 dark:text-surface-400 mb-1">
+                Recovering tunnel...
+              </p>
+              <p className="text-sm text-surface-500 dark:text-surface-500">
+                Creating a new tunnel and updating deployment
+              </p>
+            </div>
+          ) : tunnelStatus.errorMessage ? (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-red-600 dark:text-red-400 mb-2 font-medium">
+                {tunnelStatus.errorMessage}
+              </p>
+              <p className="text-sm text-surface-500 dark:text-surface-500 mb-4">
+                The tunnel was lost. You can try recovering it or deploy a new mobile version.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    const storedDeployment = localStorage.getItem('mobile-deployment');
+                    if (storedDeployment) {
+                      setTunnelStatus({ ...tunnelStatus, recovering: true, errorMessage: undefined });
+                      recoverTunnel(JSON.parse(storedDeployment));
+                    }
+                  }}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-colors"
+                >
+                  Recover Tunnel
+                </button>
+                <button
+                  onClick={() => setShowDeployModal(true)}
+                  className="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Deploy New
+                </button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-6">

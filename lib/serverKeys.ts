@@ -9,7 +9,6 @@ const ENV_MAP: Record<string, string> = {
   fireworks: 'FIREWORKS_API_KEY',
   gemini: 'GEMINI_API_KEY',
   mistral: 'MISTRAL_API_KEY',
-  perplexity: 'PERPLEXITY_API_KEY',
   zai: 'ZAI_API_KEY',
   nanobanana: 'NANOBANANA_API_KEY',
   ideogram: 'IDEOGRAM_API_KEY',

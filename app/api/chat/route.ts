@@ -25,7 +25,6 @@ function getApiKeyFromRequest(request: NextRequest, provider: string): string | 
     opencodezen: 'OPENCODE_API_KEY',
     fireworks: 'FIREWORKS_API_KEY',
     mistral: 'MISTRAL_API_KEY',
-    perplexity: 'PERPLEXITY_API_KEY',
     zai: 'ZAI_API_KEY',
   };
   
@@ -130,7 +129,6 @@ const MODEL_CONFIG: Record<
       | "opencodezen"
       | "fireworks"
       | "mistral"
-      | "perplexity"
       | "zai";
     apiModel: string;
   }
@@ -201,16 +199,6 @@ const MODEL_CONFIG: Record<
     apiModel: "glm-4.6v",
   },
 
-  // Perplexity
-  "llama-3.1-sonar-large-128k-online": {
-    provider: "perplexity",
-    apiModel: "llama-3.1-sonar-large-128k-online",
-  },
-  "llama-3.1-sonar-small-128k-online": {
-    provider: "perplexity",
-    apiModel: "llama-3.1-sonar-small-128k-online",
-  },
-
   // OpenCode Zen models
   "opencode-gpt-4": { provider: "opencodezen", apiModel: "gpt-4" },
   "opencode-gpt-4-turbo": { provider: "opencodezen", apiModel: "gpt-4-turbo" },
@@ -229,7 +217,6 @@ const MODEL_PROVIDERS = [
   "opencodezen",
   "fireworks",
   "mistral",
-  "perplexity",
   "zai",
 ] as const;
 type ModelProvider = (typeof MODEL_PROVIDERS)[number];
@@ -714,7 +701,6 @@ export async function POST(request: NextRequest) {
       opencodezen: getApiKeyFromRequest(request, 'opencodezen') || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
       mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
-      perplexity: getApiKeyFromRequest(request, 'perplexity') || process.env.PERPLEXITY_API_KEY,
       zai: getApiKeyFromRequest(request, 'zai') || process.env.ZAI_API_KEY,
     }[provider];
     const providerKey =
@@ -734,10 +720,8 @@ export async function POST(request: NextRequest) {
                   ? "Set FIREWORKS_API_KEY."
                   : provider === "mistral"
                     ? "Set MISTRAL_API_KEY."
-                    : provider === "perplexity"
-                      ? "Set PERPLEXITY_API_KEY."
-                      : provider === "zai"
-                        ? "Set ZAI_API_KEY."
+                    : provider === "zai"
+                      ? "Set ZAI_API_KEY."
                 : "";
       return new Response(
         JSON.stringify({
@@ -1282,67 +1266,6 @@ export async function POST(request: NextRequest) {
             if (!response.ok || !response.body) {
               const errorText = await response.text();
               throw new Error(errorText || "Mistral request failed");
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              const chunk = decoder.decode(value, { stream: true });
-              const lines = chunk.split("\n").filter((line) => line.trim());
-
-              for (const line of lines) {
-                if (line.startsWith("data: ")) {
-                  const data = line.slice(6);
-                  if (data === "[DONE]") continue;
-
-                  try {
-                    const parsed = JSON.parse(data);
-                    const content = parsed.choices?.[0]?.delta?.content;
-                    if (content) {
-                      controller.enqueue(
-                        encoder.encode(
-                          `data: ${JSON.stringify({ type: "text", content })}\n\n`,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    // Ignore parse errors
-                  }
-                }
-              }
-            }
-          } else if (provider === "perplexity") {
-            const perplexityApiKey = providerKey;
-            if (!perplexityApiKey) {
-              throw new Error("PERPLEXITY_API_KEY is not configured");
-            }
-
-            const perplexityUrl = "https://api.perplexity.ai/chat/completions";
-            const perplexityMessages = [
-              { role: "system", content: contextPrompt },
-              ...messages,
-            ];
-
-            const response = await fetch(perplexityUrl, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${perplexityApiKey}`,
-              },
-              body: JSON.stringify({
-                model: apiModel,
-                messages: perplexityMessages,
-                stream: true,
-              }),
-            });
-
-            if (!response.ok || !response.body) {
-              const errorText = await response.text();
-              throw new Error(errorText || "Perplexity request failed");
             }
 
             const reader = response.body.getReader();

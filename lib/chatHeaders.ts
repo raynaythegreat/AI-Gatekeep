@@ -14,7 +14,6 @@ export async function buildChatApiHeaders(baseHeaders: Record<string, string> = 
     'X-API-Key-Openrouter': process.env.OPENROUTER_API_KEY || '',
     'X-API-Key-Fireworks': process.env.FIREWORKS_API_KEY || '',
     'X-API-Key-Mistral': process.env.MISTRAL_API_KEY || '',
-    'X-API-Key-Perplexity': process.env.PERPLEXITY_API_KEY || '',
     'X-API-Key-Zai': process.env.ZAI_API_KEY || '',
     'X-API-Key-Nanobanana': process.env.NANOBANANA_API_KEY || '',
     'X-API-Key-Ideogram': process.env.IDEOGRAM_API_KEY || '',
