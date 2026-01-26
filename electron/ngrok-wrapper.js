@@ -36,6 +36,63 @@ async function isNgrokInstalled() {
   }
 }
 
+async function isNgrokConfigured() {
+  const ngrokPath = getNgrokExecutable();
+  const configPath = path.join(os.homedir(), '.config', 'ngrok', 'ngrok.yml');
+  try {
+    await fs.access(configPath, fs.constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function configureNgrokAuthtoken(apiKey) {
+  if (!apiKey || apiKey.trim().length < 10) {
+    return {
+      success: false,
+      error: 'Invalid API key for authtoken configuration'
+    };
+  }
+
+  const ngrokPath = getNgrokExecutable();
+
+  return new Promise((resolve) => {
+    const configProcess = spawn(ngrokPath, ['config', 'add-authtoken', apiKey.trim()], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let output = '';
+    let error = '';
+
+    configProcess.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    configProcess.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+
+    configProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve({ success: true, output: output.trim() });
+      } else {
+        resolve({
+          success: false,
+          error: error || output || 'Failed to configure ngrok authtoken'
+        });
+      }
+    });
+
+    configProcess.on('error', (err) => {
+      resolve({
+        success: false,
+        error: `Failed to run ngrok config: ${err.message}`
+      });
+    });
+  });
+}
+
 async function startNgrokTunnel(port, apiKey, options = {}) {
   const {
     timeout = 30000,
@@ -53,25 +110,43 @@ async function startNgrokTunnel(port, apiKey, options = {}) {
   }
 
   // Validate API key if provided
-  if (apiKey && apiKey.trim().length < 10) {
+  if (!apiKey || apiKey.trim().length < 10) {
     return {
       success: false,
-      error: 'Invalid ngrok API key. Please check your API key in Settings and ensure it is correct.'
+      error: 'Ngrok API key is required. Please add your ngrok API key in Settings.\n\nGet your API key from: https://dashboard.ngrok.com/api-keys'
     };
   }
+
+  const trimmedApiKey = apiKey.trim();
+
+  // Step 1: Configure ngrok authtoken if not already configured
+  const isConfigured = await isNgrokConfigured();
+  if (!isConfigured) {
+    logFunction('Configuring ngrok authtoken...');
+    const configResult = await configureNgrokAuthtoken(trimmedApiKey);
+
+    if (!configResult.success) {
+      return {
+        success: false,
+        error: `Failed to configure ngrok: ${configResult.error}\n\nPlease verify your ngrok API key is correct. Get it from: https://dashboard.ngrok.com/api-keys`
+      };
+    }
+    logFunction('✓ ngrok authtoken configured successfully');
+  } else {
+    logFunction('ngrok already configured, skipping authtoken setup');
+  }
+
+  // Step 2: Start ngrok tunnel
+  logFunction(`Starting ngrok tunnel for port ${port}...`);
 
   // Set environment variables for ngrok
   const env = {
     ...process.env,
-    NGROK_API_KEY: apiKey || ''
+    NGROK_API_KEY: trimmedApiKey
   };
 
   // Start ngrok as detached process with proper authentication
   const ngrokArgs = ['http', String(port), '--log=stdout'];
-  
-  if (apiKey && apiKey.trim().length >= 10) {
-    logFunction('Using ngrok API key for authentication');
-  }
 
   const ngrokProcess = spawn(ngrokPath, ngrokArgs, {
     env,
@@ -236,5 +311,7 @@ module.exports = {
   startNgrokTunnel,
   stopNgrokTunnel,
   isNgrokInstalled,
+  isNgrokConfigured,
+  configureNgrokAuthtoken,
   getNgrokExecutable
 };

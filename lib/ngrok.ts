@@ -2,6 +2,9 @@ import { spawn } from "node:child_process";
 import { createSubprocessEnv, resolveCommand } from "@/lib/command";
 import { SecureStorage } from "@/lib/secureStorage";
 import { NgrokService, NgrokCreateOptions, NgrokTunnel as ImportedNgrokTunnel } from "@/services/ngrok";
+import { promisify } from "node:util";
+
+const execAsync = promisify(require('node:child_process').execFile);
 
 type NgrokTunnel = {
   public_url?: unknown;
@@ -39,6 +42,67 @@ async function fetchWithTimeout(url: string, timeoutMs: number) {
     return await fetch(url, { signal: controller.signal, cache: "no-store" });
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+/**
+ * Configure ngrok authtoken for the local agent
+ * This is required before the ngrok agent can start tunnels
+ */
+async function configureNgrokAuthtoken(apiKey: string): Promise<{ success: boolean; error?: string }> {
+  const ngrokPath = resolveCommand("ngrok");
+  if (!ngrokPath) {
+    return {
+      success: false,
+      error: "ngrok CLI not found"
+    };
+  }
+
+  try {
+    const { stdout, stderr } = await execAsync(ngrokPath, ['config', 'add-authtoken', apiKey.trim()], {
+      timeout: 10000
+    });
+
+    // Check if configuration was successful
+    if (stderr && stderr.toString().includes('ERR_NGROK')) {
+      const error = stderr.toString();
+      if (error.includes('401') || error.includes('authentication')) {
+        return {
+          success: false,
+          error: "Invalid ngrok API key. Please verify your API key at: https://dashboard.ngrok.com/api-keys"
+        };
+      }
+      return {
+        success: false,
+        error: `Failed to configure: ${error}`
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      success: false,
+      error: `Failed to configure ngrok: ${errorMessage}`
+    };
+  }
+}
+
+/**
+ * Check if ngrok is already configured (has config file)
+ */
+async function isNgrokConfigured(): Promise<boolean> {
+  const ngrokPath = resolveCommand("ngrok");
+  if (!ngrokPath) return false;
+
+  try {
+    // Try to list tunnels - this will work if ngrok is configured
+    const response = await fetch("http://127.0.0.1:4040/api/tunnels", {
+      signal: AbortSignal.timeout(2000)
+    });
+    return response.ok;
+  } catch {
+    return false;
   }
 }
 
@@ -420,7 +484,24 @@ export async function ensureNgrokTunnel(
     };
   }
 
-  // Start ngrok CLI with API key for authentication
+  // Step 1: Configure ngrok authtoken if needed
+  if (apiKey && apiKey.trim().length >= 10) {
+    const isConfigured = await isNgrokConfigured();
+    if (!isConfigured) {
+      options.onInstallProgress?.("Configuring ngrok authentication...");
+      const configResult = await configureNgrokAuthtoken(apiKey);
+      if (!configResult.success) {
+        return {
+          publicUrl: null,
+          started: false,
+          error: configResult.error || "Failed to configure ngrok authentication"
+        };
+      }
+      options.onInstallProgress?.("✓ ngrok configured successfully");
+    }
+  }
+
+  // Step 2: Start ngrok CLI with API key for authentication
   const ngrokEnv = createSubprocessEnv();
   if (apiKey) {
     ngrokEnv.NGROK_API_KEY = apiKey;
@@ -477,6 +558,6 @@ export async function ensureNgrokTunnel(
     publicUrl: null,
     started: true,
     error:
-      "ngrok started but no tunnel URL was found. Open ngrok and confirm it is exposing port 11434 (and that the local API is available on 127.0.0.1:4040).",
+      "ngrok started but no tunnel URL was found. Check that ngrok is exposing port 3456 (and that the local API is available on 127.0.0.1:4040).",
   };
 }
