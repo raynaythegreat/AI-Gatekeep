@@ -37,8 +37,7 @@ export class ModelManager {
     'listen', 'speak', 'hear', 'text-to-speech', 'speech-to-text',
     'dall-e', 'generation', 'image', 'vision', 'sora',
     'embedding', 'embed', 'moderation', 'classify',
-    'instruct', 'completion', 'davinci', 'curie', 'babbage', 'ada',
-    '-preview', '-turbo-preview',
+    'instruct', 'completion', 'davinci', 'curie', 'babbage', 'ada'
   ];
 
   /**
