@@ -434,9 +434,9 @@ export default function MobilePage() {
                 2
               </div>
               <div>
-                <h3 className="font-medium text-surface-900 dark:text-white">Mobile Web App</h3>
+                <h3 className="font-medium text-surface-900 dark:text-white">Single Repository</h3>
                 <p className="text-sm text-surface-600 dark:text-surface-400">
-                  A lightweight mobile interface is deployed to Vercel, accessible from any device.
+                  The same OS-Athena repository deploys to Vercel with mobile mode enabled.
                 </p>
               </div>
             </div>
@@ -637,52 +637,6 @@ export default function MobilePage() {
             </div>
           </div>
         )}
-
-        {/* Copy/Fork Section */}
-        <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6">
-          <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">
-            Clone OS-Athena-Mobile
-          </h2>
-          <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
-            Copy the OS-Athena-Mobile repository to deploy your own custom mobile app version
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              id="fork-repo-name"
-              placeholder="your-repo-name"
-              className="flex-1 px-4 py-2.5 rounded-lg border border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50"
-            />
-            <button
-              onClick={handleCopyForkRepo}
-              disabled={forkLoading}
-              className="px-6 py-2.5 bg-gold-500 hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-              {forkLoading ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Copying...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copy Repository
-                </>
-              )}
-            </button>
-          </div>
-          {forkError && (
-            <p className="text-sm text-red-600 dark:text-red-400 mt-2">{forkError}</p>
-          )}
-          {forkSuccess && (
-            <p className="text-sm text-green-600 dark:text-green-400 mt-2">{forkSuccess}</p>
-          )}
-        </div>
 
         {/* Deploy Button (when no active tunnel) */}
         {!tunnelStatus.active && (
