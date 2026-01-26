@@ -180,7 +180,16 @@ async function startNextServer() {
   await cleanupPort();
 
   return new Promise(async (resolve, reject) => {
-    const rootDir = path.join(__dirname, '..');
+    // When packaged in .asar, __dirname points inside the archive
+    // We need to get the path outside the asar for unpacked files
+    let rootDir = __dirname;
+    if (__dirname.includes('.asar')) {
+      // Running from packaged asar - get the parent directory
+      // The unpacked .next directory should be at the same level as the asar
+      rootDir = path.join(path.dirname(process.execPath), 'resources');
+    } else {
+      rootDir = path.join(__dirname, '..');
+    }
 
     serverStartupTimeout = setTimeout(() => {
       if (!serverReady) {
