@@ -657,7 +657,7 @@ export async function POST(request: NextRequest) {
       deploymentConfig,
     } = body;
 
-    if (!messages || messages.length === 0) {
+    if (!processedMessages || processedMessages.length === 0) {
       return new Response(JSON.stringify({ error: "Messages are required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -798,25 +798,25 @@ export async function POST(request: NextRequest) {
 
     // Apply context limit settings
     let contextInfo: any = null;
-    let processedMessages = messages;
+    let finalProcessedMessages = processedMessages;
     if (contextSettings?.enableTruncation) {
       try {
         const maxTokens = getContextLengthForModel(apiModel, provider, contextSettings);
-        const messagesWithSystem = [{ role: 'system' as const, content: contextPrompt }, ...processedMessages];
-        
+        const messagesWithSystem = [{ role: 'system' as const, content: contextPrompt }, ...finalProcessedMessages];
+
         // Convert to ChatMessage format
         const chatMessages = messagesWithSystem.map(msg => ({
           role: msg.role,
           content: msg.content,
           type: 'text' as const,
         }));
-        
+
         // Apply truncation
         const result = truncateConversation(chatMessages, maxTokens, contextSettings.truncationStrategy || 'oldest');
-        
+
         // Extract system message and truncated messages
         const systemMessage = result.messages.find(m => m.role === 'system');
-        processedMessages = result.messages.filter(m => m.role !== 'system');
+        finalProcessedMessages = result.messages.filter(m => m.role !== 'system');
         
         // Update context prompt
         if (systemMessage && systemMessage.content !== contextPrompt) {
@@ -825,8 +825,8 @@ export async function POST(request: NextRequest) {
         
         // Create usage info
         contextInfo = {
-          originalMessageCount: messages.length,
-          truncatedMessageCount: processedMessages.length,
+          originalMessageCount: processedMessages.length,
+          truncatedMessageCount: finalProcessedMessages.length,
           removedMessages: result.removedMessages,
           estimatedTokens: result.totalTokens,
           maxTokens,
@@ -835,8 +835,8 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error('Error applying context truncation:', error);
       }
-      }
     }
+
     // Create streaming response
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -866,7 +866,7 @@ export async function POST(request: NextRequest) {
 
             const openAIStyleMessages = buildOpenAICompatibleMessages(
               contextPrompt,
-              processedMessages,
+              finalProcessedMessages,
               normalizedAttachments,
             );
             const modelsToTry = apiModel.endsWith(":free")
@@ -931,7 +931,7 @@ export async function POST(request: NextRequest) {
               model: apiModel,
               messages: buildOpenAICompatibleMessages(
                 contextPrompt,
-                processedMessages,
+                finalProcessedMessages,
                 normalizedAttachments,
               ),
               stream: true,
@@ -957,7 +957,7 @@ export async function POST(request: NextRequest) {
               model: apiModel,
               messages: buildOpenAICompatibleMessages(
                 contextPrompt,
-                processedMessages,
+                finalProcessedMessages,
                 normalizedAttachments,
               ),
               stream: true,
@@ -976,7 +976,7 @@ export async function POST(request: NextRequest) {
           } else if (provider === "groq") {
             const openAIStyleMessages = buildOpenAICompatibleMessages(
               contextPrompt,
-              processedMessages,
+              finalProcessedMessages,
               normalizedAttachments.filter((a) => a.kind !== "image"),
             );
 
@@ -1151,7 +1151,7 @@ export async function POST(request: NextRequest) {
                 model: apiModel,
                 messages: buildOllamaMessages(
                   contextPrompt,
-                  processedMessages,
+                  finalProcessedMessages,
                   normalizedAttachments,
                 ),
                 stream: true,
@@ -1201,7 +1201,7 @@ export async function POST(request: NextRequest) {
           } else if (provider === "opencodezen") {
             const openAIStyleMessages = buildOpenAICompatibleMessages(
               contextPrompt,
-              processedMessages,
+              finalProcessedMessages,
               normalizedAttachments,
             );
 
@@ -1270,7 +1270,7 @@ export async function POST(request: NextRequest) {
 
             const geminiMessages = [
               { role: "user", parts: [{ text: contextPrompt }] },
-              ...messages.map((m: { role: string; content: string }) => ({
+              ...finalProcessedMessages.map((m: { role: string; content: string }) => ({
                 role: m.role === "user" ? "user" : "model",
                 parts: [{ text: m.content }],
               })),
@@ -1335,7 +1335,7 @@ export async function POST(request: NextRequest) {
             const mistralUrl = "https://api.mistral.ai/v1/chat/completions";
             const mistralMessages = [
               { role: "system", content: contextPrompt },
-              ...processedMessages,
+              ...finalProcessedMessages,
             ];
 
             const response = await fetch(mistralUrl, {
@@ -1414,7 +1414,7 @@ export async function POST(request: NextRequest) {
               model: apiModel,
               messages: buildOpenAICompatibleMessages(
                 contextPrompt,
-                processedMessages,
+                finalProcessedMessages,
                 normalizedAttachments,
               ),
               stream: true,
@@ -1468,7 +1468,7 @@ export async function POST(request: NextRequest) {
               model: apiModel,
               max_tokens: 8192,
               system: contextPrompt,
-              messages: buildAnthropicMessages(messages, normalizedAttachments),
+              messages: buildAnthropicMessages(finalProcessedMessages, normalizedAttachments),
             });
 
             for await (const event of response) {
