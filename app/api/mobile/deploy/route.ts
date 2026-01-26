@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
       // Auto-load additional environment variables from local env.local if available
       try {
         const envContent = await fs.readFile(path.join(process.cwd(), ".env.local"), "utf-8");
-        const skippedKeys = ['OS_PUBLIC_URL', 'MOBILE_PASSWORD', 'OS_REMOTE_MODE', 'NGROK_TUNNEL_ID', 'MOBILE_REPOSITORY', 'MOBILE_BRANCH', 'NODE_ENV', 'NEXT_TELEMETRY_DISABLED'];
+        const skippedKeys = ['OS_PUBLIC_URL', 'MOBILE_PASSWORD', 'OS_REMOTE_MODE', 'NGROK_TUNNEL_ID', 'NODE_ENV', 'NEXT_TELEMETRY_DISABLED'];
         
         envContent.split("\n").forEach(line => {
           if (line.trim() && !line.trim().startsWith("#")) {
