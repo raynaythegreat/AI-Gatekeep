@@ -9,6 +9,45 @@ interface DeploymentStep {
   status: 'pending' | 'in-progress' | 'complete' | 'error';
 }
 
+function getActionItemsFromError(errorMsg: string): string[] {
+  const actions: string[] = [];
+  
+  if (errorMsg.includes('ngrok') || errorMsg.includes('tunnel')) {
+    if (errorMsg.includes('not found') || errorMsg.includes('CLI')) {
+      actions.push('Install ngrok: npm install -g ngrok');
+    }
+    if (errorMsg.includes('authentication') || errorMsg.includes('401') || errorMsg.includes('Invalid')) {
+      actions.push('Verify ngrok API key in Settings');
+      actions.push('Check key at: https://dashboard.ngrok.com/api-keys');
+    }
+    actions.push('Try manual command: ngrok http 3456');
+  } else if (errorMsg.includes('401') || errorMsg.includes('403')) {
+    actions.push('Check Vercel API key in Settings');
+    actions.push('Verify ngrok API key');
+    actions.push('Check GitHub token has repo scope');
+    actions.push('Verify tokens at: https://vercel.com/account/settings/tokens');
+  } else if (errorMsg.includes('404')) {
+    actions.push('Verify repository format: owner/repo');
+    actions.push('Check if repository exists on GitHub');
+    actions.push('Ensure repository is public or you have access');
+  } else if (errorMsg.includes('repoId') || errorMsg.includes('repo')) {
+    actions.push('Ensure repository is connected to Vercel');
+    actions.push('Check GitHub token permissions');
+    actions.push('Verify repository is accessible');
+  } else if (errorMsg.includes('timeout')) {
+    actions.push('Ensure local OS Athena is running on port 3456');
+    actions.push('Try restarting the tunnel');
+  }
+  
+  if (actions.length === 0) {
+    actions.push('Check browser console for detailed error logs');
+    actions.push('Verify all API keys are configured in Settings');
+    actions.push('Ensure local OS Athena is running');
+  }
+  
+  return actions;
+}
+
 interface DeploymentResult {
   success: boolean;
   tunnel?: {
@@ -21,6 +60,8 @@ interface DeploymentResult {
   };
   mobileUrl?: string;
   error?: string;
+  type?: string;
+  actionItems?: string[];
 }
 
 interface MobileDeploymentModalProps {
@@ -42,6 +83,15 @@ type LogEntry = {
   type: 'info' | 'success' | 'error';
 };
 
+interface MobileDeploymentInfo {
+  tunnelId?: string;
+  publicUrl?: string;
+  mobileUrl?: string;
+  deploymentId?: string;
+  createdAt?: string;
+  activatedAt?: string;
+}
+
 const STEPS: DeploymentStep[] = [
   { number: 1, label: 'Validating API keys...', status: 'pending' },
   { number: 2, label: 'Creating persistent ngrok tunnel...', status: 'pending' },
@@ -49,6 +99,56 @@ const STEPS: DeploymentStep[] = [
   { number: 4, label: 'Deploying to Vercel...', status: 'pending' },
   { number: 5, label: 'Configuring environment variables...', status: 'pending' },
 ];
+
+function saveDeploymentInfo(mobileUrl?: string | null, publicUrl?: string | null): void {
+  if (!mobileUrl) {
+    console.warn('No mobile URL provided to save');
+    return;
+  }
+  
+  const deploymentInfo: MobileDeploymentInfo = {
+    mobileUrl,
+    publicUrl: publicUrl || undefined,
+    createdAt: new Date().toISOString()
+  };
+  
+  try {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('mobile-deployment', JSON.stringify(deploymentInfo));
+      console.log('Mobile deployment saved to session storage:', deploymentInfo);
+      alert('Deployment information saved to session storage!');
+    }
+  } catch (error) {
+    console.error('Failed to save deployment info:', error);
+  }
+}
+
+function addToChatHistory(mobileUrl?: string | null, publicUrl?: string | null): void {
+  if (!mobileUrl) {
+    console.warn('No mobile URL provided to add to chat');
+    return;
+  }
+  
+  const message = `Mobile app deployed to: ${mobileUrl}`;
+  
+  try {
+    // Store in session storage for chat to pick up
+    if (typeof window !== 'undefined') {
+      const deploymentInfo: MobileDeploymentInfo & { timestamp: number } = {
+        mobileUrl,
+        publicUrl: publicUrl || undefined,
+        createdAt: new Date().toISOString(),
+        timestamp: Date.now()
+      };
+      
+      sessionStorage.setItem('mobile-deployment-chat', JSON.stringify(deploymentInfo));
+      console.log('Mobile deployment added to chat history:', deploymentInfo);
+      alert('Deployment URL added to chat history!');
+    }
+  } catch (error) {
+    console.error('Failed to add to chat history:', error);
+  }
+}
 
 export default function MobileDeploymentModal({
   open,
@@ -291,10 +391,17 @@ export default function MobileDeploymentModal({
     } catch (err) {
       console.error('Deployment error:', err);
       const errorMsg = err instanceof Error ? err.message : 'Deployment failed';
-      setError(errorMsg);
-      setResult({ success: false, error: errorMsg });
+      const deploymentResponse = (err as any)?.response || err;
+      const errorType = deploymentResponse?.type;
+      const actionItems: string[] = deploymentResponse?.actionItems || getActionItemsFromError(errorMsg);
+      
+      setError(`${errorMsg}${actionItems.length > 0 ? '\n\nAction items:\n' + actionItems.join('\n') : ''}`);
+      setResult({ success: false, error: errorMsg, type: errorType });
       setDeploymentState('error');
       addLog(`✗ ${errorMsg}`, 'error');
+      if (actionItems.length > 0) {
+        actionItems.forEach(item => addLog(`  → ${item}`, 'info'));
+      }
     } finally {
       setDeploying(false);
     }
@@ -423,6 +530,66 @@ export default function MobileDeploymentModal({
                   </div>
                 )}
               </div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        addLog('Checking for .env.local file...', 'info');
+                        const response = await fetch('/api/env/local');
+                        const data = await response.json();
+                        
+                        if (data.success && data.env) {
+                          const env = data.env;
+                          
+                          // Auto-fill from common env vars
+                          if (env.MOBILE_REPOSITORY) {
+                            setRepository(env.MOBILE_REPOSITORY);
+                            addLog(`✓ Auto-filled repository from env.local`, 'success');
+                          } else if (env.REPOSITORY) {
+                            setRepository(env.REPOSITORY);
+                            addLog(`✓ Auto-filled repository from env.local`, 'success');
+                          }
+                          
+                          if (env.MOBILE_BRANCH) {
+                            setBranch(env.MOBILE_BRANCH);
+                            addLog(`✓ Auto-filled branch from env.local`, 'success');
+                          }
+                          
+                          if (!data.env.MOBILE_REPOSITORY && !data.env.REPOSITORY && !data.env.MOBILE_BRANCH) {
+                            addLog('⚠ No deployment settings found in env.local. Add MOBILE_REPOSITORY or MOBILE_BRANCH', 'info');
+                          }
+                        } else {
+                          addLog('⚠ .env.local not found or empty', 'info');
+                        }
+                      } catch (err) {
+                        addLog(`✗ Failed to read env.local: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
+                      }
+                    }}
+                    className="inline-flex px-3 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-blue-500 dark:hover:bg-blue-600 text-slate-700 dark:text-slate-300 hover:text-white rounded transition-colors"
+                  >
+                    <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Auto-Fill from env.local
+                  </button>
+                  
+                  {repository && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRepository('');
+                        addLog('Cleared repository input', 'info');
+                      }}
+                      className="inline-flex px-3 py-1.5 text-xs bg-red-100 dark:bg-red-900/20 hover:bg-red-500 dark:hover:bg-red-600 text-red-700 dark:text-red-300 hover:text-white rounded transition-colors"
+                    >
+                      <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear
+                    </button>
+                  )}
+                </div>
             </div>
 
             <div>
@@ -650,17 +817,42 @@ export default function MobileDeploymentModal({
                     Your mobile site has been deployed and opened in a new tab.
                   </p>
                   {vercelUrl && (
-                    <a
-                      href={vercelUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-300 hover:underline"
-                    >
-                      {vercelUrl}
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
+                    <div className="space-y-2">
+                      <a
+                        href={vercelUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-300 hover:underline"
+                      >
+                        {vercelUrl}
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      
+                      {/* Save deployment info section */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => saveDeploymentInfo(vercelUrl, result.tunnel?.public_url)}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V2" />
+                          </svg>
+                          Save to Session
+                        </button>
+                        
+                        <button
+                          onClick={() => addToChatHistory(vercelUrl, result.tunnel?.public_url)}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          Add to Chat
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>

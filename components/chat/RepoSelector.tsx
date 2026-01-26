@@ -201,9 +201,9 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                 {/* Visibility Toggle */}
                  <div className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${isPrivate ? "bg-amber-100 dark:bg-amber-900/30" : "bg-green-100 dark:bg-green-900/30"}`}>
+                    <div className={`p-2 rounded-lg ${isPrivate ? "bg-blue-100 dark:bg-blue-900/30" : "bg-green-100 dark:bg-green-900/30"}`}>
                       {isPrivate ? (
-                        <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       ) : (
@@ -352,9 +352,9 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                        }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${repo.private ? "bg-amber-100 dark:bg-amber-900/20" : "bg-surface-200 dark:bg-surface-800"}`}>
-                          {repo.private ? (
-                            <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <div className={`p-2 rounded-lg ${repo.private ? "bg-blue-100 dark:bg-blue-900/20" : "bg-surface-200 dark:bg-surface-800"}`}>
+                            {repo.private ? (
+                              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                           ) : (
@@ -369,7 +369,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                               {repo.name}
                             </span>
                             {repo.private && (
-                              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-900/30 text-amber-400">
+                              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-blue-900/30 text-blue-400">
                                 Private
                               </span>
                             )}

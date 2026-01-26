@@ -5,6 +5,7 @@ import { ApiTester, TestResult } from '@/services/apiTester';
 import { useFileAccess } from '@/contexts/FileAccessContext';
 import FileAccessPermissionModal from '@/components/FileAccessPermissionModal';
 import NgrokStatusCard from '@/components/settings/NgrokStatusCard';
+import { ContextSettingsSection } from './ContextSettingsSection';
 
 
 interface CustomEndpoint {
@@ -557,30 +558,35 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
               </button>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">
-                System Prompt Instructions
-              </label>
-              <textarea
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                placeholder="Example: You are a senior developer helping build modern web applications. Focus on clean, maintainable code with proper error handling. Always explain your reasoning before suggesting solutions."
-                className="w-full min-h-[120px] px-4 py-3 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-mono text-sm resize-y"
-              />
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground font-medium">
-                  {systemPrompt.length} characters
-                </span>
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                  Auto-saved
-                </span>
-              </div>
-            </div>
-          </div>
+             <div className="space-y-2">
+               <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">
+                 System Prompt Instructions
+               </label>
+               <textarea
+                 value={systemPrompt}
+                 onChange={(e) => setSystemPrompt(e.target.value)}
+                 placeholder="Example: You are a senior developer helping build modern web applications. Focus on clean, maintainable code with proper error handling. Always explain your reasoning before suggesting solutions."
+                 className="w-full min-h-[120px] px-4 py-3 rounded-lg border-2 border-blue-500/20 bg-background text-foreground placeholder-muted-foreground focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-mono text-sm resize-y"
+               />
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] text-muted-foreground font-medium">
+                   {systemPrompt.length} characters
+                 </span>
+                 <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                   Auto-saved
+                 </span>
+               </div>
+             </div>
+           </div>
+         </div>
+
+        {/* Context Settings */}
+        <div className="max-w-3xl mt-6">
+          <ContextSettingsSection />
         </div>
        </div>
  
-       {/* File System Access */}
+        {/* File System Access */}
        <div className="space-y-6">
          <div>
            <h2 className="text-xl font-black text-foreground uppercase tracking-tight">File System Access</h2>

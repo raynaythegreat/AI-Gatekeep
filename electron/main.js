@@ -468,6 +468,40 @@ app.whenReady().then(async () => {
   if (isFirstRun) {
     markFirstRunComplete();
   }
+     // ==================================================
+  // Phase 1b: CLI Installation Verification
+  // ==================================================
+  try {
+    log("Checking CLI installations...");
+    const { exec } = require("child_process");
+    const util = require("util");
+    const execAsync = util.promisify(exec);
+    
+    // Check if CLIs are installed
+    const checkCLI = async (name, command) => {
+      try {
+        await execAsync(`${command} --version`);
+        log(`${name} CLI: installed ✓`);
+        return true;
+      } catch (err) {
+        log(`${name} CLI: not installed`, "WARN");
+        return false;
+      }
+    };
+    
+    const [ngrokInstalled, vercelInstalled, ghInstalled] = await Promise.all([
+      checkCLI("ngrok", "ngrok"),
+      checkCLI("vercel", "vercel"),
+      checkCLI("GitHub", "gh")
+    ]);
+    
+    // If any CLI is missing, note for user
+    if (!ngrokInstalled || !vercelInstalled || !ghInstalled) {
+      log("Some CLIs are not installed globally. They should be installed via npm dependencies.", "WARN");
+    }
+  } catch (cliError) {
+    log(`CLI check failed: ${cliError.message}`, "WARN");
+  }
 
   // ==================================================
   // Phase 1: Auto-Start Ngrok CLI Agent

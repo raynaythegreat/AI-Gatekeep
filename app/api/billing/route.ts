@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getRuntimeEnv } from "@/lib/runtime";
+import { getServerApiKeyFromRequest } from "@/lib/serverKeys";
 
 export const dynamic = "force-dynamic";
 
@@ -68,20 +69,67 @@ async function fetchOpenRouterBilling(apiKey: string): Promise<ProviderBilling> 
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const env = getRuntimeEnv();
   const results: Record<string, ProviderBilling> = {};
+  
+  // Get API keys from headers (from SecureStorage) or environment
+  const openaiKey = getServerApiKeyFromRequest(request, 'openai');
+  const openrouterKey = getServerApiKeyFromRequest(request, 'openrouter');
+  const claudeKey = getServerApiKeyFromRequest(request, 'anthropic');
+  const groqKey = getServerApiKeyFromRequest(request, 'groq');
+  const geminiKey = getServerApiKeyFromRequest(request, 'gemini');
+  const fireworksKey = getServerApiKeyFromRequest(request, 'fireworks');
+  const mistralKey = getServerApiKeyFromRequest(request, 'mistral');
+  const zaiKey = getServerApiKeyFromRequest(request, 'zai');
 
-  if (process.env.OPENAI_API_KEY) {
-    results.openai = await fetchOpenAIBilling(process.env.OPENAI_API_KEY);
+  if (openaiKey) {
+    results.openai = await fetchOpenAIBilling(openaiKey);
   } else {
     results.openai = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
   }
 
-  if (process.env.OPENROUTER_API_KEY) {
-    results.openrouter = await fetchOpenRouterBilling(process.env.OPENROUTER_API_KEY);
+  if (openrouterKey) {
+    results.openrouter = await fetchOpenRouterBilling(openrouterKey);
   } else {
     results.openrouter = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  }
+
+  // Set configured status for other providers based on key presence
+  if (claudeKey) {
+    results.claude = { configured: true, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  } else {
+    results.claude = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  }
+
+  if (groqKey) {
+    results.groq = { configured: true, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  } else {
+    results.groq = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  }
+
+  if (geminiKey) {
+    results.gemini = { configured: true, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  } else {
+    results.gemini = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  }
+
+  if (fireworksKey) {
+    results.fireworks = { configured: true, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  } else {
+    results.fireworks = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  }
+
+  if (mistralKey) {
+    results.mistral = { configured: true, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  } else {
+    results.mistral = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  }
+
+  if (zaiKey) {
+    results.zai = { configured: true, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
+  } else {
+    results.zai = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
   }
 
   return NextResponse.json(results);

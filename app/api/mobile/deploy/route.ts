@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs/promises";
+import path from "path";
 import { buildChatApiHeaders } from "@/lib/chatHeaders";
 import { VercelService } from "@/services/vercel";
 import { GitHubService } from "@/services/github";
@@ -10,6 +12,82 @@ export const dynamic = 'force-dynamic';
 function isLocalhostRequest(request: NextRequest): boolean {
   const host = request.headers.get("host") || "";
   return host.startsWith("localhost") || host.startsWith("127.0.0.1") || host.startsWith("0.0.0.0");
+}
+
+function formatDeploymentError(errorMessage: string): string {
+  if (errorMessage.includes('401') || errorMessage.includes('403')) {
+    return 'Authentication failed. Please check your API keys.';
+  }
+  if (errorMessage.includes('404')) {
+    return 'Repository or project not found.';
+  }
+  if (errorMessage.includes('repoId') || errorMessage.includes('repo')) {
+    return 'Could not resolve GitHub repository. Ensure it exists and is connected to Vercel.';
+  }
+  if (errorMessage.includes('ngrok')) {
+    return `Ngrok tunnel failed: ${errorMessage}`;
+  }
+  return errorMessage;
+}
+
+function getTunnelFailureActions(errorMsg: string): string[] {
+  const actions: string[] = [];
+  
+  if (errorMsg.includes('CLI not found')) {
+    actions.push('Install ngrok: npm install -g ngrok');
+  }
+  if (errorMsg.includes('authentication') || errorMsg.includes('401') || errorMsg.includes('Invalid API key')) {
+    actions.push('Verify ngrok API key at: https://dashboard.ngrok.com/api-keys');
+    actions.push('Run manually: ngrok config add-authtoken YOUR_API_KEY');
+  }
+  if (errorMsg.includes('timeout')) {
+    actions.push('Ensure local server is running on port 3456');
+    actions.push('Try manual command: ngrok http 3456');
+  }
+  if (!actions.length) {
+    actions.push('Try starting ngrok manually: ngrok http 3456');
+    actions.push('Check if ngrok is installed: ngrok version');
+  }
+  
+  return actions;
+}
+
+function getActionItems(errorMessage: string, isTunnelError: boolean): string[] {
+  if (isTunnelError) {
+    return getTunnelFailureActions(errorMessage);
+  }
+  
+  const actions: string[] = [];
+  
+  if (errorMessage.includes('401') || errorMessage.includes('403')) {
+    actions.push('Check Vercel API key at: https://vercel.com/account/settings/tokens');
+    actions.push('Check GitHub token has repo scope');
+    actions.push('Verify ngrok API key');
+  }
+  if (errorMessage.includes('404')) {
+    actions.push('Verify repository format: owner/repo');
+    actions.push('Check if repository exists and is public');
+    actions.push('Ensure repository is connected to Vercel');
+  }
+  if (errorMessage.includes('repoId') || errorMessage.includes('repo')) {
+    actions.push('Ensure GITHUB_TOKEN is set');
+    actions.push('Check repository exists on GitHub');
+    actions.push('Ensure repository has GitHub Pages or Vercel integration');
+  }
+  if (!actions.length) {
+    actions.push('Check browser console for detailed error logs');
+    actions.push('Verify all API keys are configured correctly');
+    actions.push('Ensure local OS Athena is running on port 3456');
+  }
+  
+  return actions;
+}
+
+const logs: { type: 'info' | 'success' | 'error', message: string }[] = [];
+
+function addLog(message: string, type: 'info' | 'success' | 'error' = 'info') {
+  logs.push({ type, message });
+  console.log(`[mobile-deploy] [${type}] ${message}`);
 }
 
 export async function POST(request: NextRequest) {
@@ -83,14 +161,21 @@ export async function POST(request: NextRequest) {
     const deploymentKey = `mobile:${Date.now()}`;
 
     try {
-      // Ensure ngrok tunnel is running (will start ngrok if not running)
-      // Pass ngrok API key as parameter since this runs server-side
+      console.log('Starting mobile deployment:', { repository: ownerRepo, branch });
+      
+      addLog('Creating ngrok tunnel for port 3456...', 'info');
       const tunnelResult = await ensureNgrokTunnel(3456, ngrokKey);
 
       if (!tunnelResult.publicUrl) {
         const errorMsg = tunnelResult.error || 'Failed to establish ngrok tunnel';
+        addLog(`Tunnel creation failed: ${errorMsg}`, 'error');
+        const actionItems = getTunnelFailureActions(errorMsg);
         return NextResponse.json(
-          { error: errorMsg },
+          { 
+            error: errorMsg,
+            type: 'tunnel_failure',
+            actionItems
+          },
           { status: 500 }
         );
       }
@@ -101,48 +186,86 @@ export async function POST(request: NextRequest) {
         port: 3456
       };
 
+      addLog(`✓ Tunnel created: ${tunnel.id}`, 'success');
+      addLog(`Public URL: ${tunnel.public_url}`, 'info');
+
       const github = new GitHubService(githubToken);
+      addLog(`Verifying repository: ${ownerRepo}`, 'info');
       const repoData = await github.getRepository(owner, repo);
 
       if (!repoData) {
+        addLog(`Repository not found: ${ownerRepo}`, 'error');
         return NextResponse.json(
-          { error: "Repository not found. Check the owner/repo format." },
+          { 
+            error: "Repository not found. Check the owner/repo format.",
+            type: 'repository_error'
+          },
           { status: 404 }
         );
       }
 
+      addLog('✓ Repository verified', 'success');
+
       const vercel = new VercelService(vercelKey);
+
+      const envVars = [
+        {
+          key: 'OS_PUBLIC_URL',
+          value: tunnel.public_url,
+          target: ['production', 'preview']
+        },
+        {
+          key: 'MOBILE_PASSWORD',
+          value: password,
+          target: ['production', 'preview']
+        },
+        {
+          key: 'OS_REMOTE_MODE',
+          value: 'true',
+          target: ['production', 'preview']
+        },
+        {
+          key: 'NGROK_TUNNEL_ID',
+          value: tunnel.id,
+          target: ['production', 'preview']
+        }
+      ];
+
+      console.log('Deploying with environment variables:', envVars.map(v => ({ key: v.key, value: v.value })));
+
+      addLog('Starting Vercel deployment...', 'info');
+      
+      // Auto-load additional environment variables from local env.local if available
+      try {
+        const envContent = await fs.readFile(path.join(process.cwd(), ".env.local"), "utf-8");
+        const skippedKeys = ['OS_PUBLIC_URL', 'MOBILE_PASSWORD', 'OS_REMOTE_MODE', 'NGROK_TUNNEL_ID', 'MOBILE_REPOSITORY', 'MOBILE_BRANCH', 'NODE_ENV', 'NEXT_TELEMETRY_DISABLED'];
+        
+        envContent.split("\n").forEach(line => {
+          if (line.trim() && !line.trim().startsWith("#")) {
+            const eqIndex = line.indexOf("=");
+            if (eqIndex > 0) {
+              const key = line.substring(0, eqIndex).trim();
+              const value = line.substring(eqIndex + 1).trim();
+              if (!skippedKeys.includes(key) && key && value) {
+                envVars.push({ key: key, value: value, target: ['production', 'preview'] });
+              }
+            }
+          }
+        });
+        addLog('✓ Copied additional env variables from local env.local', 'success');
+      } catch (err) {
+        addLog('No additional env.local variables to copy', 'info');
+      }
 
       const deployment = await vercel.deployFromGitHub({
         projectName: repo,
         repository: ownerRepo,
         branch,
-        environmentVariables: [
-          {
-            key: 'OS_PUBLIC_URL',
-            value: tunnel.public_url,
-            target: ['production', 'preview']
-          },
-          {
-            key: 'MOBILE_PASSWORD',
-            value: password,
-            target: ['production', 'preview']
-          },
-          {
-            key: 'OS_REMOTE_MODE',
-            value: 'true',
-            target: ['production', 'preview']
-          },
-          {
-            key: 'NGROK_TUNNEL_ID',
-            value: tunnel.id,
-            target: ['production', 'preview']
-          }
-        ]
+        environmentVariables: envVars
       });
 
-      // Note: Password storage is handled by client
-      // Server cannot save to SecureStorage (browser-only)
+      addLog(`✓ Deployment created: ${deployment.deploymentId}`, 'success');
+      addLog(`Deployment URL: ${deployment.url}`, 'info');
 
       return NextResponse.json({
         success: true,
@@ -169,18 +292,23 @@ export async function POST(request: NextRequest) {
       let errorMessage = 'Deployment failed';
       if (error instanceof Error) {
         errorMessage = error.message;
-
-        if (errorMessage.includes('401') || errorMessage.includes('403')) {
-          errorMessage = 'Authentication failed. Check your Vercel, GitHub, and ngrok API keys.';
-        } else if (errorMessage.includes('404')) {
-          errorMessage = 'Repository not found or Vercel project not accessible.';
-        } else if (errorMessage.includes('repoId') || errorMessage.includes('repo')) {
-          errorMessage = 'Could not resolve GitHub repository. Ensure it exists and is connected to Vercel.';
-        }
       }
 
+      const isTunnelError = errorMessage.includes('ngrok') || errorMessage.includes('tunnel');
+      const errorType = isTunnelError ? 'tunnel_failure' : 'deployment_failure';
+      
+      const actionItems = getActionItems(errorMessage, isTunnelError);
+      
+      const formattedError = formatDeploymentError(errorMessage);
+      addLog(`✗ ${formattedError}`, 'error');
+      
       return NextResponse.json(
-        { error: errorMessage },
+        { 
+          error: formattedError,
+          type: errorType,
+          actionItems,
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
         { status: 500 }
       );
     }

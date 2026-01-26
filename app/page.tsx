@@ -31,12 +31,23 @@ export default function HomePage() {
 
   if (!isHydrated) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <div className="w-20 h-20 mx-auto animate-pulse">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-background via-blue-50/5 to-background dark:from-surface-900 dark:via-blue-900/5 dark:to-surface-900">
+        <div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-700">
+          <div className="w-20 h-20 mx-auto animate-pulse transition-all">
             <AthenaLogo className="w-full h-full" />
           </div>
-          <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Initializing OS Athena...</p>
+          <div className="flex flex-col items-center justify-center space-y-2">
+            <p className="text-blue-600 dark:text-blue-400 text-lg font-bold tracking-wide animate-pulse">
+              Loading Athena AI<span className="loading-dots">
+                <span className="dot-1 animate-blink">.</span>
+                <span className="dot-2 animate-blink">.</span>
+                <span className="dot-3 animate-blink">.</span>
+              </span>
+            </p>
+            <p className="text-blue-500/80 dark:text-blue-300/80 text-xs font-medium">
+              Initializing secure connections
+            </p>
+          </div>
         </div>
       </div>
     );

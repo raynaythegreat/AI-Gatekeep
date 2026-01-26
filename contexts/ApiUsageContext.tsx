@@ -293,6 +293,19 @@ export function ApiUsageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Listen for API key updates
+  useEffect(() => {
+    const handleApiKeysUpdated = () => {
+      console.log("API keys updated, refreshing billing...");
+      void refreshBilling();
+    };
+
+    window.addEventListener("api-keys-updated", handleApiKeysUpdated);
+    return () => {
+      window.removeEventListener("api-keys-updated", handleApiKeysUpdated);
+    };
+  }, []); // Remove refreshBilling from deps - causes initialization error
+
   // Save records to localStorage whenever they change
   useEffect(() => {
     if (records.length > 0) {
@@ -352,7 +365,33 @@ export function ApiUsageProvider({ children }: { children: ReactNode }) {
 
   const refreshBilling = useCallback(async () => {
     try {
-      const response = await fetch("/api/billing", { cache: "no-store" });
+      // Include API keys in headers for server-side detection
+      const headers: Record<string, string> = {};
+      
+      // Get API keys from SecureStorage for desktop app
+      if (typeof window !== 'undefined' && window.api?.apiKeys) {
+        try {
+          const result = await window.api.apiKeys.get();
+          if (result.success && result.keys) {
+            // Add API keys to headers using the X-API-Key-{Provider} format
+            if (result.keys.anthropic) headers['X-API-Key-Anthropic'] = result.keys.anthropic;
+            if (result.keys.openai) headers['X-API-Key-Openai'] = result.keys.openai;
+            if (result.keys.groq) headers['X-API-Key-Groq'] = result.keys.groq;
+            if (result.keys.openrouter) headers['X-API-Key-Openrouter'] = result.keys.openrouter;
+            if (result.keys.gemini) headers['X-API-Key-Gemini'] = result.keys.gemini;
+            if (result.keys.fireworks) headers['X-API-Key-Fireworks'] = result.keys.fireworks;
+            if (result.keys.mistral) headers['X-API-Key-Mistral'] = result.keys.mistral;
+            if (result.keys.zai) headers['X-API-Key-Zai'] = result.keys.zai;
+          }
+        } catch (error) {
+          console.error('Failed to get API keys for billing:', error);
+        }
+      }
+      
+      const response = await fetch("/api/billing", { 
+        cache: "no-store",
+        headers: Object.keys(headers).length > 0 ? headers : undefined
+      });
       const data = await response.json().catch(() => null);
       if (data?.billing) {
         setBilling(data.billing as BillingState);
