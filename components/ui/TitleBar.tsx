@@ -58,7 +58,7 @@ export default function TitleBar() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-between px-4 py-2 border-b-2 border-gold-500/20 bg-gradient-to-b from-surface-100 to-surface-50 dark:from-surface-900 dark:to-surface-950 backdrop-blur-sm"
+      className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-between px-4 py-2 border-b-2 border-blue-500/20 bg-gradient-to-b from-surface-100 to-surface-50 dark:from-surface-900 dark:to-surface-950 backdrop-blur-sm"
       style={dragStyle}
     >
       <div className="flex items-center gap-3">
@@ -69,22 +69,23 @@ export default function TitleBar() {
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFC107" />
-              <stop offset="100%" stopColor="#FFB300" />
+            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0366D6" />
+              <stop offset="50%" stopColor="#1F6FEB" />
+              <stop offset="100%" stopColor="#0366D6" />
             </linearGradient>
           </defs>
           <g>
             <ellipse cx="32" cy="30" rx="18" ry="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
-            <circle cx="24" cy="28" r="6" fill="url(#goldGradient)" />
-            <circle cx="40" cy="28" r="6" fill="url(#goldGradient)" />
+            <circle cx="24" cy="28" r="6" fill="url(#blueGradient)" />
+            <circle cx="40" cy="28" r="6" fill="url(#blueGradient)" />
             <circle cx="24" cy="28" r="2.5" fill="currentColor" />
             <circle cx="40" cy="28" r="2.5" fill="currentColor" />
-            <circle cx="25" cy="26" r="1" fill="url(#goldGradient)" />
-            <circle cx="39" cy="26" r="1" fill="url(#goldGradient)" />
+            <circle cx="25" cy="26" r="1" fill="url(#blueGradient)" />
+            <circle cx="39" cy="26" r="1" fill="url(#blueGradient)" />
           </g>
         </svg>
-         <span className="text-sm font-bold text-foreground tracking-tight">AI Command</span>
+         <span className="text-sm font-bold text-foreground tracking-tight gradient-text-blue">OS Athena</span>
       </div>
 
       <div
@@ -97,7 +98,7 @@ export default function TitleBar() {
           onMouseLeave={() => setHoveredButton(null)}
           className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border-2 border-transparent ${
             hoveredButton === 'minimize'
-              ? 'bg-surface-200 dark:bg-surface-700 border-gold-500/30 scale-105'
+              ? 'bg-surface-200 dark:bg-surface-700 border-blue-500/30 scale-105'
               : 'hover:bg-surface-200 dark:hover:bg-surface-700'
           }`}
           title="Minimize"
@@ -113,7 +114,7 @@ export default function TitleBar() {
           onMouseLeave={() => setHoveredButton(null)}
           className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border-2 border-transparent ${
             hoveredButton === 'maximize'
-              ? 'bg-surface-200 dark:bg-surface-700 border-gold-500/30 scale-105'
+              ? 'bg-surface-200 dark:bg-surface-700 border-blue-500/30 scale-105'
               : 'hover:bg-surface-200 dark:hover:bg-surface-700'
           }`}
           title={isMaximized ? "Restore" : "Maximize"}

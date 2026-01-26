@@ -29,7 +29,7 @@ export default function FileAccessPermissionModal({ isOpen, onClose, requestedAc
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-card border-2 border-gold-500/30 rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+      <div className="bg-card border-2 border-blue-500/30 rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
           <div className="flex items-center gap-3 text-white">
             <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
@@ -52,25 +52,25 @@ export default function FileAccessPermissionModal({ isOpen, onClose, requestedAc
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <svg className="w-4 h-4 mt-0.5 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 mt-0.5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
                   </svg>
                   <span>Read files from your entire home directory</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-4 h-4 mt-0.5 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 mt-0.5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
                   </svg>
                   <span>Edit and modify files</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-4 h-4 mt-0.5 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 mt-0.5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
                   </svg>
                   <span>Create new files</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-4 h-4 mt-0.5 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 mt-0.5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
                   </svg>
                   <span>List and browse directories</span>
@@ -109,7 +109,7 @@ export default function FileAccessPermissionModal({ isOpen, onClose, requestedAc
             disabled={isProcessing}
             className={`flex-1 px-4 py-2.5 rounded-lg font-semibold border-2 transition-colors ${
               requestedAction === 'enable'
-                ? 'bg-gradient-to-r from-gold-500 to-amber-500 text-black border-gold-600 hover:from-gold-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed'
+                ? 'bg-gradient-to-r from-blue-500 to-blue-500 text-black border-blue-600 hover:from-blue-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed'
                 : 'bg-surface-200 dark:bg-surface-800 text-foreground border-border hover:bg-surface-300 dark:hover:bg-surface-700 disabled:opacity-50 disabled:cursor-not-allowed'
             }`}
           >

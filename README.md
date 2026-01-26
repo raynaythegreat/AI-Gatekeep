@@ -1,18 +1,142 @@
 # OS Athena
 
-OS Athena is an open-source AI assistant for web development workflows. It allows you to plan, build, and deploy applications directly from a unified command center.
+<div align="center">
 
-## Features
-- **AI Chat:** Plan and implement features with state-of-the-art models.
-- **GitHub Integration:** Manage repositories, apply changes, and track history.
-- **Unified Deployment:** One-click deploys to Vercel and Render.
-- **Local AI:** Support for local models via Ollama.
+**AI-Powered Web Development Command Center**
 
-## Installation
+[![Latest Release](https://img.shields.io/github/v/release/raynaythegreat/OS-Athena)](https://github.com/raynaythegreat/OS-Athena/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-### Linux (Debian/Ubuntu/Crostini)
+[Downloads](#-download) • [Features](#-features) • [Getting Started](#-getting-started) • [Documentation](#-documentation)
 
-#### Option 1: From Source (Recommended)
+</div>
+
+---
+
+## 📥 Download
+
+Get the latest version of OS Athena for your platform:
+
+| Platform | Download |
+|----------|----------|
+| **Linux** | [AppImage](https://github.com/raynaythegreat/OS-Athena/releases/latest) (.AppImage) |
+| **Windows** | [Installer](https://github.com/raynaythegreat/OS-Athena/releases/latest) (.exe) |
+| **macOS** | [DMG](https://github.com/raynaythegreat/OS-Athena/releases/latest) (.dmg) |
+
+> **Note:** First-time users should run the onboarding wizard to set up their API keys.
+
+---
+
+## ✨ Features
+
+### 🤖 AI-Powered Development
+- **Multiple AI Providers**: Support for 11+ AI providers including Claude, OpenAI, Groq, Gemini, Mistral, and more
+- **Local AI**: Free local models via Ollama integration
+- **Smart Context**: Maintains conversation context for complex multi-step tasks
+
+### 🐙 GitHub Integration
+- **Repository Management**: Create, clone, and manage GitHub repositories
+- **File Operations**: Create, edit, and commit files directly from the chat
+- **History Tracking**: View commit history and file changes
+- **Branch Management**: Switch and create branches
+
+### 🚀 One-Click Deployment
+- **Vercel**: Deploy to Vercel with a single click
+- **Render**: Deploy to Render with automatic configuration
+- **Auto-Configuration**: Handles build settings and environment variables
+
+### 📱 Mobile Access
+- **Ngrok Integration**: Automatic tunnel creation for mobile access
+- **Cross-Platform**: Access your desktop workspace from mobile browser
+- **Secure**: Encrypted API keys stored safely
+
+---
+
+## 🚀 Getting Started
+
+### 1. Download & Install
+
+**Linux:**
+```bash
+chmod +x OS-Athena-*.AppImage
+./OS-Athena-*.AppImage
+```
+
+**Windows:**
+```bash
+# Run the installer (.exe)
+# Follow the installation wizard
+```
+
+**macOS:**
+```bash
+# Open the DMG file
+# Drag OS Athena to Applications folder
+```
+
+### 2. Launch the App
+
+On first launch, OS Athena will guide you through the onboarding wizard to:
+- Add your AI provider API keys
+- Test your connections
+- Configure your workspace
+
+### 3. Start Building!
+
+Once set up, you can:
+- **Chat with AI** to plan and implement features
+- **Manage GitHub repos** directly from the chat
+- **Deploy to Vercel/Render** with one click
+
+### Quick Setup Tips
+
+**Essential API Keys:**
+- At least one AI provider (Claude, OpenAI, Groq, etc.)
+- GitHub token (for repository management)
+- Vercel token (optional, for deployment)
+
+**Get API Keys:**
+- Visit the **Settings** tab in the app
+- Click the **🔑 Get API Key** button next to any provider
+- Follow the link to generate your key
+- Paste it back in the app and click **Save**
+
+---
+
+## 📚 Documentation
+
+- **[Installation Guide](./docs/INSTALLATION.md)** - Detailed platform-specific instructions
+- **[Getting Started Guide](./docs/GETTING-STARTED.md)** - Tutorial-style walkthrough
+- **[Setup Guide](./SETUP.md)** - Complete configuration reference
+- **[Troubleshooting](./APPMENU-FIX-SUMMARY.md)** - Common issues and solutions
+
+---
+
+## 🎯 Common Workflows
+
+### Create a New GitHub Repository
+```
+You: Create a new GitHub repo called "my-awesome-project"
+AI: I'll create that for you...
+```
+
+### Build a Feature
+```
+You: Add a login page with OAuth authentication
+AI: I'll implement that feature...
+```
+
+### Deploy to Vercel
+```
+You: Deploy this project to Vercel
+AI: Deploying to Vercel...
+```
+
+---
+
+## 🔧 For Developers
+
+### Build from Source
 
 ```bash
 # Clone the repository
@@ -22,164 +146,68 @@ cd OS-Athena
 # Install dependencies
 npm install
 
-# Build the standalone app
-npm run build
-
-# Install desktop integration
-chmod +x electron/install-desktop-entry.sh
-./electron/install-desktop-entry.sh
-
-# Set up your API keys (see Configuration section below)
-cp .env.local.example .env.local
-# Edit .env.local and add your API keys
-
-# Logout and login to refresh app menu
-# Then search for "OS Athena" in your application menu
-# Or launch from terminal: os-athena
-```
-
-#### Option 2: AppImage (Coming Soon)
-
-Download the latest AppImage:
-- [Linux AppImage](https://github.com/raynaythegreat/OS-Athena/releases/latest)
-
-```bash
-# Make executable and install
-chmod +x OS-Athena-*.AppImage
-./OS-Athena-*.AppImage
-```
-
-### Windows & macOS
-
-Coming soon! Currently focused on Linux-first development.
-
-## Configuration
-
-### Setting Up API Keys
-
-OS Athena supports 11 AI providers and 3 deployment platforms. You'll need at least one AI provider API key to get started.
-
-**Quick Setup (Recommended):**
-1. Launch OS Athena
-2. Go to **Settings** tab
-3. Click 🔑 **Get API Key** for your preferred provider
-4. Copy and paste your API key
-5. Click **Save** to store it persistently
-6. Click **Test** to verify the connection
-
-**Manual Setup:**
-```bash
-# Copy the example file
-cp .env.local.example .env.local
-
-# Edit and add your API keys
-nano .env.local
-```
-
-**Supported Providers:**
-- 🤖 **AI Models**: Anthropic Claude, OpenAI, Groq, Google Gemini, Mistral AI, Cohere, Perplexity, OpenRouter, Fireworks AI
-- 🦙 **Local AI**: Ollama (free, runs locally)
-- 🚀 **Deployment**: GitHub, Vercel, Render
-
-📖 **[Complete Setup Guide](./SETUP.md)** - Detailed instructions and links to get API keys
-
-### Troubleshooting
-
-If app doesn't launch from the menu:
-
-```bash
-cd ~/OS-Athena
-
-# Run diagnostics
-./electron/diagnostics.sh
-
-# Reinstall desktop integration
-./electron/install-desktop-entry.sh
-
-# Check logs
-tail -f ~/.local/share/os-athena/logs/launcher-*.log
-```
-
-**Common Issues:**
-
-1. **App not in menu after install** - Logout and login to refresh desktop cache
-2. **Port already in use** - App automatically detects and brings existing instance to foreground
-3. **Node.js not found** - Launcher now automatically includes common Node.js paths
-
-For detailed troubleshooting, see [APPMENU-FIX-SUMMARY.md](./APPMENU-FIX-SUMMARY.md)
-
-## Setup
-
-1. **GitHub Token:**
-   - Go to GitHub Settings > Developer Settings > Personal Access Tokens (Fine-grained).
-   - Generate a token with `repo` and `user` permissions.
-   - In OS Athena, go to **Settings** > **API Keys**.
-
-2. **Ollama (Optional):**
-   - Install [Ollama](https://ollama.com).
-   - In OS Athena, go to **Settings** > **Local Ollama**.
-   - Click "Connect" to link OS Athena with your local Ollama instance.
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
 # Run in development mode
 npm run dev:electron
 
-# Build standalone production app
+# Build for production
 npm run build
 
-# Build Linux AppImage
-npm run build:linux
-
-# Launch from source
-./electron/launcher.sh
-
-# Run diagnostics
-./electron/diagnostics.sh
+# Build platform-specific distributions
+npm run build:linux    # Linux AppImage
+npm run build:windows  # Windows installer
+npm run build:mac      # macOS DMG
+npm run build:all      # All platforms
 ```
 
 ### Project Structure
 
 ```
 OS-Athena/
-├── electron/
-│   ├── main.js                    # Electron main process
-│   ├── preload.js                 # Preload script (IPC bridge)
-│   ├── launcher.sh                # Smart launcher with logging
-│   ├── install-desktop-entry.sh   # Desktop integration installer
-│   └── diagnostics.sh             # Troubleshooting tool
-├── app/                           # Next.js pages
-├── components/                    # React components
-├── contexts/                      # React contexts
-├── lib/                          # Utilities
-├── public/                       # Static assets
-└── .next/standalone/             # Production build (after npm run build)
+├── electron/              # Electron main process
+│   ├── main.js           # Main process entry point
+│   ├── autoUpdater.js    # Auto-update functionality
+│   └── preload.js        # IPC bridge
+├── app/                   # Next.js pages
+├── components/            # React components
+├── contexts/              # React contexts
+├── lib/                   # Utilities
+├── services/              # API services
+└── public/                # Static assets
 ```
 
 ### Architecture
 
-OS Athena is a standalone Electron app that:
-- Uses Next.js for the UI (React + TailwindCSS)
-- Runs Next.js in standalone mode (no external server needed)
-- Fixed port: `3456` (localhost)
-- Comprehensive logging to `~/.local/share/os-athena/logs/`
+- **Frontend**: Next.js 14 (React + TailwindCSS)
+- **Desktop**: Electron with standalone Next.js server
+- **Storage**: Encrypted API keys using Electron safeStorage
+- **Updates**: Auto-updater via GitHub releases
 
-### Building for Distribution
+---
 
-```bash
-# Build the app
-npm run build
+## 🤝 Contributing
 
-# Build AppImage for Linux
-npm run build:linux
+Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-# Output will be in dist/
-ls dist/
-```
+---
 
-## License
-MIT
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/) and [Electron](https://www.electronjs.org/)
+- AI providers: [Anthropic](https://www.anthropic.com/), [OpenAI](https://openai.com/), [Groq](https://groq.com/), and more
+- Deployment: [Vercel](https://vercel.com/), [Render](https://render.com/)
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#os-athena)**
+
+Made with ❤️ by the OS Athena community
+
+</div>

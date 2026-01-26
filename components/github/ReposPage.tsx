@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GitHubRepository } from "@/types/github.types";
 import { SecureStorage } from "@/lib/secureStorage";
 
@@ -35,11 +35,7 @@ export default function ReposPage() {
     }
   };
 
-  useEffect(() => {
-    fetchRepos();
-  }, [githubToken]);
-
-  const fetchRepos = async () => {
+  const fetchRepos = useCallback(async () => {
     if (!githubToken) {
       setError('GitHub token not configured. Please add it in Settings.');
       setLoading(false);
@@ -61,7 +57,11 @@ export default function ReposPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [githubToken]);
+
+  useEffect(() => {
+    fetchRepos();
+  }, [fetchRepos]);
 
   const createRepo = async () => {
     if (!githubToken) {
@@ -179,12 +179,12 @@ export default function ReposPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search repositories..."
-              className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+              className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
             />
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-gold-500 text-white font-medium shadow-sm hover:bg-gold-600 transition-colors flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-blue-500 text-white font-medium shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -203,7 +203,7 @@ export default function ReposPage() {
         {/* Loading */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <svg className="animate-spin h-8 w-8 text-gold-500" viewBox="0 0 24 24">
+            <svg className="animate-spin h-8 w-8 text-blue-500" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
@@ -234,7 +234,7 @@ export default function ReposPage() {
                         href={repo.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-lg font-semibold text-gold-600 dark:text-gold-400 hover:underline truncate"
+                        className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline truncate"
                       >
                         {repo.name}
                       </a>
@@ -256,7 +256,7 @@ export default function ReposPage() {
                     <div className="flex items-center gap-4 text-xs text-surface-500">
                       {repo.language && (
                         <span className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-gold-500" />
+                          <span className="w-3 h-3 rounded-full bg-blue-500" />
                           {repo.language}
                         </span>
                       )}
@@ -330,7 +330,7 @@ export default function ReposPage() {
                     value={newRepo.name}
                     onChange={(e) => setNewRepo({ ...newRepo, name: e.target.value })}
                     placeholder="my-awesome-project"
-                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                   />
                 </div>
                 <div>
@@ -342,7 +342,7 @@ export default function ReposPage() {
                     value={newRepo.description}
                     onChange={(e) => setNewRepo({ ...newRepo, description: e.target.value })}
                     placeholder="A brief description..."
-                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                   />
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -350,7 +350,7 @@ export default function ReposPage() {
                     type="checkbox"
                     checked={newRepo.isPrivate}
                     onChange={(e) => setNewRepo({ ...newRepo, isPrivate: e.target.checked })}
-                    className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-gold-600 focus:ring-gold-500 bg-surface-50 dark:bg-surface-800"
+                    className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500 bg-surface-50 dark:bg-surface-800"
                   />
                   <span className="text-sm text-surface-700 dark:text-surface-300">Private repository</span>
                 </label>
@@ -365,7 +365,7 @@ export default function ReposPage() {
                 <button
                   onClick={createRepo}
                   disabled={!newRepo.name.trim() || creating}
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-gold-500 text-white font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
                   {creating ? "Creating..." : "Create"}
                 </button>
@@ -392,7 +392,7 @@ export default function ReposPage() {
                     value={copyRepoName}
                     onChange={(e) => setCopyRepoName(e.target.value)}
                     placeholder="my-awesome-project-copy"
-                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
                     autoFocus
                   />
                 </div>
@@ -401,7 +401,7 @@ export default function ReposPage() {
                     type="checkbox"
                     checked={copyIsPrivate}
                     onChange={(e) => setCopyIsPrivate(e.target.checked)}
-                    className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-gold-600 focus:ring-gold-500 bg-surface-50 dark:bg-surface-800"
+                    className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-blue-600 focus:ring-blue-500 bg-surface-50 dark:bg-surface-800"
                   />
                   <span className="text-sm text-surface-700 dark:text-surface-300">Private repository</span>
                 </label>
@@ -421,7 +421,7 @@ export default function ReposPage() {
                 <button
                   onClick={copyRepo}
                   disabled={!copyRepoName.trim() || copying}
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-gold-500 text-white font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
                   {copying ? "Copying..." : "Copy"}
                 </button>

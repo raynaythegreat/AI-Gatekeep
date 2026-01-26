@@ -64,7 +64,7 @@ export const DiagnosticsPage: React.FC = () => {
         <button
           onClick={runDiagnostics}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-600 transition-colors disabled:opacity-50 shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 shadow-sm"
         >
           <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Run Check
@@ -76,9 +76,9 @@ export const DiagnosticsPage: React.FC = () => {
           <div key={key} className="p-4 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-xl flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-surface-100 dark:bg-surface-800 rounded-lg">
-                {key === 'ollama' ? <Cpu className="w-5 h-5 text-gold-500" /> :
-                 key === 'github' ? <Globe className="w-5 h-5 text-gold-500" /> :
-                 <Server className="w-5 h-5 text-gold-500" />}
+                {key === 'ollama' ? <Cpu className="w-5 h-5 text-blue-500" /> :
+                 key === 'github' ? <Globe className="w-5 h-5 text-blue-500" /> :
+                 <Server className="w-5 h-5 text-blue-500" />}
               </div>
               <div>
                 <p className="font-medium text-surface-900 dark:text-white capitalize">{key}</p>

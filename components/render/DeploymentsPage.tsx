@@ -285,7 +285,7 @@ export default function RenderDeploymentsPage() {
           <div className="mb-6 p-4 rounded-xl bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 text-surface-900 dark:text-surface-100 flex items-center justify-between gap-3 flex-wrap shadow-sm">
             <div>
               <div className="font-semibold text-sm">
-                Deploying ({deployProgress.attempt}/{deployProgress.total}): <span className="text-gold-600 dark:text-gold-400">{deployProgress.strategyLabel}</span>
+                Deploying ({deployProgress.attempt}/{deployProgress.total}): <span className="text-blue-600 dark:text-blue-400">{deployProgress.strategyLabel}</span>
               </div>
               <div className="text-xs text-surface-500 dark:text-surface-400 mt-1 uppercase font-medium">
                 {deployProgress.status ? `Status: ${deployProgress.status}` : "Initializing…"}
@@ -380,7 +380,7 @@ export default function RenderDeploymentsPage() {
           <div className="divide-y divide-surface-100 dark:divide-surface-800">
             {loading ? (
               <div className="p-12 text-center">
-                 <svg className="animate-spin h-6 w-6 text-gold-500 mx-auto" viewBox="0 0 24 24">
+                 <svg className="animate-spin h-6 w-6 text-blue-500 mx-auto" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
@@ -399,7 +399,7 @@ export default function RenderDeploymentsPage() {
                     <button
                       onClick={() => deployToRender(repo, true)}
                       disabled={deploying === repo.full_name || !renderConfigured}
-                      className="px-4 py-2 rounded-lg bg-gold-500 text-white text-sm font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                      className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                     >
                       Quick Deploy
                     </button>
@@ -444,7 +444,7 @@ export default function RenderDeploymentsPage() {
                     value={deploymentConfig.buildCommand || ""}
                     onChange={(e) => setDeploymentConfig({ ...deploymentConfig, buildCommand: e.target.value })}
                     placeholder="e.g. npm run build"
-                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
                 </div>
                 <div>
@@ -456,7 +456,7 @@ export default function RenderDeploymentsPage() {
                     value={deploymentConfig.startCommand || ""}
                     onChange={(e) => setDeploymentConfig({ ...deploymentConfig, startCommand: e.target.value })}
                     placeholder="e.g. npm run start"
-                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
                 </div>
               </div>
@@ -470,7 +470,7 @@ export default function RenderDeploymentsPage() {
                   value={deploymentConfig.rootDirectory || ""}
                   onChange={(e) => setDeploymentConfig({ ...deploymentConfig, rootDirectory: e.target.value })}
                   placeholder="./"
-                  className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+                  className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
               </div>
 
@@ -481,7 +481,7 @@ export default function RenderDeploymentsPage() {
                   </label>
                   <button
                     onClick={addEnvironmentVariable}
-                    className="text-xs font-bold text-gold-600 dark:text-gold-400 hover:underline"
+                    className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     + Add Key-Value Pair
                   </button>
@@ -500,14 +500,14 @@ export default function RenderDeploymentsPage() {
                           value={envVar.key}
                           onChange={(e) => updateEnvironmentVariable(index, "key", e.target.value)}
                           placeholder="KEY"
-                          className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+                          className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                         <input
                           type="text"
                           value={envVar.value}
                           onChange={(e) => updateEnvironmentVariable(index, "value", e.target.value)}
                           placeholder="Value"
-                          className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+                          className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                         <button
                           onClick={() => removeEnvironmentVariable(index)}
@@ -544,7 +544,7 @@ export default function RenderDeploymentsPage() {
               </button>
               <button
                 onClick={deployWithConfig}
-                className="px-6 py-2 text-sm font-bold rounded-lg bg-gold-500 text-white hover:bg-gold-600 transition-all shadow-sm"
+                className="px-6 py-2 text-sm font-bold rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-all shadow-sm"
               >
                 Start Deployment
               </button>

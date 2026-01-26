@@ -9,9 +9,9 @@ export default function GlassesLogo({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFC107" />
-          <stop offset="100%" stopColor="#FFB300" />
+        <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0366D6" />
+          <stop offset="100%" stopColor="#1F6FEB" />
         </linearGradient>
       </defs>
       <g>
@@ -30,12 +30,12 @@ export default function GlassesLogo({ className }: { className?: string }) {
           strokeLinecap="round"
           fill="none"
         />
-        <circle cx="26" cy="28" r="5" fill="url(#goldGradient)" />
-        <circle cx="38" cy="28" r="5" fill="url(#goldGradient)" />
+        <circle cx="26" cy="28" r="5" fill="url(#blueGradient)" />
+        <circle cx="38" cy="28" r="5" fill="url(#blueGradient)" />
         <circle cx="26" cy="28" r="2" fill="currentColor" />
         <circle cx="38" cy="28" r="2" fill="currentColor" />
-        <circle cx="27" cy="26" r="1" fill="url(#goldGradient)" />
-        <circle cx="37" cy="26" r="1" fill="url(#goldGradient)" />
+        <circle cx="27" cy="26" r="1" fill="url(#blueGradient)" />
+        <circle cx="37" cy="26" r="1" fill="url(#blueGradient)" />
         <path
           d="M32 44v4"
           stroke="currentColor"

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import GlassesLogo from "@/components/ui/GlassesLogo";
+
+import AthenaLogo from "@/components/ui/AthenaLogo";
+
+
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -47,8 +50,8 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gold-500 flex items-center justify-center shadow-lg mx-auto mb-6">
-            <GlassesLogo className="w-9 h-9 text-white" />
+          <div className="w-16 h-16 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg mx-auto mb-6">
+            <div className="w-9 h-9 text-white"></div>
           </div>
           <h1 className="text-3xl font-display font-bold text-surface-900 dark:text-white"></h1>
           <p className="text-surface-500 dark:text-surface-400 mt-2">Secure access to your AI command center</p>
@@ -72,7 +75,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full px-4 py-3 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
+              className="w-full px-4 py-3 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
               autoFocus
             />
           </div>
@@ -80,7 +83,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <button
             type="submit"
             disabled={loading || !password.trim()}
-            className="w-full py-3 rounded-lg bg-gold-500 text-white font-medium shadow-sm hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-lg bg-blue-500 text-white font-medium shadow-sm hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

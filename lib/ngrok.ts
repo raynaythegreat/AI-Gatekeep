@@ -488,7 +488,7 @@ export async function ensureNgrokTunnel(
   if (apiKey && apiKey.trim().length >= 10) {
     const isConfigured = await isNgrokConfigured();
     if (!isConfigured) {
-      options.onInstallProgress?.("Configuring ngrok authentication...");
+      options?.onInstallProgress?.("Configuring ngrok authentication...");
       const configResult = await configureNgrokAuthtoken(apiKey);
       if (!configResult.success) {
         return {
@@ -497,7 +497,7 @@ export async function ensureNgrokTunnel(
           error: configResult.error || "Failed to configure ngrok authentication"
         };
       }
-      options.onInstallProgress?.("✓ ngrok configured successfully");
+      options?.onInstallProgress?.("✓ ngrok configured successfully");
     }
   }
 

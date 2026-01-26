@@ -53,9 +53,14 @@ export async function GET(request: NextRequest) {
       : null;
 
   if (!apiKey || !apiKey.trim()) {
+    // Return success with fallback models instead of error
     return NextResponse.json(
-      { models: buildFallbackModels(), error: "GEMINI_API_KEY is not configured.", warning },
-      { status: 400 }
+      {
+        success: true,
+        models: buildFallbackModels(),
+        warning: "GEMINI_API_KEY is not configured. Add it in Settings to enable Gemini models."
+      },
+      { status: 200 }
     );
   }
 

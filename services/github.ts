@@ -299,6 +299,48 @@ export class GitHubService {
     }
   }
 
+  /**
+   * Find if the user has forked a specific repository
+   * @param sourceRepo - Format: "owner/name"
+   * @returns The user's fork full name or null
+   */
+  async findForkOfRepository(sourceRepo: string): Promise<string | null> {
+    try {
+      // List user's repositories
+      const response = await this.octokit.rest.repos.listForAuthenticatedUser({
+        sort: "updated",
+        direction: "desc",
+        per_page: 100,
+      });
+      const repos = response.data || [];
+
+      // Find fork of the source repository
+      const fork = repos.find((repo: any) =>
+        repo.fork &&
+        repo.parent &&
+        repo.parent.full_name.toLowerCase() === sourceRepo.toLowerCase()
+      );
+
+      return fork?.full_name || null;
+    } catch (error) {
+      console.error('Failed to find fork:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Search user's repositories by name
+   */
+  async searchRepositories(query: string): Promise<GitHubRepository[]> {
+    const repos = await this.listRepositories();
+    const lowerQuery = query.toLowerCase();
+
+    return repos.filter(repo =>
+      repo.full_name.toLowerCase().includes(lowerQuery) ||
+      repo.name.toLowerCase().includes(lowerQuery)
+    ).slice(0, 20);
+  }
+
   private normalizeBranch(branch: string): string {
     return branch.replace(/^refs\/heads\//, "").trim();
   }

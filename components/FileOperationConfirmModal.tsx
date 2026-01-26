@@ -61,7 +61,7 @@ export default function FileOperationConfirmModal({ isOpen, onClose, onConfirm, 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-card border-2 border-gold-500/30 rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+      <div className="bg-card border-2 border-blue-500/30 rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-4">
           <div className="flex items-center gap-3 text-white">
             <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center text-2xl">
@@ -103,7 +103,7 @@ export default function FileOperationConfirmModal({ isOpen, onClose, onConfirm, 
           <button
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="flex-1 px-4 py-2.5 rounded-lg font-semibold bg-gradient-to-r from-gold-500 to-amber-500 text-black border-2 border-gold-600 hover:from-gold-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="flex-1 px-4 py-2.5 rounded-lg font-semibold bg-gradient-to-r from-blue-500 to-blue-500 text-black border-2 border-blue-600 hover:from-blue-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isProcessing ? 'Processing...' : 'Allow'}
           </button>

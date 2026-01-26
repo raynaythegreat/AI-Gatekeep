@@ -164,12 +164,12 @@ export default function NotificationPanel({
           className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors rounded-t-xl"
         >
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
             <span className="font-semibold text-sm text-surface-900 dark:text-surface-100">
               Notifications
             </span>
             {notificationCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-gold-100 dark:bg-gold-900/30 text-gold-700 dark:text-gold-300 text-xs font-medium">
+              <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium">
                 {notificationCount}
               </span>
             )}

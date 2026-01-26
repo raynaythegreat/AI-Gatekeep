@@ -146,7 +146,7 @@ export default function ApiUsageDisplay({
           className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors border border-surface-200 dark:border-surface-700 shadow-sm"
           title={`${providerLabels[currentProvider]}: ${currentUsage.today}${isUnlimited ? "" : `/${currentLimits.daily}`} today`}
         >
-          <span className="text-gold-500">{providerIcons[currentProvider]}</span>
+          <span className="text-blue-500">{providerIcons[currentProvider]}</span>
           <span
             className={`font-medium ${getUsageColor(currentUsage.today, currentLimits.daily)}`}
           >
@@ -164,9 +164,9 @@ export default function ApiUsageDisplay({
     <div className="flex items-center gap-2">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="relative flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 border border-surface-200 dark:border-surface-700 hover:border-gold-500/50 transition-all shadow-sm"
+        className="relative flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 border border-surface-200 dark:border-surface-700 hover:border-blue-500/50 transition-all shadow-sm"
       >
-        <span className="text-gold-500">{providerIcons[currentProvider]}</span>
+        <span className="text-blue-500">{providerIcons[currentProvider]}</span>
         <span className="font-semibold">{providerLabels[currentProvider]}</span>
         <span className="text-surface-300 dark:text-surface-600">|</span>
         <span
@@ -370,7 +370,7 @@ function ApiUsagePanel({
               key={provider}
               className={`p-3.5 rounded-lg border transition-all ${
                 isCurrent
-                  ? "bg-gold-50 dark:bg-gold-900/10 border-gold-200 dark:border-gold-800"
+                  ? "bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800"
                   : "bg-surface-50 dark:bg-surface-800/50 border-surface-200 dark:border-surface-700"
               }`}
             >
@@ -379,19 +379,19 @@ function ApiUsagePanel({
                   <span
                     className={
                       isCurrent
-                        ? "text-gold-600 dark:text-gold-400"
+                        ? "text-blue-600 dark:text-blue-400"
                         : "text-surface-400 dark:text-surface-500"
                     }
                   >
                     {providerIcons[provider]}
                   </span>
                   <span
-                    className={`text-sm font-semibold ${isCurrent ? "text-gold-900 dark:text-gold-100" : "text-surface-700 dark:text-surface-300"}`}
+                    className={`text-sm font-semibold ${isCurrent ? "text-blue-900 dark:text-blue-100" : "text-surface-700 dark:text-surface-300"}`}
                   >
                     {providerLabels[provider]}
                   </span>
                   {isCurrent && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-gold-500 text-white uppercase tracking-tighter">
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-blue-500 text-white uppercase tracking-tighter">
                       Active
                     </span>
                   )}

@@ -139,7 +139,7 @@ export default function ImageGeneratorModal({
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value as ImageProviderId)}
-              className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
+              className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
             >
               {providers.map((item) => (
                 <option
@@ -167,7 +167,7 @@ export default function ImageGeneratorModal({
               onChange={(e) => setPrompt(e.target.value)}
               rows={4}
               placeholder="Describe the image you want to generate..."
-              className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 resize-none"
+              className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 resize-none"
             />
           </div>
 
@@ -179,7 +179,7 @@ export default function ImageGeneratorModal({
               <select
                 value={size}
                 onChange={(e) => setSize(e.target.value)}
-                className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
+                className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               >
                 {SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -197,7 +197,7 @@ export default function ImageGeneratorModal({
                 onChange={(e) => setModel(e.target.value)}
                 placeholder="Overrides env default"
                 list={modelOptions.length > 0 ? `image-models-${provider}` : undefined}
-                className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
+                className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
               />
               {modelOptions.length > 0 && (
                 <datalist id={`image-models-${provider}`}>
@@ -228,7 +228,7 @@ export default function ImageGeneratorModal({
             type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-gold-500 hover:bg-gold-600 text-white font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+            className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
             {loading ? "Generating..." : "Generate"}
           </button>

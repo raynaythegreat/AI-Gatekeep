@@ -193,28 +193,27 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
     }
   };
 
-  // Delete API key from .env.local
-  const deleteFromEnv = async (provider: keyof ApiKeys) => {
+  // Delete API key from SecureStorage (works for both Electron and web)
+  const deleteApiKey = async (provider: keyof ApiKeys) => {
     const providerConfig = providers.find(p => p.key === provider);
     if (!providerConfig?.envKey) return;
 
-    if (!confirm(`Delete ${providerConfig.label} API key from .env.local?`)) {
+    if (!confirm(`Delete ${providerConfig.label} API key? This will remove it from secure storage.`)) {
       return;
     }
 
     setDeleting(provider);
     try {
-      const response = await fetch('/api/settings/env', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: providerConfig.envKey,
-        }),
-      });
+      // Use centralized secure storage for deletion
+      const { SecureStorage } = await import('@/lib/secureStorage');
+      // Cast to the secure storage ApiKeys type to handle our extended interface
+      const deleted = await SecureStorage.deleteKey(provider as any);
 
-      if (!response.ok) {
-        throw new Error('Failed to delete from .env.local');
+      if (!deleted) {
+        throw new Error('Failed to delete from secure storage');
       }
+
+      console.log(`Settings: Deleted ${providerConfig.label} API key`);
 
       // Clear the key from state
       updateKey(provider, '');
@@ -229,9 +228,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
       // Show success feedback
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('api-keys-updated'));
     } catch (error) {
-      console.error('Error deleting from .env.local:', error);
-      alert('Failed to delete API key from .env.local. Please check console for details.');
+      console.error('Error deleting API key:', error);
+      alert(`Failed to delete ${providerConfig.label} API key. Please check console for details.`);
     } finally {
       setDeleting(null);
     }
@@ -293,6 +295,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           break;
         case 'render':
           result = await ApiTester.testRender(apiKeys.render || '');
+          break;
+        case 'ngrok':
+          result = await ApiTester.testNgrok(apiKeys.ngrok || '');
           break;
          case 'ollama':
            result = await ApiTester.testOllama(apiKeys.ollamaBaseUrl || '');
@@ -676,7 +681,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           <div>
             <h2 className="text-xl font-black text-foreground uppercase tracking-tight">AI Providers</h2>
             <p className="text-sm text-muted-foreground font-bold mt-1">
-              Configure your AI model providers. Click &quot;Save&quot; to store keys in .env.local for persistent use.
+              Configure your AI model providers. Click &quot;Save&quot; to store keys securely for persistent use.
             </p>
           </div>
         </div>
@@ -753,7 +758,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   onClick={() => saveApiKey(key)}
                   disabled={saving === key || !apiKeys[key]}
                   className="flex-1 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border-2 border-emerald-500/30 hover:bg-emerald-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  title="Save to .env.local"
+                  title="Save to secure storage"
                 >
                   {saving === key ? 'Saving...' : 'Save'}
                 </button>
@@ -761,7 +766,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
 
               {apiKeys[key] && (
                 <button
-                  onClick={() => deleteFromEnv(key)}
+                  onClick={() => deleteApiKey(key)}
                   disabled={deleting === key}
                   className="w-full px-3 py-2 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg border-2 border-red-500/30 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
@@ -877,7 +882,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
                   onClick={() => saveApiKey(key)}
                   disabled={saving === key || !apiKeys[key]}
                   className="flex-1 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border-2 border-emerald-500/30 hover:bg-emerald-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  title="Save to .env.local"
+                  title="Save to secure storage"
                 >
                   {saving === key ? 'Saving...' : 'Save'}
                 </button>
@@ -885,7 +890,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
 
               {apiKeys[key] && (
                 <button
-                  onClick={() => deleteFromEnv(key)}
+                  onClick={() => deleteApiKey(key)}
                   disabled={deleting === key}
                   className="w-full px-3 py-2 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg border-2 border-red-500/30 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >

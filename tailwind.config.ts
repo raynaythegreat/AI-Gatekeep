@@ -23,19 +23,19 @@ const config: Config = {
         card: 'var(--card)',
         'card-foreground': 'var(--card-foreground)',
 
-        // Bold gold color scale for flat design
-        gold: {
-          50: '#FFFEF5',
-          100: '#FFF9E0',
-          200: '#FFF0B8',
-          300: '#FFE68A',
-          400: '#FFD84D',
-          500: '#FFC107', // Bold vibrant gold - primary
-          600: '#FFB300',
-          700: '#FFA000',
-          800: '#FF8F00',
-          900: '#FF6F00',
-          950: '#E65100',
+        // Bold blue color scale for flat design
+        blue: {
+          50: '#E8F4FF',      // Very light blue
+          100: '#D1E9FF',     // Light blue
+          200: '#A6D8FF',     // Soft blue
+          300: '#79B8FF',     // Medium-light blue
+          400: '#58A6FF',     // VS Code blue (primary dark mode)
+          500: '#0366D6',     // GitHub blue (primary light mode)
+          600: '#0252B8',     // Darker blue
+          700: '#013A7F',     // Deep blue
+          800: '#012654',     // Very deep blue
+          900: '#011A3A',     // Almost black blue
+          950: '#000D1F',     // Deepest blue
         },
         surface: {
           50: '#FAFAFA',
@@ -59,7 +59,8 @@ const config: Config = {
         'flat': '0 2px 0 0 rgba(0, 0, 0, 0.2)',
         'flat-lg': '0 4px 0 0 rgba(0, 0, 0, 0.2)',
         'flat-xl': '0 6px 0 0 rgba(0, 0, 0, 0.25)',
-        'flat-gold': '0 3px 0 0 rgba(255, 193, 7, 0.5)',
+        'flat-blue': '0 3px 0 0 rgba(3, 102, 214, 0.5)',
+        'flat-blue-lg': '0 4px 0 0 rgba(3, 102, 214, 0.6)',
         'none': 'none',
       },
       borderRadius: {

@@ -349,8 +349,8 @@ export class ApiTester {
 
     try {
       const start = Date.now();
-      // Test using Z.ai chat completions endpoint
-      const response = await fetchWithTimeout('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+      // Test using Z.ai GLM Coding Plan endpoint (different from standard API)
+      const response = await fetchWithTimeout('https://api.z.ai/api/coding/paas/v4/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -362,12 +362,12 @@ export class ApiTester {
           max_tokens: 10
         })
       }, 8000);
-      if (response.status === 401) throw new Error('Invalid API key - verify at z.ai/manage-apikey/apikey-list');
-      if (response.status === 403) throw new Error('API key lacks permissions or quota exceeded');
+      if (response.status === 401) throw new Error('Invalid API key - verify at z.ai/subscribe');
+      if (response.status === 403) throw new Error('API key lacks permissions or quota exceeded - check Coding Plan subscription');
       if (response.status === 429) throw new Error('Rate limited - try again later');
       if (!response.ok) throw new Error(`API error: ${response.status}`);
       const latency = Date.now() - start;
-      return { status: 'success', message: 'Connected - GLM models available', latency };
+      return { status: 'success', message: 'Connected - GLM Coding Plan active', latency };
     } catch (error) {
       // If it's a network/CORS error but key looks valid, assume it's OK
       if (error instanceof Error && error.message.includes('Failed to fetch') && apiKey.length > 20) {

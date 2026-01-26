@@ -27,7 +27,7 @@ export default function DeploymentsPage() {
               onClick={() => setProvider(tab.id)}
               className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
                 provider === tab.id
-                  ? "bg-gold-500 text-white shadow-sm"
+                  ? "bg-blue-500 text-white shadow-sm"
                   : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
               }`}
             >

@@ -1,13 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
-
-function splitPath(value: string | undefined): string[] {
-  if (!value) return [];
-  return value
-    .split(":")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-}
+import {
+  splitPath as platformSplitPath,
+  joinPathEntries,
+  getDefaultBinDirs,
+} from "./platform";
 
 function uniq(values: string[]) {
   const seen = new Set<string>();
@@ -21,32 +18,20 @@ function uniq(values: string[]) {
   return out;
 }
 
-function getDefaultPathDirs(): string[] {
-  const homeDir = process.env.HOME || "";
-  const homeLocalBin = homeDir ? path.join(homeDir, ".local", "bin") : "";
-
-  return [
-    "/usr/local/bin",
-    "/opt/homebrew/bin",
-    homeLocalBin,
-    "/usr/bin",
-    "/bin",
-    "/usr/sbin",
-    "/sbin",
-  ].filter(Boolean);
-}
+// Re-export for convenience
+export { platformSplitPath, joinPathEntries, getDefaultBinDirs };
 
 export function buildAugmentedPath(extraDirs: string[] = []): string {
-  const existing = splitPath(process.env.PATH);
-  const dirs = uniq([...extraDirs, ...getDefaultPathDirs(), ...existing]);
-  return dirs.join(":");
+  const existing = platformSplitPath(process.env.PATH);
+  const dirs = uniq([...extraDirs, ...getDefaultBinDirs(), ...existing]);
+  return joinPathEntries(dirs);
 }
 
 export function createSubprocessEnv(extra: Partial<NodeJS.ProcessEnv> = {}): NodeJS.ProcessEnv {
   return {
     ...process.env,
     ...extra,
-    PATH: buildAugmentedPath(splitPath(extra.PATH)),
+    PATH: buildAugmentedPath(platformSplitPath(extra.PATH)),
   } as NodeJS.ProcessEnv;
 }
 
@@ -63,7 +48,7 @@ export function resolveCommand(command: string, extraDirs: string[] = []): strin
     }
   }
 
-  const searchDirs = splitPath(buildAugmentedPath(extraDirs));
+  const searchDirs = platformSplitPath(buildAugmentedPath(extraDirs));
   for (const dir of searchDirs) {
     const candidate = path.join(dir, trimmed);
     try {
