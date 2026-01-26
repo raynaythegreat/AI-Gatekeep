@@ -503,6 +503,22 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
         </div>
       )}
 
+      {/* Troubleshooting Section */}
+      <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+        <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Troubleshooting
+        </h4>
+        <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
+          <li>• <strong>Ngrok tunnel fails?</strong> Ensure ngrok CLI is installed and API key is valid.</li>
+          <li>• <strong>Vercel deployment fails?</strong> Check that the repository exists and is connected to Vercel.</li>
+          <li>• <strong>GitHub operations fail?</strong> Verify token has repo permissions.</li>
+          <li>• <strong>Connection lost?</strong> Click "Retry Failed" to re-test all connections.</li>
+        </ul>
+      </div>
+
       {/* Chat Configuration */}
       <div className="space-y-6">
         <div>
