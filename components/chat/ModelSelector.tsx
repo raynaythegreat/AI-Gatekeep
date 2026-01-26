@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useDropdownPosition } from "./useDropdownPosition";
 
 export type ModelProvider =
   | "claude"
@@ -82,6 +83,8 @@ export default function ModelSelector({
   >({});
   const [refreshing, setRefreshing] = useState<Set<ModelProvider>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerButtonRef = useRef<HTMLButtonElement>(null);
+  const dropdownPosition = useDropdownPosition(triggerButtonRef, isOpen);
 
   const getCachedModels = useCallback((): CachedModels | null => {
     try {
@@ -327,6 +330,7 @@ export default function ModelSelector({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        ref={triggerButtonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 hover:bg-white dark:hover:bg-surface-800 hover:border-blue-500/50 transition-all shadow-sm group"
       >
@@ -350,7 +354,13 @@ export default function ModelSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div
+          className="absolute left-0 w-80 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+          style={{
+            top: dropdownPosition.top,
+            bottom: dropdownPosition.bottom,
+          }}
+        >
           <div className="p-3 border-b border-surface-200 dark:border-surface-700">
             <input
               type="text"
@@ -362,7 +372,7 @@ export default function ModelSelector({
             />
           </div>
 
-          <div className="max-h-96 overflow-y-auto p-2">
+          <div style={{ maxHeight: dropdownPosition.maxHeight, overflowY: 'auto' }} className="p-2">
             {Object.entries(groupedModels).map(([provider, models]) => (
               <div key={provider} className="mb-3">
                 <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest flex items-center justify-between ${PROVIDER_COLORS[provider as ModelProvider] || "text-surface-600 dark:text-foreground/60"}`}>
